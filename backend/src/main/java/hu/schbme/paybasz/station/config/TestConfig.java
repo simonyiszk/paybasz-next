@@ -38,7 +38,7 @@ public class TestConfig {
         system.createItem("Unicum duplicate", "4cl", "304", "Unicum 2", 2640, false);
         system.createItem("Unicum duplicate", "8cl", "308", "Unicum 2", 21280, true);
 
-        gatewayService.createGateway(new GatewayCreateDto(0, "Name", "token", "physical"));
+        gatewayService.createGateway(new GatewayCreateDto(0, "Name", "token", "physical", 0));
         gatewayService.appendReading("Name", "0123456789012345678901234567890123456789012345678901234567890123");
         gatewayService.appendReading("Name", "fdgdfsgfdgfdghuwioqbbvjasdzvuhfnbvh4738gz9WVBFKgevjhjkskdfkl01sd");
         gatewayService.appendReading("Name", "klfnkbaioubdxynjlubiogafgkaljgbas3fdsfsdfhtropw4nfjfvuizao8901ds");

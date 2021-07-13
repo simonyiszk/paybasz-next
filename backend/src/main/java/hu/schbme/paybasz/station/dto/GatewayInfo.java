@@ -25,6 +25,7 @@ public class GatewayInfo {
     private long txCount;
     private long allTraffic;
     private String type;
+    private int money;
 
     @Transient
     public String getLastPacketFormatted() {
@@ -48,5 +49,9 @@ public class GatewayInfo {
         return AppUtil.formatNumber(allTraffic);
     }
 
+    @Transient
+    public String getMoneyFormatted() {
+        return AppUtil.formatNumber(money);
+    }
 
 }

@@ -86,6 +86,7 @@ public class TransactionService {
                 "SYSTEM", "SYSTEM payed " + amount + " with message: WEBTERM",
                 amount, "WEBTERM", WEB_TERMINAL_NAME, accountEntity.getName(), false);
 
+        gateways.uploadInGateway(WEB_TERMINAL_NAME, amount);
         accountEntity.setBalance(accountEntity.getBalance() + amount);
         accounts.save(accountEntity);
         transactions.save(transaction);

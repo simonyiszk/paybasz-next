@@ -42,7 +42,7 @@ public class GatewayService {
                 .map(it -> {
                     final var gw = getInfo(it.getName());
                     return new GatewayInfo(it.getId(), it.getName(), gw.getLastPacket(), gw.getLastReadings(),
-                            readTxCount(it), readAllTraffic(it), it.getType());
+                            readTxCount(it), readAllTraffic(it), it.getType(), it.getMoney());
                 })
                 .collect(Collectors.toUnmodifiableList());
     }
@@ -60,7 +60,7 @@ public class GatewayService {
     @PostConstruct
     public void init() throws IOException {
         if (gateways.findByName(WEB_TERMINAL_NAME).isEmpty()) {
-            gateways.save(new GatewayEntity(WEB_TERMINAL_NAME, "", TYPE_WEB));
+            gateways.save(new GatewayEntity(WEB_TERMINAL_NAME, "", TYPE_WEB, 0));
         }
         gateways.findAll().forEach(gateway -> log.info("Gateway '{}' of type {} registered with token: '{}'",
                 gateway.getName(), gateway.getType(), gateway.getToken()));
@@ -84,6 +84,11 @@ public class GatewayService {
             return false;
         }
         return gateway.get().getToken().equals(token);
+    }
+
+    public void uploadInGateway(String name, Integer append) {
+        final var gateway = gateways.findByName(name);
+        gateway.stream().findFirst().ifPresent(gw -> gw.upload(append));
     }
 
     public void appendReading(String gatewayName, String card) {
@@ -113,7 +118,7 @@ public class GatewayService {
 
         final var type = List.of(TYPE_PHYSICAL, TYPE_MOBILE, TYPE_WEB, TYPE_UPLOADER)
                 .contains(gatewayDto.getType()) ? gatewayDto.getType() : TYPE_WEB;
-        gateways.save(new GatewayEntity(formatGatewayName(gatewayDto.getName()), gatewayDto.getToken(), type));
+        gateways.save(new GatewayEntity(formatGatewayName(gatewayDto.getName()), gatewayDto.getToken(), type, 0));
         return true;
     }
 
@@ -136,6 +141,9 @@ public class GatewayService {
             final var type = List.of(TYPE_PHYSICAL, TYPE_MOBILE, TYPE_WEB, TYPE_UPLOADER)
                     .contains(gatewayDto.getType()) ? gatewayDto.getType() : TYPE_WEB;
             gw.setType(type);
+
+            if(gatewayDto.getMoney() != null)
+                gw.setMoney(gatewayDto.getMoney());
         });
         return true;
     }

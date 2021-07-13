@@ -32,9 +32,17 @@ public class GatewayEntity {
     @Column(nullable = false)
     private String type;
 
-    public GatewayEntity(String name, String token, String type) {
+    @Column
+    private Integer money;
+
+    public GatewayEntity(String name, String token, String type, Integer money) {
         this.name = name;
         this.token = token;
         this.type = type;
+        this.money = money;
+    }
+
+    public void upload(Integer append) {
+        money += append;
     }
 }

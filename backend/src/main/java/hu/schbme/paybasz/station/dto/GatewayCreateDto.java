@@ -13,5 +13,6 @@ public class GatewayCreateDto {
     private String name;
     private String token;
     private String type;
+    private Integer money;
 
 }

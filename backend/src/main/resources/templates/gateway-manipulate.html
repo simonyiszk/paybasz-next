@@ -60,6 +60,8 @@
                                                                 <option th:if="${gateway?.getType() == 'web'}" th:selected="${gateway?.getType() == 'web'}" value="web">Webes</option>
                                                             </select>
                                                         </div>
+                                                        <div class="position-relative form-group" th:if="${gateway?.getType() == 'web' || gateway?.getType() == 'uploader'}"><label for="money" class="">Befizetések</label><input name="money" id="money" th:value="${gateway?.getMoney()}" placeholder="" type="number" class="form-control" autocomplete="off"></div>
+                                                        <input th:unless="${gateway?.getType() == 'web' || gateway?.getType() == 'uploader'}"  type="hidden" name="money" th:value="${gateway?.getMoney()}" />
                                                         <input th:if="${createMode}" type="submit" class="mt-1 btn btn-dark" value="HOZZÁAD" />
                                                         <input th:unless="${createMode}" type="submit" class="mt-1 btn btn-dark" value="MÓDOSÍT" />
                                                         <a th:href="@{/admin/gateways}" class="mt-1 ml-1 btn btn-outline-light">VISSZA</a>
