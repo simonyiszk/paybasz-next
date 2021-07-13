@@ -59,6 +59,7 @@
                                                 <table style="width: 100%" class="table table-bordered">
                                                     <thead>
                                                     <tr>
+                                                        <th>Id</th>
                                                         <th>Név</th>
                                                         <th>Email</th>
                                                         <th>Telefon</th>
@@ -72,6 +73,7 @@
                                                     </thead>
                                                     <tbody>
                                                     <tr th:each="acc : ${accounts}">
+                                                        <td th:text="${acc.getId()}">1</td>
                                                         <td th:text="${acc.getName()}">Kiss Pista</td>
                                                         <td th:text="${acc.getEmail()}">kisspista@gmail.com</td>
                                                         <td th:text="${acc.getPhone()}">+36307361443</td>

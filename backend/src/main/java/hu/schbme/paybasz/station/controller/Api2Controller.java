@@ -30,6 +30,9 @@ public class Api2Controller {
     private TransactionService system;
 
     @Autowired
+    private AccountRepository accounts;
+
+    @Autowired
     private GatewayService gateways;
 
     @Autowired
@@ -131,6 +134,43 @@ public class Api2Controller {
         return system.getALlItems().stream()
                 .filter(ItemEntity::isActive)
                 .collect(Collectors.toUnmodifiableList());
+    }
+
+    @PostMapping("/set-card/{gatewayName}")
+    public AddCardStatus addCard(@PathVariable String gatewayName, @RequestBody AddCardRequest request) {
+        if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
+            return AddCardStatus.UNAUTHORIZED_TERMINAL;
+
+        gateways.updateLastUsed(gatewayName);
+
+        if(accounts.findByCard(request.getCard().toUpperCase()).isPresent())
+            return AddCardStatus.ALREADY_ADDED;
+
+        Optional<AccountEntity> user = accounts.findById(request.getUserId());
+        if(user.isEmpty())
+            return AddCardStatus.USER_NOT_FOUND;
+        final var account = user.get();
+        if(!account.getCard().isEmpty())
+            return AddCardStatus.USER_HAS_CARD;
+
+        account.setCard(request.getCard());
+        log.info("New card assignment from gateway '" + gatewayName + "' card hash: '" + request.getCard() + "', user: " + account.getName());
+        logger.action("<color>" + account.getName() + "</color> felhasználóhoz kártya rendelve: <badge>" + request.getCard() + "</badge>  (terminál: " + gatewayName + ")");
+        accounts.save(account);
+        return AddCardStatus.ACCEPTED;
+    }
+
+    @PostMapping("/get-user/{gatewayName}")
+    public String getUser(@PathVariable String gatewayName, @RequestBody GetUserRequest request) {
+        if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
+            throw new UnauthorizedGateway();
+
+        Optional<AccountEntity> account = accounts.findById(request.getUserId());
+        if(account.isEmpty())
+            return "USER_NOT_FOUND";
+
+        logger.note("<color>" + account.get().getName() + "</color> felhasználó nevének lekérdezés (terminál: " + gatewayName + ")");
+        return account.get().getName();
     }
 
     private boolean isLoadAllowed(AccountEntity accountEntity) {
