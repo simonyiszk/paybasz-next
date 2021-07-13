@@ -33,6 +33,9 @@ public class TransactionService {
     private AccountRepository accounts;
 
     @Autowired
+    private GatewayService gateways;
+
+    @Autowired
     private ItemRepository items;
 
     @Autowired
@@ -93,6 +96,37 @@ public class TransactionService {
         log.info(transaction.getAmount() + " money added to: " + accountEntity.getName());
         logger.success("<badge>" + accountEntity.getName() + "</badge> számlájára feltöltve: <color>" + amount + " JMF</color>");
         return true;
+    }
+
+    @Transactional(readOnly = false)
+    public PaymentStatus addMoneyToCard(String card, int amount, String message, String gateway) {
+        Optional<AccountEntity> possibleAccount = this.accounts.findByCard(card);
+        if (possibleAccount.isEmpty()) {
+            logger.failure("Sikertelen feltöltés: <color>kártya nem található</color>" + "(terminál: " + gateway + ")");
+            return PaymentStatus.VALIDATION_ERROR;
+        }
+
+        var accountEntity = possibleAccount.get();
+        if (!accountEntity.isAllowed()) {
+            logger.failure("Sikertelen feltöltés: <badge>" + accountEntity.getName() + "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
+            return PaymentStatus.CARD_REJECTED;
+        }
+
+        if (amount > 20000) {
+            logger.failure("Sikertelen feltöltés: <color>" + accountEntity.getName() + ", túl magas összeg</color>" + "(terminál: " + gateway + ")");
+            return PaymentStatus.NOT_ENOUGH_CASH;
+        }
+
+        var transaction = new TransactionEntity(null, System.currentTimeMillis(), card, accountEntity.getId(),
+                accountEntity.getName(), accountEntity.getName() + " uploaded " + amount + " with message: " + message,
+                amount, message, gateway, "SYSTEM", true);
+        gateways.uploadInGateway(gateway, amount);
+        accountEntity.setBalance(accountEntity.getBalance() + amount);
+        accounts.save(accountEntity);
+        transactions.save(transaction);
+        log.info("Upload proceed: " + transaction.getId() + " with amount: " + transaction.getAmount() + " at gateway: " + transaction.getGateway());
+        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres feltöltés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + ")");
+        return PaymentStatus.ACCEPTED;
     }
 
     @Transactional(readOnly = false)
