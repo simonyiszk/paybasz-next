@@ -47,18 +47,18 @@ public class TransactionService {
     public PaymentStatus proceedPayment(String card, int amount, String message, String gateway) {
         Optional<AccountEntity> possibleAccount = this.accounts.findByCard(card);
         if (possibleAccount.isEmpty()) {
-            logger.failure("Sikertelen fizetés: <color>kártya nem található</color>");
+            logger.failure("Sikertelen fizetés: <color>kártya nem található</color> " + "(terminál: " + gateway + ")");
             return PaymentStatus.VALIDATION_ERROR;
         }
 
         var accountEntity = possibleAccount.get();
         if (!accountEntity.isAllowed()) {
-            logger.failure("Sikertelen fizetés: <badge>" + accountEntity.getName() + "</badge>  <color>le van tiltva</color>");
+            logger.failure("Sikertelen fizetés: <badge>" + accountEntity.getName() + "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
             return PaymentStatus.CARD_REJECTED;
         }
 
         if (accountEntity.getBalance() - amount < accountEntity.getMinimumBalance()) {
-            logger.failure("Sikertelen fizetés: <color>" + accountEntity.getName() + ", nincs elég fedezet</color>");
+            logger.failure("Sikertelen fizetés: <color>" + accountEntity.getName() + ", nincs elég fedezet</color>" + "(terminál: " + gateway + ")");
             return PaymentStatus.NOT_ENOUGH_CASH;
         }
 
@@ -69,7 +69,7 @@ public class TransactionService {
         accounts.save(accountEntity);
         transactions.save(transaction);
         log.info("Payment proceed: " + transaction.getId() + " with amount: " + transaction.getAmount() + " at gateway: " + transaction.getGateway());
-        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>");
+        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + ")");
         return PaymentStatus.ACCEPTED;
     }
 

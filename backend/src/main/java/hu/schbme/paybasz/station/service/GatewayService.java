@@ -68,7 +68,7 @@ public class GatewayService {
 
     public boolean authorizeGateway(String name, String token) {
         final var gateway = gateways.findByName(name);
-        if (gateway.isEmpty() || TYPE_WEB.equals(gateway.get().getType())) {
+        if (gateway.isEmpty()  || token.isEmpty()  || TYPE_WEB.equals(gateway.get().getType())) {
             log.warn("Unauthorized gateway '{}' with token '{}'", name, token);
             logger.failure("Nem jogoult terminál: <color>" + name + "</color>");
             return false;

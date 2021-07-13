@@ -5,6 +5,7 @@ import hu.schbme.paybasz.station.dto.*;
 import hu.schbme.paybasz.station.error.UnauthorizedGateway;
 import hu.schbme.paybasz.station.model.AccountEntity;
 import hu.schbme.paybasz.station.model.ItemEntity;
+import hu.schbme.paybasz.station.repo.AccountRepository;
 import hu.schbme.paybasz.station.service.GatewayService;
 import hu.schbme.paybasz.station.service.LoggingService;
 import hu.schbme.paybasz.station.service.TransactionService;
@@ -52,7 +53,7 @@ public class Api2Controller {
                     gatewayName);
         } catch (Exception e) {
             log.error("Error during proceeding payment", e);
-            logger.failure("Sikertelen fizetés: belső szerver hiba");
+            logger.failure("Sikertelen fizetés: belső szerver hiba (terminál: " + gatewayName + ")");
             return PaymentStatus.INTERNAL_ERROR;
         }
     }
@@ -72,7 +73,7 @@ public class Api2Controller {
                 .orElseGet(() -> new AccountBalance(0, false, false));
 
         logger.action("<badge>" + account.map(AccountEntity::getName).orElse("n/a")
-                + "</badge> egyenlege leolvasva: <color>" + accountBalance.getBalance() + " JMF</color>");
+                + "</badge> egyenlege leolvasva: <color>" + accountBalance.getBalance() + " JMF</color> (terminál: " + gatewayName + ")");
         return accountBalance;
     }
 
@@ -120,7 +121,7 @@ public class Api2Controller {
         log.info("Status endpoint triggered from IP: " + request.getRemoteAddr());
         logger.serverInfo("Státusz olvasás a <color>" + request.getRemoteAddr() + "</color> címről");
         return "Server: " + VERSION + ";"
-                + "by Schami;" // If you fork it, include your name
+                + "by Balázs;" // If you fork it, include your name
                 + "Time:;"
                 + AppUtil.DATE_ONLY_FORMATTER.format(System.currentTimeMillis()) + ";"
                 + AppUtil.TIME_ONLY_FORMATTER.format(System.currentTimeMillis());
