@@ -48,12 +48,12 @@
                                                     <h5 class="card-title">Terminál</h5>
                                                     <form class="" th:action="|/admin/${createMode ? 'create' : 'modify' }-gateway|" method="post">
                                                         <input th:unless="${gateway == null}"  type="hidden" name="id" th:value="${gateway?.getId()}" />
-                                                        <div class="position-relative form-group"><label for="name" class="">Név</label><input name="name" id="name" th:value="${gateway?.getName()}" placeholder="" type="text" class="form-control" autocomplete="off" spellcheck="false"></div>
+                                                        <div class="position-relative form-group"><label for="name" class="">Név</label><input name="name" id="name" th:value="${gateway?.getName()}" th:readonly="${gateway?.getType() == 'web'}" placeholder="" type="text" class="form-control" autocomplete="off" spellcheck="false"></div>
                                                         <div class="text-danger mb-2" th:if="${error != null && error}">Ez a név már foglalt</div>
-                                                        <div class="position-relative form-group"><label for="token" class="">Token</label><input name="token" id="token" th:value="${gateway?.getToken()}" placeholder="" type="text" class="form-control" autocomplete="off" spellcheck="false"></div>
+                                                        <div class="position-relative form-group" th:hidden="${gateway?.getType() == 'web'}"><label for="token" class="">Token</label><input name="token" id="token" th:value="${gateway?.getToken()}" th:readonly="${gateway?.getType() == 'web'}" placeholder="" type="text" class="form-control" autocomplete="off" spellcheck="false"></div>
                                                         <div class="form-group">
                                                             <label for="type">Típus</label>
-                                                            <select class="form-control" id="type" name="type">
+                                                            <select class="form-control" id="type" name="type" th:readonly="${gateway?.getType() == 'web'}">
                                                                 <option th:selected="${gateway?.getType() == 'physical'}" value="physical">Fizikai</option>
                                                                 <option th:selected="${gateway?.getType() == 'mobile'}" value="mobile">Mobil</option>
                                                                 <option th:selected="${gateway?.getType() == 'uploader'}" value="uploader">Feltöltő</option>
