@@ -76,6 +76,16 @@ public class GatewayService {
         return gateway.get().getToken().equals(token);
     }
 
+    public boolean authorizeUploaderGateway(String name, String token) {
+        final var gateway = gateways.findByName(name);
+        if (gateway.isEmpty() || token.isEmpty() || !TYPE_UPLOADER.equals(gateway.get().getType())) {
+            log.warn("Unauthorized gateway '{}' with token '{}'", name, token);
+            logger.failure("Nem jogoult terminál: <color>" + name + "</color>");
+            return false;
+        }
+        return gateway.get().getToken().equals(token);
+    }
+
     public void appendReading(String gatewayName, String card) {
         final var cardReadings = getInfo(gatewayName).getLastReadings();
         if (cardReadings.size() >= 5)
@@ -101,7 +111,7 @@ public class GatewayService {
         if (gateways.findByName(formatGatewayName(gatewayDto.getName())).isPresent())
             return false;
 
-        final var type = List.of(TYPE_PHYSICAL, TYPE_MOBILE, TYPE_WEB)
+        final var type = List.of(TYPE_PHYSICAL, TYPE_MOBILE, TYPE_WEB, TYPE_UPLOADER)
                 .contains(gatewayDto.getType()) ? gatewayDto.getType() : TYPE_WEB;
         gateways.save(new GatewayEntity(formatGatewayName(gatewayDto.getName()), gatewayDto.getToken(), type));
         return true;
@@ -123,7 +133,7 @@ public class GatewayService {
             gatewayInfo.remove(gatewayName);
             gatewayInfo.put(gatewayName, inMemoryGateway);
 
-            final var type = List.of(TYPE_PHYSICAL, TYPE_MOBILE, TYPE_WEB)
+            final var type = List.of(TYPE_PHYSICAL, TYPE_MOBILE, TYPE_WEB, TYPE_UPLOADER)
                     .contains(gatewayDto.getType()) ? gatewayDto.getType() : TYPE_WEB;
             gw.setType(type);
         });

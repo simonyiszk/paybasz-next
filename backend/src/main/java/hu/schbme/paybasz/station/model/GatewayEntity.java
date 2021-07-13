@@ -16,6 +16,7 @@ public class GatewayEntity {
     public static final String TYPE_PHYSICAL = "physical";
     public static final String TYPE_WEB = "web";
     public static final String TYPE_MOBILE = "mobile";
+    public static final String TYPE_UPLOADER = "uploader";
 
     @Id
     @Column

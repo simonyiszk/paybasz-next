@@ -56,6 +56,7 @@
                                                             <select class="form-control" id="type" name="type">
                                                                 <option th:selected="${gateway?.getType() == 'physical'}" value="physical">Fizikai</option>
                                                                 <option th:selected="${gateway?.getType() == 'mobile'}" value="mobile">Mobil</option>
+                                                                <option th:selected="${gateway?.getType() == 'uploader'}" value="uploader">Feltöltő</option>
                                                                 <option th:if="${gateway?.getType() == 'web'}" th:selected="${gateway?.getType() == 'web'}" value="web">Webes</option>
                                                             </select>
                                                         </div>

@@ -54,7 +54,7 @@
                                             <div class="col-md-12 col-lg-6 col-xl-4" th:each="gw : ${gateways}">
                                                 <div class="card-shadow-primary card-border mb-3 card">
                                                     <div class="dropdown-menu-header">
-                                                        <div th:class="|dropdown-menu-header-inner ${gw.getType() == 'physical' ? 'bg-sunny-morning' : (gw.getType() == 'web' ? 'bg-dark' : 'bg-happy-fisher')}|">
+                                                        <div th:class="|dropdown-menu-header-inner ${gw.getType() == 'physical' ? 'bg-sunny-morning' : (gw.getType() == 'web' ? 'bg-dark' : (gw.getType() == 'uploader' ? 'bg-love-kiss' : 'bg-happy-fisher'))}|">
                                                             <div class="menu-header-content">
                                                                 <a href="#" th:if="${gw.getType() != 'web'}" th:href="|@{/admin/modify-gateway/}${gw?.getId()}|" class="gateway-edit-button"><span class="material-icons">edit</span></a>
                                                                 <div>
@@ -62,6 +62,7 @@
                                                                     <h6 class="menu-header-subtitle" th:if="${gw.getType() == 'physical'}">FIZIKAI TERMINÁL</h6>
                                                                     <h6 class="menu-header-subtitle" th:if="${gw.getType() == 'web'}">WEBES TERMINÁL</h6>
                                                                     <h6 class="menu-header-subtitle" th:if="${gw.getType() == 'mobile'}">MOBIL TERMINÁL</h6>
+                                                                    <h6 class="menu-header-subtitle" th:if="${gw.getType() == 'uploader'}">FELTÖLTŐ TERMINÁL</h6>
                                                                 </div>
                                                             </div>
                                                         </div>
