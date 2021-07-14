@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @SuppressWarnings("SpellCheckingInspection")
 @Slf4j
 @RestController
-@RequestMapping("/Mapi")
+@RequestMapping("/mapi")
 //@Profile("mobile")
 @CrossOrigin(origins = "*", allowedHeaders = "*", allowCredentials = "true")
 public class MobileController extends Api2Controller {
