@@ -46,6 +46,8 @@
                                             <div class="main-card mb-3 card">
                                                 <div class="card-body">
                                                     <h5 class="card-title">Terminál</h5>
+                                                    <img th:if="${!createMode}" style="display:block; height:250px; margin:auto;" id="base64image"
+                                                         th:src="|data:image/jpeg;base64, ${qrcode}|" />
                                                     <form class="" th:action="|/admin/${createMode ? 'create' : 'modify' }-gateway|" method="post">
                                                         <input th:unless="${gateway == null}"  type="hidden" name="id" th:value="${gateway?.getId()}" />
                                                         <div class="position-relative form-group"><label for="name" class="">Név</label><input name="name" id="name" th:value="${gateway?.getName()}" th:readonly="${gateway?.getType() == 'web'}" placeholder="" type="text" class="form-control" autocomplete="off" spellcheck="false"></div>
