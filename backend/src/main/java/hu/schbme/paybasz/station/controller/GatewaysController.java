@@ -44,7 +44,7 @@ public class GatewaysController {
     public String createGateway(Model model) {
         GatewayCreateDto gateway = new GatewayCreateDto();
 
-        String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&";
+        String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@$";
         Random rnd = new Random();
         StringBuilder sb = new StringBuilder(32);
         for (int i = 0; i < 32; i++)
