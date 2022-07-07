@@ -57,4 +57,20 @@ public class MobileController extends Api2Controller {
         }
         return valid ? ValidationStatus.OK : ValidationStatus.INVALID;
     }
+
+    @PostMapping("/free-beer/{gatewayName}")
+    public PaymentStatus freeBeer(@PathVariable String gatewayName, @RequestBody PaymentRequest request) {
+        if (!gateways.authorizeUploaderGateway(gatewayName, request.getGatewayCode()))
+            return PaymentStatus.UNAUTHORIZED_TERMINAL;
+        gateways.updateLastUsed(gatewayName);
+
+        try {
+            return system.getBeer(request.getCard().toUpperCase(), request.getDetails() == null ? "" : request.getDetails(),
+                    gatewayName);
+        } catch (Exception e) {
+            log.error("Error during proceeding free beer", e);
+            logger.failure("Sikertelen ingyen sör: belső szerver hiba");
+            return PaymentStatus.INTERNAL_ERROR;
+        }
+    }
 }

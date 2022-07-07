@@ -130,11 +130,41 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = false)
+    public PaymentStatus getBeer(String card, String message, String gateway) {
+        Optional<AccountEntity> possibleAccount = this.accounts.findByCard(card);
+        if (possibleAccount.isEmpty()) {
+            logger.failure("Sikertelen ingyen sör: <color>kártya nem található</color>" + "(terminál: " + gateway + ")");
+            return PaymentStatus.VALIDATION_ERROR;
+        }
+
+        var accountEntity = possibleAccount.get();
+        if (!accountEntity.isAllowed()) {
+            logger.failure("Sikertelen ingyen sör: <badge>" + accountEntity.getName() + "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
+            return PaymentStatus.CARD_REJECTED;
+        }
+
+        if (!accountEntity.isProcessed()) {
+            logger.failure("Sikertelen ingyen sör: <color>" + accountEntity.getName() + ", már fel lett használva</color>" + "(terminál: " + gateway + ")");
+            return PaymentStatus.NOT_ENOUGH_CASH;
+        }
+
+        var transaction = new TransactionEntity(null, System.currentTimeMillis(), card, accountEntity.getId(),
+                accountEntity.getName(), accountEntity.getName() + " beer used ",
+                0, message, gateway, "SYSTEM", true);
+        accountEntity.setProcessed(false);
+        accounts.save(accountEntity);
+        transactions.save(transaction);
+        log.info("Free beer proceed: " + transaction.getId() + " at gateway: " + transaction.getGateway());
+        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres sör felhasználás (terminál: " + gateway + ")");
+        return PaymentStatus.ACCEPTED;
+    }
+
+    @Transactional(readOnly = false)
     public void createAccount(String name, String email, String phone, String card, int amount, int minAmount, boolean allowed) {
         card = card.toUpperCase();
         log.info("New user was created with card: " + card);
         logger.note("<badge>" + name + "</badge> regisztrálva");
-        accounts.save(new AccountEntity(null, name, card, phone, email, amount, minAmount, allowed, false, ""));
+        accounts.save(new AccountEntity(null, name, card, phone, email, amount, minAmount, allowed, true, ""));
     }
 
     @Transactional(readOnly = false)
