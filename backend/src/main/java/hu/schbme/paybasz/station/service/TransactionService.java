@@ -112,7 +112,7 @@ public class TransactionService {
             return PaymentStatus.CARD_REJECTED;
         }
 
-        if (amount > 20000) {
+        if (amount > 50000) {
             logger.failure("Sikertelen feltöltés: <color>" + accountEntity.getName() + ", túl magas összeg</color>" + "(terminál: " + gateway + ")");
             return PaymentStatus.NOT_ENOUGH_CASH;
         }
