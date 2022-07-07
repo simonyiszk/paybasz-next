@@ -62,7 +62,7 @@ public class Api2Controller {
      * NOTE: Do not use for transaction purposes. Might be effected by dirty read.
      */
     @PostMapping("/balance/{gatewayName}")
-    public AccountBalance balance(@PathVariable String gatewayName, @RequestBody BalanceRequest request) {
+    public int balance(@PathVariable String gatewayName, @RequestBody BalanceRequest request) {
         if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
             throw new UnauthorizedGateway();
 
@@ -74,7 +74,7 @@ public class Api2Controller {
 
         logger.action("<badge>" + account.map(AccountEntity::getName).orElse("n/a")
                 + "</badge> egyenlege leolvasva: <color>" + accountBalance.getBalance() + " JMF</color> (terminál: " + gatewayName + ")");
-        return accountBalance;
+        return accountBalance.getBalance();
     }
 
     @PostMapping("/validate/{gatewayName}")
