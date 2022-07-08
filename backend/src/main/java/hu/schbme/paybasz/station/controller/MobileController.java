@@ -60,7 +60,7 @@ public class MobileController extends Api2Controller {
 
     @PostMapping("/free-beer/{gatewayName}")
     public PaymentStatus freeBeer(@PathVariable String gatewayName, @RequestBody PaymentRequest request) {
-        if (!gateways.authorizeUploaderGateway(gatewayName, request.getGatewayCode()))
+        if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
             return PaymentStatus.UNAUTHORIZED_TERMINAL;
         gateways.updateLastUsed(gatewayName);
 
