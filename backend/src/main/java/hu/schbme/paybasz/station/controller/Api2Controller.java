@@ -70,7 +70,7 @@ public class Api2Controller {
         log.info("New balance from gateway '" + gatewayName + "' card hash: '" + request.getCard().toUpperCase() + "'");
         Optional<AccountEntity> account = system.getAccountByCard(request.getCard().toUpperCase());
         var accountBalance = account.map(accountEntity -> new AccountBalance(accountEntity.getBalance(), isLoadAllowed(accountEntity), accountEntity.isAllowed()))
-                .orElseGet(() -> new AccountBalance(0, false, false));
+                .orElseGet(() -> new AccountBalance(-1, false, false));
 
         logger.action("<badge>" + account.map(AccountEntity::getName).orElse("n/a")
                 + "</badge> egyenlege leolvasva: <color>" + accountBalance.getBalance() + " JMF</color> (terminál: " + gatewayName + ")");
