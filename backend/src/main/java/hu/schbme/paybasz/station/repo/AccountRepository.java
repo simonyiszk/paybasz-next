@@ -20,4 +20,6 @@ public interface AccountRepository extends CrudRepository<AccountEntity, Integer
 
     List<AccountEntity> findAllByOrderById();
 
+    Optional<AccountEntity> findByEmail(String email);
+
 }

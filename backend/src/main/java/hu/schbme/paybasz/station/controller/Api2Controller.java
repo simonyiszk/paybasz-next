@@ -3,6 +3,7 @@ package hu.schbme.paybasz.station.controller;
 import hu.schbme.paybasz.station.config.AppUtil;
 import hu.schbme.paybasz.station.dto.*;
 import hu.schbme.paybasz.station.error.UnauthorizedGateway;
+import hu.schbme.paybasz.station.error.UserNotFoundException;
 import hu.schbme.paybasz.station.model.AccountEntity;
 import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.repo.AccountRepository;
@@ -172,6 +173,19 @@ public class Api2Controller {
 
         logger.note("<color>" + account.get().getName() + "</color> felhasználó nevének lekérdezés (terminál: " + gatewayName + ")");
         return account.get().getName();
+    }
+
+    @GetMapping("/get-balance/{gatewayName}")
+    public int getBalance(@PathVariable String gatewayName, @RequestBody GetUserByEmailRequest request) {
+        if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
+            throw new UnauthorizedGateway();
+
+        Optional<AccountEntity> account = accounts.findByEmail(request.getEmail());
+        if(account.isEmpty())
+            throw new UserNotFoundException();
+
+        logger.note("<color>" + account.get().getName() + "</color> felhasználó egyenlegének lekérdezése e-mail alapján (terminál: " + gatewayName + ")");
+        return account.get().getBalance();
     }
 
     private boolean isLoadAllowed(AccountEntity accountEntity) {
