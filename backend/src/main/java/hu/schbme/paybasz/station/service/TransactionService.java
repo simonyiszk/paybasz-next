@@ -72,7 +72,7 @@ public class TransactionService {
         accounts.save(accountEntity);
         transactions.save(transaction);
         log.info("Payment proceed: " + transaction.getId() + " with amount: " + transaction.getAmount() + " at gateway: " + transaction.getGateway());
-        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + ")");
+        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
         return PaymentStatus.ACCEPTED;
     }
 
@@ -94,7 +94,7 @@ public class TransactionService {
         accounts.save(accountEntity);
         transactions.save(transaction);
         log.info(transaction.getAmount() + " money added to: " + accountEntity.getName());
-        logger.success("<badge>" + accountEntity.getName() + "</badge> számlájára feltöltve: <color>" + amount + " JMF</color>");
+        logger.success("<badge>" + accountEntity.getName() + "</badge> számlájára feltöltve: <color>" + amount + " JMF</color>" + (message.isBlank() ? "" : " (megjegyzés: " + message + ")"));
         return true;
     }
 
@@ -125,7 +125,7 @@ public class TransactionService {
         accounts.save(accountEntity);
         transactions.save(transaction);
         log.info("Upload proceed: " + transaction.getId() + " with amount: " + transaction.getAmount() + " at gateway: " + transaction.getGateway());
-        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres feltöltés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + ")");
+        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres feltöltés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
         return PaymentStatus.ACCEPTED;
     }
 
@@ -155,7 +155,7 @@ public class TransactionService {
         accounts.save(accountEntity);
         transactions.save(transaction);
         log.info("Free beer proceed: " + transaction.getId() + " at gateway: " + transaction.getGateway());
-        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres sör felhasználás (terminál: " + gateway + ")");
+        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres sör felhasználás (terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
         return PaymentStatus.ACCEPTED;
     }
 
@@ -314,7 +314,7 @@ public class TransactionService {
         accounts.save(accountEntity);
         transactions.save(transaction);
         log.info("Payment proceed: " + transaction.getId() + " with amount: " + transaction.getAmount() + " at gateway: " + transaction.getGateway());
-        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>");
+        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>" + (message.isBlank() ? "" : " (megjegyzés: " + message + ")"));
         return PaymentStatus.ACCEPTED;
     }
 
