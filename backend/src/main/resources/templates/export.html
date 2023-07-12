@@ -179,6 +179,45 @@
                                                 </div>
                                             </div>
 
+                                            <div class="col-md-12 col-lg-6 col-xl-4">
+                                                <div class="card-shadow-primary card-border mb-3 card">
+                                                    <div class="dropdown-menu-header">
+                                                        <div class="dropdown-menu-header-inner bg-love-kiss">
+                                                            <div class="menu-header-content">
+                                                                <div>
+                                                                    <h5 class="menu-header-title">FELHASZNÁLÓK</h5>
+                                                                    <h6 class="menu-header-subtitle">importálása</h6>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="p-3">
+                                                        <ul class="rm-list-borders list-group list-group-flush">
+                                                            <li class="list-group-item">
+                                                                <div class="widget-content p-0">
+                                                                    <div class="widget-content-wrapper">
+                                                                        <b><span th:if="${msg != null}" th:text="${msg}"></span></b>
+                                                                        <form method="post" th:action="@{/admin/import}" enctype="multipart/form-data">
+                                                                                <div class="widget-content-left">
+                                                                                    <div class="form-group">
+                                                                                        <input type="file" name="csv" accept="text/csv" class="form-control-file">
+                                                                                    </div>
+                                                                                    <span>format: name; email; mobile; amount</span>
+                                                                                </div>
+                                                                                <div class="widget-content-right">
+                                                                                    <div class="font-size-xlg text-muted">
+                                                                                        <button type="submit" class="btn btn-secondaryary">IMPORT</button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </form>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
