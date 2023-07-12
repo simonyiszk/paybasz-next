@@ -50,11 +50,11 @@ public class AccountsController {
     }
 
     @PostMapping("/manual-transaction")
-    public String manualTransaction(@RequestParam Integer id, @RequestParam Integer money) {
+    public String manualTransaction(@RequestParam Integer id, @RequestParam Integer money, @RequestParam String message) {
         if (money == null || money < 0)
             return "redirect:/admin/manual-transaction/" + id;
 
-        PaymentStatus result = system.createTransactionToSystem(id, money);
+        PaymentStatus result = system.createTransactionToSystem(id, money, message);
         if (result == PaymentStatus.ACCEPTED)
             return "redirect:/admin/manual-transaction-done?money=" + money;
         return "redirect:/admin/manual-transaction/" + id + "?failed=" + result.name();

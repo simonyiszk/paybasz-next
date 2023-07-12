@@ -293,7 +293,7 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = false)
-    public PaymentStatus createTransactionToSystem(Integer accountId, Integer amount) {
+    public PaymentStatus createTransactionToSystem(Integer accountId, Integer amount, String message) {
         Optional<AccountEntity> possibleAccount = this.accounts.findById(accountId);
         if (possibleAccount.isEmpty()) {
             logger.failure("Sikertelen fizetés: <color>felhasználó nem található</color>");
@@ -308,7 +308,7 @@ public class TransactionService {
 
         var transaction = new TransactionEntity(null, System.currentTimeMillis(), "NO-CARD-USED", accountEntity.getId(),
                 accountEntity.getName(), accountEntity.getName() + " payed " + amount + " with message: WEBTERM",
-                amount, "WEBTERM", WEB_TERMINAL_NAME, "SYSTEM", true);
+                amount, message, WEB_TERMINAL_NAME, "SYSTEM", true);
 
         accountEntity.setBalance(accountEntity.getBalance() - amount);
         accounts.save(accountEntity);
