@@ -77,7 +77,7 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = false)
-    public boolean addMoneyToAccount(Integer accountId, int amount) {
+    public boolean addMoneyToAccount(Integer accountId, int amount, String message) {
         Optional<AccountEntity> possibleAccount = this.accounts.findById(accountId);
         if (possibleAccount.isEmpty()) {
             logger.failure("Sikertelen egyenleg feltöltés: <color>felhasználó nem található</color>");
@@ -86,8 +86,8 @@ public class TransactionService {
 
         var accountEntity = possibleAccount.get();
         var transaction = new TransactionEntity(null, System.currentTimeMillis(), "NO-CARD-USED", -1,
-                "SYSTEM", "SYSTEM payed " + amount + " with message: WEBTERM",
-                amount, "WEBTERM", WEB_TERMINAL_NAME, accountEntity.getName(), false);
+                "SYSTEM", "SYSTEM payed " + amount + " with message: " + message,
+                amount, message, WEB_TERMINAL_NAME, accountEntity.getName(), false);
 
         gateways.uploadInGateway(WEB_TERMINAL_NAME, amount);
         accountEntity.setBalance(accountEntity.getBalance() + amount);

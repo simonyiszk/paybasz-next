@@ -53,7 +53,7 @@
                                                     <th>Összeg</th>
                                                     <th>Kedvezményezett</th>
                                                     <th>Terminál</th>
-                                                    <th>Tartalom</th>
+                                                    <th>Megjegyzés</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -64,7 +64,7 @@
                                                     <td th:unless="${tx.isRegular()}" th:text="${tx.getReceiver()}">SYSTEM</td>
                                                     <td th:if="${tx.isRegular()}">SYSTEM</td>
                                                     <td th:text="${tx.getGateway()}">DevTerminal</td>
-                                                    <td th:text="${tx.getMessage()}">DevTerminal</td>
+                                                    <td th:text="${tx.getMessage()}">ABC</td>
                                                 </tr>
                                                 </tbody>
                                             </table>

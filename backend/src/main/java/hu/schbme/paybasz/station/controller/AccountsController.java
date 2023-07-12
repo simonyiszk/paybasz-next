@@ -76,11 +76,11 @@ public class AccountsController {
     }
 
     @PostMapping("/upload-money")
-    public String uploadMoney(@RequestParam Integer id, @RequestParam Integer money) {
+    public String uploadMoney(@RequestParam Integer id, @RequestParam Integer money, @RequestParam String message) {
         if (money == null || money < 0)
             return "redirect:/admin/upload-money/" + id;
 
-        if (system.addMoneyToAccount(id, money))
+        if (system.addMoneyToAccount(id, money, message))
             return "redirect:/admin/upload-money-done?money=" + money;
         return "redirect:/admin/upload-money/" + id + "?failed=";
     }
