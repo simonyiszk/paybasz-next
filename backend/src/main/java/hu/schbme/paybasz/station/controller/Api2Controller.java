@@ -78,6 +78,20 @@ public class Api2Controller {
         return accountBalance.getBalance();
     }
 
+    @PostMapping("/my-balance")
+    public int myBalance(@RequestBody MyBalanceRequest request) {
+        if (request.getName().isBlank())
+            throw new UnauthorizedGateway();
+        log.info("Balance check name: '" + request.getName() + "' card hash: '" + request.getCard().toUpperCase() + "'");
+        Optional<AccountEntity> account = system.getAccountByCard(request.getCard().toUpperCase());
+        var accountBalance = account.map(accountEntity -> new AccountBalance(accountEntity.getBalance(), isLoadAllowed(accountEntity), accountEntity.isAllowed()))
+                .orElseGet(() -> new AccountBalance(-1, false, false));
+
+        logger.action("<badge>" + account.map(AccountEntity::getName).orElse("n/a")
+                + "</badge> saját egyenlege leolvasva: <color>" + accountBalance.getBalance() + " JMF</color> (megadott név: " + request.getName() + ")");
+        return accountBalance.getBalance();
+    }
+
     @PostMapping("/validate/{gatewayName}")
     public ValidationStatus validate(@PathVariable String gatewayName, @RequestBody ValidateRequest request) {
         boolean valid = gateways.authorizeGateway(gatewayName, request.getGatewayCode());
