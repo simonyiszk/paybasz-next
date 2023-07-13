@@ -61,8 +61,7 @@
                                                     <td th:text="${tx.formattedTime()}">2020-00-00 10:00:00</td>
                                                     <td th:text="${tx.getCardHolder()}">Kiss Pista</td>
                                                     <td th:text="|${tx.getAmount()} JMF|">1500 JMF</td>
-                                                    <td th:unless="${tx.isRegular()}" th:text="${tx.getReceiver()}">SYSTEM</td>
-                                                    <td th:if="${tx.isRegular()}">SYSTEM</td>
+                                                    <td th:text="${tx.getReceiver()}">SYSTEM</td>
                                                     <td th:text="${tx.getGateway()}">DevTerminal</td>
                                                     <td th:text="${tx.getMessage()}">ABC</td>
                                                 </tr>

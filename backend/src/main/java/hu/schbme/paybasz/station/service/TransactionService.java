@@ -118,8 +118,8 @@ public class TransactionService {
         }
 
         var transaction = new TransactionEntity(null, System.currentTimeMillis(), card, accountEntity.getId(),
-                accountEntity.getName(), accountEntity.getName() + " uploaded " + amount + " with message: " + message,
-                amount, message, gateway, "SYSTEM", true);
+                "SYSTEM", accountEntity.getName() + " uploaded " + amount + " with message: " + message,
+                amount, message, gateway, accountEntity.getName(), true);
         gateways.uploadInGateway(gateway, amount);
         accountEntity.setBalance(accountEntity.getBalance() + amount);
         accounts.save(accountEntity);
