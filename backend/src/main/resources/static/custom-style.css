@@ -52,7 +52,7 @@
     background-color: #1b1e21;
 }
 
-.gateway-edit-button {
+.gateway-edit-button, .gateway-transactions-button {
     float: right;
     color: #FFFFFF;
     opacity: 0.5;
@@ -63,7 +63,11 @@
     top: 10px;
 }
 
-.gateway-edit-button:hover {
+.gateway-transactions-button {
+    left: -70px;
+}
+
+.gateway-edit-button:hover, .gateway-transactions-button:hover {
     opacity: 1;
     color: #FFFFFF;
 }
