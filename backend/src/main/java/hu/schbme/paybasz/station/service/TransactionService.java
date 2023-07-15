@@ -180,6 +180,11 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
+    public Iterable<TransactionEntity> getTransactionsByGateway(String gateway) {
+        return transactions.findAllByGateway(gateway);
+    }
+
+    @Transactional(readOnly = true)
     public long getUserCount() {
         return accounts.count();
     }
@@ -191,7 +196,7 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public long getSumOfIncome() {
-        return transactions.findAllByRegularIsTrue().stream()
+        return transactions.findAllByReceiver("SYSTEM").stream()
                 .mapToInt(TransactionEntity::getAmount)
                 .sum();
     }
@@ -212,7 +217,7 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public long getSumOfPayIns() {
-        return transactions.findAllByRegularIsFalse().stream()
+        return transactions.findAllByCardHolder("SYSTEM").stream()
                 .mapToInt(TransactionEntity::getAmount)
                 .sum();
     }

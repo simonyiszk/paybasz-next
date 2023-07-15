@@ -45,6 +45,7 @@
                                             </div>
                                         </div>
                                         <div class="card-body">
+                                            <div th:if="${gateway}">A(z) <b th:text="${gateway}"></b> terminál tranzakciói.</div>
                                             <table style="width: 100%;" class="table table-hover table-striped table-bordered">
                                                 <thead>
                                                 <tr>

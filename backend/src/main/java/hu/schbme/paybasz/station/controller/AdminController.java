@@ -54,6 +54,14 @@ public class AdminController {
         return "transactions";
     }
 
+    @GetMapping("/transactions/{gateway}")
+    public String transactions(Model model, @PathVariable String gateway) {
+        model.addAttribute("transactions", system.getTransactionsByGateway(gateway));
+        model.addAttribute("gateway", gateway);
+        return "transactions";
+    }
+
+
     @GetMapping("/export")
     public String export() {
         return "export";
