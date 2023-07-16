@@ -122,7 +122,7 @@
                                                                     </div>
                                                                 </div>
                                                             </li>
-                                                            <li class="list-group-item" th:if="${gw.getType() == 'web' || gw.getType() == 'uploader'}">
+                                                            <li class="list-group-item" th:if="${gw.getType() == 'web' || gw.getType() == 'uploader' || gw.getMoney() > 0}">
                                                                 <div class="widget-content p-0">
                                                                     <div class="widget-content-wrapper">
                                                                         <div class="widget-content-left">
