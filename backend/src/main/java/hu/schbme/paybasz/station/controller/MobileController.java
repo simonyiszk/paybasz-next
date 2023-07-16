@@ -46,14 +46,14 @@ public class MobileController extends Api2Controller {
     }
 
     @PostMapping("/validate-uploader/{gatewayName}")
-    public ValidationStatus validateUploader(@PathVariable String gatewayName, @RequestBody ValidateRequest request) {
+    public ValidationStatus validateUploader(@RequestHeader("User-Agent") String userAgent, @PathVariable String gatewayName, @RequestBody ValidateRequest request) {
         boolean valid = gateways.authorizeUploaderGateway(gatewayName, request.getGatewayCode());
         log.info("Gateways auth uploader request: " + gatewayName + " (" + (valid ? "OK" : "INVALID") + ")");
         if (valid) {
             gateways.updateLastUsed(gatewayName);
-            logger.action("Feltöltő terminál authentikáció sikeres: <color>" + gatewayName + "</color>");
+            logger.action("Feltöltő terminál authentikáció sikeres: <color>" + gatewayName + "</color> (User-Agent: " + userAgent + ")");
         } else {
-            logger.failure("Feltöltő terminál authentikáció sikertelen: <color>" + gatewayName + "</color>");
+            logger.failure("Feltöltő terminál authentikáció sikertelen: <color>" + gatewayName + "</color> (User-Agent: " + userAgent + ")");
         }
         return valid ? ValidationStatus.OK : ValidationStatus.INVALID;
     }

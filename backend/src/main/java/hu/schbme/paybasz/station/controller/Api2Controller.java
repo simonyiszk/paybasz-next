@@ -93,14 +93,14 @@ public class Api2Controller {
     }
 
     @PostMapping("/validate/{gatewayName}")
-    public ValidationStatus validate(@PathVariable String gatewayName, @RequestBody ValidateRequest request) {
+    public ValidationStatus validate(@RequestHeader("User-Agent") String userAgent, @PathVariable String gatewayName, @RequestBody ValidateRequest request) {
         boolean valid = gateways.authorizeGateway(gatewayName, request.getGatewayCode());
         log.info("Gateways auth request: " + gatewayName + " (" + (valid ? "OK" : "INVALID") + ")");
         if (valid) {
             gateways.updateLastUsed(gatewayName);
-            logger.action("Terminál authentikáció sikeres: <color>" + gatewayName + "</color>");
+            logger.action("Terminál authentikáció sikeres: <color>" + gatewayName + "</color> (User-Agent: " + userAgent + ")");
         } else {
-            logger.failure("Terminál authentikáció sikertelen: <color>" + gatewayName + "</color>");
+            logger.failure("Terminál authentikáció sikertelen: <color>" + gatewayName + "</color> (User-Agent: " + userAgent + ")");
         }
         return valid ? ValidationStatus.OK : ValidationStatus.INVALID;
     }
