@@ -72,12 +72,12 @@ public class TransactionService {
         accounts.save(accountEntity);
         transactions.save(transaction);
         log.info("Payment proceed: " + transaction.getId() + " with amount: " + transaction.getAmount() + " at gateway: " + transaction.getGateway());
-        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + ")");
+        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
         return PaymentStatus.ACCEPTED;
     }
 
     @Transactional(readOnly = false)
-    public boolean addMoneyToAccount(Integer accountId, int amount) {
+    public boolean addMoneyToAccount(Integer accountId, int amount, String message) {
         Optional<AccountEntity> possibleAccount = this.accounts.findById(accountId);
         if (possibleAccount.isEmpty()) {
             logger.failure("Sikertelen egyenleg feltöltés: <color>felhasználó nem található</color>");
@@ -86,15 +86,15 @@ public class TransactionService {
 
         var accountEntity = possibleAccount.get();
         var transaction = new TransactionEntity(null, System.currentTimeMillis(), "NO-CARD-USED", -1,
-                "SYSTEM", "SYSTEM payed " + amount + " with message: WEBTERM",
-                amount, "WEBTERM", WEB_TERMINAL_NAME, accountEntity.getName(), false);
+                "SYSTEM", "SYSTEM payed " + amount + " with message: " + message,
+                amount, message, WEB_TERMINAL_NAME, accountEntity.getName(), false);
 
         gateways.uploadInGateway(WEB_TERMINAL_NAME, amount);
         accountEntity.setBalance(accountEntity.getBalance() + amount);
         accounts.save(accountEntity);
         transactions.save(transaction);
         log.info(transaction.getAmount() + " money added to: " + accountEntity.getName());
-        logger.success("<badge>" + accountEntity.getName() + "</badge> számlájára feltöltve: <color>" + amount + " JMF</color>");
+        logger.success("<badge>" + accountEntity.getName() + "</badge> számlájára feltöltve: <color>" + amount + " JMF</color>" + (message.isBlank() ? "" : " (megjegyzés: " + message + ")"));
         return true;
     }
 
@@ -118,14 +118,14 @@ public class TransactionService {
         }
 
         var transaction = new TransactionEntity(null, System.currentTimeMillis(), card, accountEntity.getId(),
-                accountEntity.getName(), accountEntity.getName() + " uploaded " + amount + " with message: " + message,
-                amount, message, gateway, "SYSTEM", true);
+                "SYSTEM", accountEntity.getName() + " uploaded " + amount + " with message: " + message,
+                amount, message, gateway, accountEntity.getName(), true);
         gateways.uploadInGateway(gateway, amount);
         accountEntity.setBalance(accountEntity.getBalance() + amount);
         accounts.save(accountEntity);
         transactions.save(transaction);
         log.info("Upload proceed: " + transaction.getId() + " with amount: " + transaction.getAmount() + " at gateway: " + transaction.getGateway());
-        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres feltöltés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + ")");
+        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres feltöltés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
         return PaymentStatus.ACCEPTED;
     }
 
@@ -155,7 +155,7 @@ public class TransactionService {
         accounts.save(accountEntity);
         transactions.save(transaction);
         log.info("Free beer proceed: " + transaction.getId() + " at gateway: " + transaction.getGateway());
-        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres sör felhasználás (terminál: " + gateway + ")");
+        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres sör felhasználás (terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
         return PaymentStatus.ACCEPTED;
     }
 
@@ -180,6 +180,11 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
+    public Iterable<TransactionEntity> getTransactionsByGateway(String gateway) {
+        return transactions.findAllByGateway(gateway);
+    }
+
+    @Transactional(readOnly = true)
     public long getUserCount() {
         return accounts.count();
     }
@@ -191,7 +196,7 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public long getSumOfIncome() {
-        return transactions.findAllByRegularIsTrue().stream()
+        return transactions.findAllByReceiver("SYSTEM").stream()
                 .mapToInt(TransactionEntity::getAmount)
                 .sum();
     }
@@ -212,7 +217,7 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public long getSumOfPayIns() {
-        return transactions.findAllByRegularIsFalse().stream()
+        return transactions.findAllByCardHolder("SYSTEM").stream()
                 .mapToInt(TransactionEntity::getAmount)
                 .sum();
     }
@@ -293,7 +298,7 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = false)
-    public PaymentStatus createTransactionToSystem(Integer accountId, Integer amount) {
+    public PaymentStatus createTransactionToSystem(Integer accountId, Integer amount, String message) {
         Optional<AccountEntity> possibleAccount = this.accounts.findById(accountId);
         if (possibleAccount.isEmpty()) {
             logger.failure("Sikertelen fizetés: <color>felhasználó nem található</color>");
@@ -308,13 +313,13 @@ public class TransactionService {
 
         var transaction = new TransactionEntity(null, System.currentTimeMillis(), "NO-CARD-USED", accountEntity.getId(),
                 accountEntity.getName(), accountEntity.getName() + " payed " + amount + " with message: WEBTERM",
-                amount, "WEBTERM", WEB_TERMINAL_NAME, "SYSTEM", true);
+                amount, message, WEB_TERMINAL_NAME, "SYSTEM", true);
 
         accountEntity.setBalance(accountEntity.getBalance() - amount);
         accounts.save(accountEntity);
         transactions.save(transaction);
         log.info("Payment proceed: " + transaction.getId() + " with amount: " + transaction.getAmount() + " at gateway: " + transaction.getGateway());
-        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>");
+        logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>" + (message.isBlank() ? "" : " (megjegyzés: " + message + ")"));
         return PaymentStatus.ACCEPTED;
     }
 

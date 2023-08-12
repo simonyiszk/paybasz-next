@@ -33,5 +33,4 @@ build/
 ### Other ###
 notes.txt
 saves/
-db/
 config/gateways.csv

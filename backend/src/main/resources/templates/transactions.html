@@ -45,6 +45,7 @@
                                             </div>
                                         </div>
                                         <div class="card-body">
+                                            <div th:if="${gateway}">A(z) <b th:text="${gateway}"></b> terminál tranzakciói.</div>
                                             <table style="width: 100%;" class="table table-hover table-striped table-bordered">
                                                 <thead>
                                                 <tr>
@@ -53,7 +54,7 @@
                                                     <th>Összeg</th>
                                                     <th>Kedvezményezett</th>
                                                     <th>Terminál</th>
-                                                    <th>Tartalom</th>
+                                                    <th>Megjegyzés</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -61,10 +62,9 @@
                                                     <td th:text="${tx.formattedTime()}">2020-00-00 10:00:00</td>
                                                     <td th:text="${tx.getCardHolder()}">Kiss Pista</td>
                                                     <td th:text="|${tx.getAmount()} JMF|">1500 JMF</td>
-                                                    <td th:unless="${tx.isRegular()}" th:text="${tx.getReceiver()}">SYSTEM</td>
-                                                    <td th:if="${tx.isRegular()}">SYSTEM</td>
+                                                    <td th:text="${tx.getReceiver()}">SYSTEM</td>
                                                     <td th:text="${tx.getGateway()}">DevTerminal</td>
-                                                    <td th:text="${tx.getMessage()}">DevTerminal</td>
+                                                    <td th:text="${tx.getMessage()}">ABC</td>
                                                 </tr>
                                                 </tbody>
                                             </table>

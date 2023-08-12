@@ -20,4 +20,7 @@ public interface TransactionRepository extends CrudRepository<TransactionEntity,
 
     List<TransactionEntity> findAllByOrderById();
 
+    List<TransactionEntity> findAllByCardHolder(String sender);
+
+    List<TransactionEntity> findAllByReceiver(String receiver);
 }

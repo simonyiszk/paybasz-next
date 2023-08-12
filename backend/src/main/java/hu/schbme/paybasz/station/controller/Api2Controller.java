@@ -3,6 +3,7 @@ package hu.schbme.paybasz.station.controller;
 import hu.schbme.paybasz.station.config.AppUtil;
 import hu.schbme.paybasz.station.dto.*;
 import hu.schbme.paybasz.station.error.UnauthorizedGateway;
+import hu.schbme.paybasz.station.error.UserNotFoundException;
 import hu.schbme.paybasz.station.model.AccountEntity;
 import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.repo.AccountRepository;
@@ -77,15 +78,29 @@ public class Api2Controller {
         return accountBalance.getBalance();
     }
 
+    @PostMapping("/my-balance")
+    public int myBalance(@RequestBody MyBalanceRequest request) {
+        if (request.getName().isBlank())
+            throw new UnauthorizedGateway();
+        log.info("Balance check name: '" + request.getName() + "' card hash: '" + request.getCard().toUpperCase() + "'");
+        Optional<AccountEntity> account = system.getAccountByCard(request.getCard().toUpperCase());
+        var accountBalance = account.map(accountEntity -> new AccountBalance(accountEntity.getBalance(), isLoadAllowed(accountEntity), accountEntity.isAllowed()))
+                .orElseGet(() -> new AccountBalance(-1, false, false));
+
+        logger.action("<badge>" + account.map(AccountEntity::getName).orElse("n/a")
+                + "</badge> saját egyenlege leolvasva: <color>" + accountBalance.getBalance() + " JMF</color> (megadott név: " + request.getName() + ")");
+        return accountBalance.getBalance();
+    }
+
     @PostMapping("/validate/{gatewayName}")
-    public ValidationStatus validate(@PathVariable String gatewayName, @RequestBody ValidateRequest request) {
+    public ValidationStatus validate(@RequestHeader("User-Agent") String userAgent, @PathVariable String gatewayName, @RequestBody ValidateRequest request) {
         boolean valid = gateways.authorizeGateway(gatewayName, request.getGatewayCode());
         log.info("Gateways auth request: " + gatewayName + " (" + (valid ? "OK" : "INVALID") + ")");
         if (valid) {
             gateways.updateLastUsed(gatewayName);
-            logger.action("Terminál authentikáció sikeres: <color>" + gatewayName + "</color>");
+            logger.action("Terminál authentikáció sikeres: <color>" + gatewayName + "</color> (User-Agent: " + userAgent + ")");
         } else {
-            logger.failure("Terminál authentikáció sikertelen: <color>" + gatewayName + "</color>");
+            logger.failure("Terminál authentikáció sikertelen: <color>" + gatewayName + "</color> (User-Agent: " + userAgent + ")");
         }
         return valid ? ValidationStatus.OK : ValidationStatus.INVALID;
     }
@@ -172,6 +187,19 @@ public class Api2Controller {
 
         logger.note("<color>" + account.get().getName() + "</color> felhasználó nevének lekérdezés (terminál: " + gatewayName + ")");
         return account.get().getName();
+    }
+
+    @GetMapping("/get-balance/{gatewayName}")
+    public int getBalance(@PathVariable String gatewayName, @RequestBody GetUserByEmailRequest request) {
+        if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
+            throw new UnauthorizedGateway();
+
+        Optional<AccountEntity> account = accounts.findByEmail(request.getEmail());
+        if(account.isEmpty())
+            throw new UserNotFoundException();
+
+        logger.note("<color>" + account.get().getName() + "</color> felhasználó egyenlegének lekérdezése e-mail alapján (terminál: " + gatewayName + ")");
+        return account.get().getBalance();
     }
 
     private boolean isLoadAllowed(AccountEntity accountEntity) {

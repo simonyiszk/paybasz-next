@@ -29,6 +29,7 @@ public class TransactionEntity {
     @Column(nullable = false)
     private Integer account;
 
+    //sender
     @Column(nullable = false)
     private String cardHolder;
 
