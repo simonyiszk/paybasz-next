@@ -27,6 +27,8 @@ services:
       - db-x
   mobile-x:
     build: ./mobile
+    env_file:
+      - .env
     environment:
       SERVER_PORT: 8080
     restart: always

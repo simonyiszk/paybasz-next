@@ -84,7 +84,7 @@
 <script th:inline="javascript">
     const gatewayName = /*[[${gatewayName}]]*/ "mobilGw";
     const token = /*[[${token}]]*/ "token";
-    const serverUrl = "[[${@environment.getProperty('paybasz.backend.address')}]]";
+    const serverUrl = [[${@environment.getProperty('paybasz.backend.address')}]];
     const baseUrl = `${serverUrl}/mapi`;
 
 

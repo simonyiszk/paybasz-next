@@ -62,7 +62,7 @@
 </div>
 
 <script th:inline="javascript">
-    const serverUrl = "[[${@environment.getProperty('paybasz.backend.address')}]]";
+    const serverUrl = [[${@environment.getProperty('paybasz.backend.address')}]];
     const baseUrl = `${serverUrl}/mapi`;
 
     var name = getCookie("name");

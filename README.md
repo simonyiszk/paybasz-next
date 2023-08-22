@@ -1,3 +1,16 @@
+# New documentation
+
+Copy the `.env.example` file to `.env` and fill it with the required data.
+
+Have Docker installed on your machine. (https://docs.docker.com/get-docker/)
+Run the following commands in the root directory of the project:
+
+```bash
+docker-compose up -d
+```
+
+# Old documentation
+
 paybasz
 ===
 
