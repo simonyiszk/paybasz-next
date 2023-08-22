@@ -1,6 +1,16 @@
-FROM openjdk:11-jdk
-LABEL authors="balazs"
+#
+# Build stage
+#
+FROM maven:3.6.0-jdk-11-slim AS build
+COPY src /home/app/src
+COPY pom.xml /home/app
+RUN mvn -f /home/app/pom.xml clean package
 
-COPY target/paybasz-0.0.1-SNAPSHOT.jar app.jar
-
-CMD ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+#
+# Package stage
+#
+FROM openjdk:11-jre-slim
+EXPOSE 8080
+COPY --from=build /home/app/target/paybasz-0.0.1-SNAPSHOT.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
