@@ -1,0 +1,472 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>paybasz mobil terminál</title>
+
+    <style>
+        body {
+            background-color: #000;
+            color: #FFFFFF;
+            text-align: center;
+            font-family: sans-serif;
+        }
+        button {
+            background-color: #444444;
+            border: 2px solid #FFFFFF;
+            color: #FFFFFF;
+            font-size: 28px;
+            margin: 10px 20px;
+            width: 80%;
+        }
+        select, input {
+            background-color: #444444;
+            border: 2px solid #FFFFFF;
+            color: #FFFFFF;
+            font-size: 28px;
+            margin: 10px 20px;
+            width: 80%;
+            text-align: center;
+        }
+        input {
+            width: calc(80% - 7px);
+        }
+        h1 {
+            text-shadow: 2px 2px 0 #000000;
+        }
+        h3, h4 {
+            font-size: 32px;
+            text-shadow: 2px 2px 0 #000000;
+        }
+    </style>
+</head>
+<body id="box">
+
+<div class="menu">
+    <div class="result">
+        <h3 id="scan-line1">...</h3>
+        <h4 id="scan-line2"></h4>
+        <h4 id="scan-line3"></h4>
+        <h4 id="scan-line4"></h4>
+    </div>
+
+    <button onclick="initNFC()" id="nfcButton">NFC OFF</button><br>
+    <select id="type" name="type" onchange="setType()">
+        <option value="Bar">Pult</option>
+        <option value="Food">Kaja</option>
+        <option value="Check-in">Becsek</option>
+        <option value="Merch">Merch</option>
+        <option value="Charity">Adomány</option>
+        <option value="Withdraw">Pénz kivétel</option>
+        <option value="Other">Egyéb</option>
+    </select><br>
+    <input type="text" id="comment" name="comment" placeholder="megjegyzés"><br>
+    <button onclick="initReading()">BEOLVAS</button><br>
+    <button onclick="initBalance()">EGYENLEG</button><br>
+    <button onclick="initPay()">FIZETÉS</button><br>
+    <button onclick="initCard()">KÁRTYA</button><br>
+    <button onclick="freeBeer()">INGYEN SÖR</button><br>
+    <button onclick="initUpload()" hidden="hidden" id="upload">FELTÖLTÉS</button><br>
+    <button onclick="initOk()" ondblclick="checkAuth(false)">Vissza</button>
+
+
+
+</div>
+
+<script th:inline="javascript">
+    const gatewayName = /*[[${gatewayName}]]*/ "mobilGw";
+    const token = /*[[${token}]]*/ "token";
+    const serverUrl = "[[${@environment.getProperty('paybasz.backend.address')}]]";
+    const baseUrl = `${serverUrl}/mapi`;
+
+
+    var type = getCookie("type");
+    if(type !== "") {
+        document.getElementById("type").value = type;
+    }
+
+    initNFC();
+    if(getCookie("validate") === true) {
+        if(getCookie("uploader") === true) {
+            upload.hidden = false;
+        }
+    } else {
+        checkAuth(true);
+    }
+
+    function setType() {
+        setCookie("type", document.getElementById("type").value)
+    }
+
+    async function test() {
+        const id = "idd";
+        const hashed = "xdd";
+        await httpFetchData('POST', baseUrl + '/reading/' + gatewayName, { card: hashed, gatewayCode: token })
+            .then(data => {
+                displayText(id, hashed, data);
+            })
+            .catch((error) => {
+                displayText("error", hashed, error);
+                console.error('Error:', error);
+            });
+    }
+
+    async function checkAuth(auto) {
+        const upload = document.getElementById("upload");
+        await httpFetchData('POST', baseUrl + '/validate-uploader/' + gatewayName, { gatewayCode: token })
+            .then(data => {
+                if (data === "OK") {
+                    setCookie("validate", true);
+                    setCookie("uploader", true);
+                    upload.hidden = false;
+                    if(auto === false) {
+                        displayText("UPLOADER", data);
+                        setBackground("#89f7fe");
+                    }
+                } else {
+                    upload.hidden = true;
+                    httpFetchData('POST', baseUrl + '/validate/' + gatewayName, { gatewayCode: token })
+                        .then(data => {
+                            if (data === "INVALID") {
+                                displayText("UNAUTHORIZED_TERMINAL");
+                                setBackground("#FF0000");
+                                setCookie("validate", false);
+                                setCookie("uploader", false);
+                            } else {
+                                setCookie("validate", true);
+                                setCookie("uploader", false);
+                                if(auto === false) {
+                                    displayText("NORMAL", data);
+                                    setBackground("#0000FF");
+                                }
+                            }
+                        })
+                        .catch((error) => {
+                            if(auto === false) {
+                                displayText("error", error);
+                            }
+                            console.error('Error:', error);
+                        });
+                }
+            })
+            .catch((error) => {
+                if(auto === false) {
+                    displayText("error", error);
+                }
+                console.error('Error:', error);
+            });
+    }
+
+    function initNFC() {
+        //TODO automatikusan történjen meg
+        setBackground("#000000");
+        displayText('NFC: ON');
+        nfcListener = async function(x) { };
+        try {
+            const ndef = new NDEFReader();
+            ndef.scan();
+            document.getElementById('nfcButton').innerText = "NFC ON";
+
+            ndef.addEventListener("readingerror", () => {
+                displayText('Hiba történt');
+            });
+
+            ndef.addEventListener("reading", async ({ message, serialNumber }) => {
+                const id = serialNumber.toUpperCase().replaceAll(':', '-');
+                const hashed = await sha256(id);
+
+                //displayText(id, hashed, baseUrl + '/reading/' + gatewayName, JSON.stringify({ card: hashed, gatewayCode: token }));
+
+                await nfcListener(hashed);
+                nfcListener = async function(card) {};
+            });
+        } catch (error) {
+            displayText('Hiba: ' + error);
+        }
+    }
+
+    function initReading() {
+        setBackground("#000000");
+        displayText("KÁRTYA BEOLVASÁSA");
+
+        nfcListener = async function(hashed) {
+            displayText('KÉRLEK VÁRJ...', hashed);
+            nfcListener = async function(x) {};
+            await httpFetchData('POST', baseUrl + '/reading/' + gatewayName, { card: hashed, gatewayCode: token })
+                .then(data => {
+                    displayText("SIKERES", hashed, data);
+                    nfcListener = async function(x) {};
+                })
+                .catch((error) => {
+                    displayText("HIBA", hashed, error);
+                    console.error('Error:', error);
+                    checkAuth(false);
+                    nfcListener = async function(x) {};
+                });
+        }
+    }
+
+    function initBalance() {
+        setBackground("#000000");
+        displayText("EGYENLEG LEKÉRÉSE", "KÉREM A KÁRTYÁT");
+
+        nfcListener = async function(hashed) {
+            displayText('KÉRLEK VÁRJ...');
+            nfcListener = async function(x) {};
+            await httpFetchData('POST', baseUrl + '/balance/' + gatewayName, { card: hashed, gatewayCode: token })
+                .then(data => {
+                    displayText("EGYENLEG", data);
+                    nfcListener = async function(x) {};
+                })
+                .catch((error) => {
+                    displayText("HIBA", error);
+                    console.error('Error:', error);
+                    checkAuth(false);
+                    nfcListener = async function(x) {};
+                });
+        }
+    }
+
+    function initPay() {
+        setBackground("#000000");
+        displayText("FIZETÉS", "KÉREM A KÁRTYÁT");
+        let money = prompt("Végösszeg [JMF]", "");
+        if (money == null || money == "") {
+            displayText("FIZETÉS", "megszakítva");
+            return;
+        } else if (parseInt(money) != NaN) {
+            displayText("FIZETENDŐ ÖSSZEG", money);
+            nfcListener = async function(hashed) {
+                displayText('KÉRLEK VÁRJ...');
+                nfcListener = async function(x) {};
+                let message = document.getElementById("type").value + " - " + document.getElementById("comment").value;
+                await httpFetchData('POST', baseUrl + '/pay/' + gatewayName, { card: hashed, amount: parseInt(money), gatewayCode: token, details: message })
+                    .then(data => {
+                        if (data === "ACCEPTED") {
+                            setBackground("#00FF00");
+                            document.getElementById("comment").value = "";
+                        } else {
+                            setBackground("#FF0000");
+                        }
+                        displayText("FIZETÉS", data);
+                        httpFetchData('POST', baseUrl + '/balance/' + gatewayName, { card: hashed, gatewayCode: token })
+                            .then(data2 => {
+                                displayText("FIZETÉS", data, "Egyenleg: " + data2);
+                            })
+                        nfcListener = async function(x) {
+                            displayText("FIZETÉS", "(új beolvasás, de nem új fizetés)", data);
+                        };
+                    })
+                    .catch((error) => {
+                        setBackground("#FF0000");
+                        displayText("HIBA", hashed, error);
+                        console.error('Error:', error);
+                        checkAuth(false);
+                        nfcListener = async function(x) {};
+                    });
+            }
+        } else {
+            displayText("FIZETÉS", "hibás formátum", money);
+        }
+
+    }
+
+    function initCard() {
+        setBackground("#000000");
+        displayText("KÁRTYA HOZZÁRENDELÉS");
+        let text;
+        let id = prompt("Felhasználó ID-ja", "");
+        if (id == null || id == "") {
+            displayText("KÁRTYA HOZZÁRENDELÉS", "megszakítva");
+            return;
+        } else if (parseInt(id) != NaN) {
+            displayText("ID: " + id);
+            httpFetchData('POST', baseUrl + '/get-user/' + gatewayName, {userId: parseInt(id), gatewayCode: token})
+                    .then(data => {
+                        displayText(data, "ID: " + id, "KÉREM A KÁRTYÁT");
+                    })
+                    .catch((error) => {
+                        setBackground("#FF0000");
+                        displayText("HIBA", id, error);
+                        console.error('Error:', error);
+                        checkAuth(false);
+                        getName = async function (x) {};
+                    });
+            nfcListener = async function(hashed) {
+                displayText('KÉRLEK VÁRJ...');
+                nfcListener = async function(x) {};
+                await httpFetchData('POST', baseUrl + '/set-card/' + gatewayName, { card: hashed, userId: parseInt(id), gatewayCode: token })
+                    .then(data => {
+                        if (data === "ACCEPTED") {
+                            setBackground("#00FF00");
+                        } else {
+                            setBackground("#FF0000");
+                        }
+                        displayText("KÁRTYA HOZZÁRENDELÉS", data);
+                        nfcListener = async function(x) {};
+                    })
+                    .catch((error) => {
+                        setBackground("#FF0000");
+                        displayText("HIBA", hashed, error);
+                        console.error('Error:', error);
+                        checkAuth(false);
+                        nfcListener = async function(x) {};
+                    });
+            }
+        } else {
+            displayText("KÁRTYA HOZZÁRENDELÉS", "hibás formátum", id);
+        }
+
+    }
+
+    function initUpload() {
+        setBackground("#000000");
+        displayText("FELTÖLTÉS");
+        let money = prompt("Összege [JMF]", "");
+        if (money == null || money == "") {
+            displayText("FELTÖLTÉS", "megszakítva");
+            return;
+        } else if (parseInt(money) != NaN) {
+            displayText("FELTÖLTÉS ÖSSZEG", money, "KÉREM A KÁRTYÁT");
+            nfcListener = async function(hashed) {
+                displayText('KÉRLEK VÁRJ...');
+                nfcListener = async function(x) {};
+                let message = document.getElementById("type").value + " - " + document.getElementById("comment").value;
+                await httpFetchData('POST', baseUrl + '/upload/' + gatewayName, { card: hashed, amount: parseInt(money), gatewayCode: token, details: message })
+                    .then(data => {
+                        if (data === "ACCEPTED") {
+                            setBackground("#00FF00");
+                            document.getElementById("comment").value = "";
+                        } else {
+                            setBackground("#FF0000");
+                        }
+                        displayText("FELTÖLTÉS", data);
+                        httpFetchData('POST', baseUrl + '/balance/' + gatewayName, { card: hashed, gatewayCode: token })
+                            .then(data2 => {
+                                displayText("FELTÖLTÉS", data, "Egyenleg: " + data2);
+                            })
+                        nfcListener = async function(x) {
+                            displayText("FELTÖLTÉS", "(új beolvasás, de nem új fizetés)", data);
+                        };
+                    })
+                    .catch((error) => {
+                        setBackground("#FF0000");
+                        displayText("HIBA", hashed, error);
+                        console.error('Error:', error);
+                        checkAuth(false);
+                        nfcListener = async function(x) {};
+                    });
+            }
+        } else {
+            displayText("FELTÖLTÉS", "hibás formátum", money);
+        }
+
+    }
+
+    function initOk() {
+        setBackground("#000000");
+        displayText("...");
+        nfcListener = async function(x) { };
+    }
+
+    function setBackground(color) {
+        document.getElementById('box').style.backgroundColor = color;
+    }
+
+    function displayText(line1, line2="", line3="", line4="") {
+        document.getElementById('scan-line1').innerText = line1;
+        document.getElementById('scan-line2').innerText = line2;
+        document.getElementById('scan-line3').innerText = line3;
+        document.getElementById('scan-line4').innerText = line4;
+    }
+
+    async function sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex.toUpperCase();
+    }
+
+    async function httpFetchData(method = 'POST', url = '', data = {}) {
+        const response = await fetch(url, {
+            method: method,
+            mode: 'cors',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+            },
+            body: JSON.stringify(data)
+        });
+        return response.text();
+    }
+
+    function freeBeer() {
+        setBackground("#000000");
+        displayText("INGYEN SÖR", "KÉREM A KÁRTYÁT");
+        nfcListener = async function (hashed) {
+            displayText('KÉRLEK VÁRJ...');
+            nfcListener = async function(x) {};
+            let message = document.getElementById("type").value + " - " + document.getElementById("comment").value;
+            await httpFetchData('POST', baseUrl + '/free-beer/' + gatewayName, {
+                card: hashed,
+                amount: 0,
+                gatewayCode: token,
+                details: message + '- free-beer'
+            })
+                .then(data => {
+                    if (data === "ACCEPTED") {
+                        setBackground("#00FF00");
+                    } else {
+                        setBackground("#FF0000");
+                    }
+                    displayText("INGYEN SÖR", data);
+                    nfcListener = async function (x) {
+                        displayText("INGYEN SÖR", "(új beolvasás, de nem új fizetés)", data);
+                    };
+                })
+                .catch((error) => {
+                    setBackground("#FF0000");
+                    displayText("HIBA", hashed, error);
+                    console.error('Error:', error);
+                    checkAuth(false);
+                    nfcListener = async function (x) {
+                    };
+                });
+        }
+    }
+
+    function setCookie(cname, cvalue) {
+        const d = new Date();
+        const exdays = 5;
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        let expires = "expires="+ d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for(let i = 0; i <ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+</script>
+</body>
+</html>
