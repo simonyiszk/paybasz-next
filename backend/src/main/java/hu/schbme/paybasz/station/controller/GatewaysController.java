@@ -97,7 +97,7 @@ public class GatewaysController {
     public String getQRCode(Integer gatewayId){
         Optional<GatewayEntity> gateway = gatewayService.getGateway(gatewayId);
 
-        String link= mobileBaseUrl + gateway.get().getName() + "/"  + gateway.get().getToken();
+        String link= mobileBaseUrl + "/" + gateway.get().getName() + "/"  + gateway.get().getToken();
 
         byte[] image = new byte[0];
         try {

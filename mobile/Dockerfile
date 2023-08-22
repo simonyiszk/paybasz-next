@@ -11,6 +11,6 @@ RUN mvn -f /home/app/pom.xml clean package
 #
 FROM openjdk:11-jre-slim
 EXPOSE 8080
-COPY --from=build /home/app/target/paybasz-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /home/app/target/mobile-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
