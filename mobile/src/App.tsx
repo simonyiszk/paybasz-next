@@ -5,6 +5,8 @@ import NoNFCBanner from "./components/NoNFCBanner";
 import InitializeNFC from "./InitializeNFC";
 import TerminalTypeSelector from "./TerminalTypeSelector";
 import ResetButton from "./components/ui/ResetButton";
+import WaitingForCardLoader from "./components/WaitingForCardLoader";
+import { scanNFC } from "./lib/utils";
 
 // function initNFC() {
 //   //TODO automatikusan történjen meg
@@ -91,11 +93,43 @@ const onReading = ({ message, serialNumber }: NDEFReadingEvent) => {
     }
   }
 };
+type CardData = {
+  cardSerial: string;
+  terminalName: string;
+  terminalToken: string;
+  userId: number;
+};
+const setCard = async (cardData: CardData) => {
+  return fetch(
+    import.meta.env.VITE_BACKEND_URL + "/set-card/" + cardData.terminalName,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      mode: "cors",
+      body: JSON.stringify({
+        card: cardData.cardSerial,
+        userId: cardData.userId,
+        gatewayCode: cardData.terminalToken,
+      }),
+    }
+  );
+};
+
+/**
+ * /api/v2/set-card/<terminal name>
+ *  {
+    "card": <hashed card id>,
+    "userId": 2,
+    "gatewayCode":<terminal token>
+  }
+ */
 
 function App() {
-  const [nfcInitialized, setNfcInitialized] = useState(false);
   const [cardSerial, setCardSerial] = useState("");
   const [terminalType, setTerminalType] = useState("select");
+  const [waitingForCard, setWaitingForCard] = useState(false);
   if (!("NDEFReader" in window)) {
     return <NoNFCBanner />;
   }
@@ -107,23 +141,40 @@ function App() {
       />
     );
   }
-  if (!nfcInitialized) {
-    return (
-      <InitializeNFC
-        setNfcInitialized={setNfcInitialized}
-        setCardSerial={setCardSerial}
-      />
-    );
-  }
 
   return (
     <>
       <p>{cardSerial}</p>
-      <div className="flex flex-row flex-wrap gap-2 justify-center px-4 w-full">
-        <Button onClick={() => scan(setCardSerial)}>Kártya beolvasása</Button>
-        <Button onClick={() => {}}>Egyenleg</Button>
+      <div className="flex flex-row flex-wrap gap-2 justify-center px-4 w-full relative">
+        {waitingForCard && <WaitingForCardLoader />}
+        <Button
+          onClick={async () => {
+            setWaitingForCard(true);
+            const res = await scanNFC();
+            setWaitingForCard(false);
+            setCardSerial(res.serialNumber);
+          }}
+        >
+          Kártya beolvasása
+        </Button>
+        <Button onClick={() => setWaitingForCard(true)}>Egyenleg</Button>
         <Button onClick={() => scan(setCardSerial)}>Fizetés</Button>
-        <Button onClick={() => scan(setCardSerial)}>
+        <Button
+          onClick={async () => {
+            setWaitingForCard(true);
+            const res = await scanNFC();
+            setWaitingForCard(false);
+            setCardSerial(res.serialNumber);
+            const pathName = window.location.pathname.split("/");
+            console.log(pathName);
+            setCard({
+              cardSerial: res.serialNumber,
+              terminalName: pathName[1],
+              terminalToken: pathName[2],
+              userId: 2,
+            });
+          }}
+        >
           Kártya hozzárendelése
         </Button>
         <Button onClick={() => scan(setCardSerial)}>Feltöltés</Button>
@@ -131,7 +182,6 @@ function App() {
       </div>
       <ResetButton
         onClick={() => {
-          setNfcInitialized(false);
           setCardSerial("");
           setTerminalType("select");
         }}
