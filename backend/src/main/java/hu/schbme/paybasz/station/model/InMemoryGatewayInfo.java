@@ -14,19 +14,19 @@ import java.util.LinkedList;
 @Setter
 public final class InMemoryGatewayInfo {
 
-    @Data
-    @AllArgsConstructor
-    public static class CardReading {
-        private String card;
-        private long time;
+	private final Deque<CardReading> lastReadings = new LinkedList<>();
+	private long lastPacket = -1;
 
-        @Transient
-        public String getTimeFormatted() {
-            return AppUtil.DATE_TIME_FORMATTER.format(time);
-        }
-    }
+	@Data
+	@AllArgsConstructor
+	public static class CardReading {
+		private String card;
+		private long time;
 
-    private long lastPacket = -1;
-    private final Deque<CardReading> lastReadings = new LinkedList<>();
+		@Transient
+		public String getTimeFormatted() {
+			return AppUtil.DATE_TIME_FORMATTER.format(time);
+		}
+	}
 
 }

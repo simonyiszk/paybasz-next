@@ -13,13 +13,13 @@ import lombok.NoArgsConstructor;
 @JsonSerialize(using = CsvSerializer.class)
 public class AccountBalance implements CsvSerializable {
 
-    private int balance;
-    private boolean loadAllowed;
-    private boolean allowed;
+	private int balance;
+	private boolean loadAllowed;
+	private boolean allowed;
 
-    @Override
-    public String csvSerialize() {
-        return balance + ";" + (loadAllowed ? "1" : "0") + ";" + (allowed ? "1" : "0");
-    }
+	@Override
+	public String csvSerialize() {
+		return balance + ";" + (loadAllowed ? "1" : "0") + ";" + (allowed ? "1" : "0");
+	}
 
 }

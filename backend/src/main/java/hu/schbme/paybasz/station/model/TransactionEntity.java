@@ -1,10 +1,9 @@
 package hu.schbme.paybasz.station.model;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import jakarta.persistence.*;
 
 import static hu.schbme.paybasz.station.config.AppUtil.DATE_TIME_FORMATTER;
 
@@ -15,45 +14,45 @@ import static hu.schbme.paybasz.station.config.AppUtil.DATE_TIME_FORMATTER;
 @AllArgsConstructor
 public class TransactionEntity {
 
-    @Id
-    @Column
-    @GeneratedValue
-    private Long id;
+	@Id
+	@Column
+	@GeneratedValue
+	private Long id;
 
-    @Column(nullable = false)
-    private long time;
+	@Column(nullable = false)
+	private long time;
 
-    @Column(nullable = false)
-    private String cardId;
+	@Column(nullable = false)
+	private String cardId;
 
-    @Column(nullable = false)
-    private Integer account;
+	@Column(nullable = false)
+	private Integer account;
 
-    //sender
-    @Column(nullable = false)
-    private String cardHolder;
+	//sender
+	@Column(nullable = false)
+	private String cardHolder;
 
-    @Column(nullable = false)
-    private String paymentDescription;
+	@Column(nullable = false)
+	private String paymentDescription;
 
-    @Column(nullable = false)
-    private int amount;
+	@Column(nullable = false)
+	private int amount;
 
-    @Column(nullable = false)
-    private String message;
+	@Column(nullable = false)
+	private String message;
 
-    @Column(nullable = false)
-    private String gateway;
+	@Column(nullable = false)
+	private String gateway;
 
-    @Column(nullable = false)
-    private String receiver;
+	@Column(nullable = false)
+	private String receiver;
 
-    @Column(nullable = false)
-    private boolean regular;
+	@Column(nullable = false)
+	private boolean regular;
 
-    @Transient
-    public String formattedTime() {
-        return DATE_TIME_FORMATTER.format(getTime());
-    }
+	@Transient
+	public String formattedTime() {
+		return DATE_TIME_FORMATTER.format(getTime());
+	}
 
 }

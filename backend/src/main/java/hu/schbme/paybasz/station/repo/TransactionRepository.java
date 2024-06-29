@@ -5,22 +5,21 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface TransactionRepository extends CrudRepository<TransactionEntity, Long> {
 
-    List<TransactionEntity> findAllByRegularIsTrue();
+	List<TransactionEntity> findAllByRegularIsTrue();
 
-    List<TransactionEntity> findAllByRegularIsFalse();
+	List<TransactionEntity> findAllByRegularIsFalse();
 
-    long countAllByGateway(String gateway);
+	long countAllByGateway(String gateway);
 
-    List<TransactionEntity> findAllByGateway(String gateway);
+	List<TransactionEntity> findAllByGateway(String gateway);
 
-    List<TransactionEntity> findAllByOrderById();
+	List<TransactionEntity> findAllByOrderById();
 
-    List<TransactionEntity> findAllByCardHolder(String sender);
+	List<TransactionEntity> findAllByCardHolder(String sender);
 
-    List<TransactionEntity> findAllByReceiver(String receiver);
+	List<TransactionEntity> findAllByReceiver(String receiver);
 }

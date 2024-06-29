@@ -6,16 +6,16 @@ import hu.schbme.paybasz.station.serialize.CsvSerializer;
 
 @JsonSerialize(using = CsvSerializer.class)
 public enum AddCardStatus implements CsvSerializable {
-    ACCEPTED,
-    INTERNAL_ERROR,
-    USER_NOT_FOUND,
-    ALREADY_ADDED,
-    USER_HAS_CARD,
-    UNAUTHORIZED_TERMINAL;
+	ACCEPTED,
+	INTERNAL_ERROR,
+	USER_NOT_FOUND,
+	ALREADY_ADDED,
+	USER_HAS_CARD,
+	UNAUTHORIZED_TERMINAL;
 
-    @Override
-    public String csvSerialize() {
-        return name();
-    }
+	@Override
+	public String csvSerialize() {
+		return name();
+	}
 
 }

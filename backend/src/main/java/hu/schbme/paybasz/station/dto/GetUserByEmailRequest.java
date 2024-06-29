@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetUserByEmailRequest {
-    private String email;
-    private String gatewayCode;
+	private String email;
+	private String gatewayCode;
 }

@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PaymentRequest {
 
-    private String card;
-    private Integer amount;
-    private String gatewayCode;
-    private String details;
+	private String card;
+	private Integer amount;
+	private String gatewayCode;
+	private String details;
 
 }

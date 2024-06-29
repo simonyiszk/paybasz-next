@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AddCardRequest {
 
-    private String card;
-    private Integer userId;
-    private String gatewayCode;
+	private String card;
+	private Integer userId;
+	private String gatewayCode;
 
 }

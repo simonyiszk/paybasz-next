@@ -13,13 +13,13 @@ import lombok.NoArgsConstructor;
 @JsonSerialize(using = CsvSerializer.class)
 public class ItemQueryResult implements CsvSerializable {
 
-    private boolean valid;
-    private String name;
-    private int price;
+	private boolean valid;
+	private String name;
+	private int price;
 
-    @Override
-    public String csvSerialize() {
-        return (valid ? "1" : "0") + ";" + name.replace(';', ':') + ";" + price;
-    }
+	@Override
+	public String csvSerialize() {
+		return (valid ? "1" : "0") + ";" + name.replace(';', ':') + ";" + price;
+	}
 
 }

@@ -6,14 +6,14 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
 
-public class CsvSerializer extends JsonSerializer<CsvSerializable>  {
+public class CsvSerializer extends JsonSerializer<CsvSerializable> {
 
-    @Override
-    public void serialize(CsvSerializable o,
-                          JsonGenerator jsonGenerator,
-                          SerializerProvider serializerProvider
-    ) throws IOException {
-        jsonGenerator.writeRaw(o.csvSerialize());
-    }
+	@Override
+	public void serialize(CsvSerializable o,
+						  JsonGenerator jsonGenerator,
+						  SerializerProvider serializerProvider
+	) throws IOException {
+		jsonGenerator.writeRaw(o.csvSerialize());
+	}
 
 }

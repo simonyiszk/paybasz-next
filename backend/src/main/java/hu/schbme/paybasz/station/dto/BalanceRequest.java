@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BalanceRequest {
 
-    private String card;
-    private String gatewayCode;
+	private String card;
+	private String gatewayCode;
 
 }

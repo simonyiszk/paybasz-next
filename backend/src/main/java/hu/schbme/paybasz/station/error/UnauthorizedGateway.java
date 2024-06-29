@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
 public class UnauthorizedGateway extends RuntimeException {
 
-    public UnauthorizedGateway() {
-    }
+	public UnauthorizedGateway() {
+	}
 
-    public UnauthorizedGateway(String message) {
-        super(message);
-    }
+	public UnauthorizedGateway(String message) {
+		super(message);
+	}
 
 }

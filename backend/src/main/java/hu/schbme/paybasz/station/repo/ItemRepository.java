@@ -9,10 +9,10 @@ import java.util.List;
 @Repository
 public interface ItemRepository extends CrudRepository<ItemEntity, Integer> {
 
-    List<ItemEntity> findAll();
+	List<ItemEntity> findAll();
 
-    List<ItemEntity> findAllByOrderById();
+	List<ItemEntity> findAllByOrderById();
 
-    List<ItemEntity> findAllByCodeAndActiveTrueOrderByPriceDesc(String code);
+	List<ItemEntity> findAllByCodeAndActiveTrueOrderByPriceDesc(String code);
 
 }

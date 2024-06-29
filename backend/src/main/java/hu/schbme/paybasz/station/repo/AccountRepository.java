@@ -10,16 +10,16 @@ import java.util.Optional;
 @Repository
 public interface AccountRepository extends CrudRepository<AccountEntity, Integer> {
 
-    List<AccountEntity> findAll();
+	List<AccountEntity> findAll();
 
-    Optional<AccountEntity> findByCard(String card);
+	Optional<AccountEntity> findByCard(String card);
 
-    List<AccountEntity> findAllByBalanceLessThan(int zero);
+	List<AccountEntity> findAllByBalanceLessThan(int zero);
 
-    List<AccountEntity> findAllByBalanceGreaterThan(int zero);
+	List<AccountEntity> findAllByBalanceGreaterThan(int zero);
 
-    List<AccountEntity> findAllByOrderById();
+	List<AccountEntity> findAllByOrderById();
 
-    Optional<AccountEntity> findByEmail(String email);
+	Optional<AccountEntity> findByEmail(String email);
 
 }

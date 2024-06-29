@@ -13,24 +13,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/mobile")
 public class MobileControllerOld {
 
-    @GetMapping("/")
-    public String index() {
-        return "mobile/mobile";
-    }
+	@GetMapping("/")
+	public String index() {
+		return "mobile/mobile";
+	}
 
-    @GetMapping("/pay")
-    public String pay() {
-        return "mobile/pay";
-    }
+	@GetMapping("/pay")
+	public String pay() {
+		return "mobile/pay";
+	}
 
-    @GetMapping("/read")
-    public String read() {
-        return "mobile/read";
-    }
+	@GetMapping("/read")
+	public String read() {
+		return "mobile/read";
+	}
 
-    @GetMapping("/scan")
-    public String scan() {
-        return "mobile/scan";
-    }
+	@GetMapping("/scan")
+	public String scan() {
+		return "mobile/scan";
+	}
 
 }
