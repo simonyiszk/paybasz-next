@@ -9,6 +9,8 @@ Run the following commands in the root directory of the project:
 docker-compose up -d
 ```
 
+If you deploy on lois with certbot and NGINX, it's better to disable `server.ssl.enabled` in the mobile and backend `application.properties` files.
+
 # Old documentation
 
 paybasz
