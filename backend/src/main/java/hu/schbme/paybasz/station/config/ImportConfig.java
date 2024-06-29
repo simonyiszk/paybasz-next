@@ -1,21 +1,21 @@
 package hu.schbme.paybasz.station.config;
 
 import hu.schbme.paybasz.station.service.TransactionService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Profile("import")
 @Configuration
+@RequiredArgsConstructor
 public class ImportConfig {
 
-    @Autowired
-    private TransactionService system;
+    private final TransactionService system;
 
     @PostConstruct
     public void init() throws IOException {

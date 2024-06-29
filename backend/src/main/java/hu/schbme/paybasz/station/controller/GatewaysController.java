@@ -5,8 +5,8 @@ import hu.schbme.paybasz.station.dto.GatewayCreateDto;
 import hu.schbme.paybasz.station.model.GatewayEntity;
 import hu.schbme.paybasz.station.service.GatewayService;
 import hu.schbme.paybasz.station.service.LoggingService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,13 +23,10 @@ import java.util.Random;
 @Slf4j
 @Controller
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class GatewaysController {
 
-    @Autowired
-    private GatewayService gatewayService;
-
-    @Autowired
-    private LoggingService logger;
+    private final GatewayService gatewayService;
 
     @Value("${paybasz.mobile.address}")
     private String mobileBaseUrl;

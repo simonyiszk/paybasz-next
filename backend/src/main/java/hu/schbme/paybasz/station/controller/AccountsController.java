@@ -5,8 +5,8 @@ import hu.schbme.paybasz.station.dto.PaymentStatus;
 import hu.schbme.paybasz.station.model.AccountEntity;
 import hu.schbme.paybasz.station.service.LoggingService;
 import hu.schbme.paybasz.station.service.TransactionService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,15 +17,13 @@ import java.util.Optional;
 @Slf4j
 @Controller
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class AccountsController {
 
     public static final String DUPLICATE_CARD_ERROR = "DUPLICATE_CARD";
 
-    @Autowired
-    private TransactionService system;
-
-    @Autowired
-    private LoggingService logger;
+    private final TransactionService system;
+    private final LoggingService logger;
 
     @GetMapping("/accounts")
     public String accounts(Model model) {
@@ -39,7 +37,7 @@ public class AccountsController {
         account.ifPresentOrElse(acc -> model.addAttribute("balance", acc.getBalance())
                         .addAttribute("loan", Math.abs(acc.getMinimumBalance()))
                         .addAttribute("name", acc.getName())
-                        .addAttribute("max", acc.getBalance() >= 0 ? (acc.getBalance() + -acc.getMinimumBalance()) : (-acc.getMinimumBalance() + acc.getBalance()))
+                        .addAttribute("max", Math.abs(acc.getBalance() - acc.getMinimumBalance()))
                         .addAttribute("id", acc.getId()),
                 () -> model.addAttribute("balance", 0)
                         .addAttribute("loan", 0)
@@ -149,7 +147,7 @@ public class AccountsController {
         account.ifPresent(acc -> {
             system.setAccountAllowed(id, true);
             logger.action("<color>" + acc.getName() + "</color> tiltása feloldva");
-            log.info("User purchases allowed for " + acc.getName());
+			log.info("User purchases allowed for {}", acc.getName());
         });
         return "redirect:/admin/accounts";
     }
@@ -160,7 +158,7 @@ public class AccountsController {
         account.ifPresent(acc -> {
             system.setAccountAllowed(id, false);
             logger.failure("<color>" + acc.getName() + "</color> letiltva");
-            log.info("User purchases disallowed for " + acc.getName());
+			log.info("User purchases disallowed for {}", acc.getName());
         });
         return "redirect:/admin/accounts";
     }
@@ -171,7 +169,7 @@ public class AccountsController {
         account.ifPresent(acc -> {
             system.setAccountProcessed(id, true);
             logger.success("<color>" + acc.getName() + "</color> könyvelve");
-            log.info("User status set processed for " + acc.getName());
+			log.info("User status set processed for {}", acc.getName());
         });
         return "redirect:/admin/accounts";
     }
@@ -182,7 +180,7 @@ public class AccountsController {
         account.ifPresent(acc -> {
             system.setAccountProcessed(id, false);
             logger.failure("<color>" + acc.getName() + "</color> könyvelési státusza: nincs könyvelve");
-            log.info("User processed status unset for " + acc.getName());
+			log.info("User processed status unset for {}", acc.getName());
         });
         return "redirect:/admin/accounts";
     }

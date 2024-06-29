@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import static hu.schbme.paybasz.station.config.AppUtil.DATE_TIME_FORMATTER;
 

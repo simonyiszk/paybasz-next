@@ -4,17 +4,18 @@ import hu.schbme.paybasz.station.dto.*;
 import hu.schbme.paybasz.station.service.GatewayService;
 import hu.schbme.paybasz.station.service.LoggingService;
 import hu.schbme.paybasz.station.service.TransactionService;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
 
 @SuppressWarnings("SpellCheckingInspection")
 @Slf4j
 @RestController
 @RequestMapping("/mapi")
-//@Profile("mobile")
-@CrossOrigin(origins = "*", allowedHeaders = "*", allowCredentials = "true")
+@CrossOrigin
 public class MobileController extends Api2Controller {
 
     @Autowired
@@ -48,7 +49,7 @@ public class MobileController extends Api2Controller {
     @PostMapping("/validate-uploader/{gatewayName}")
     public ValidationStatus validateUploader(@RequestHeader("User-Agent") String userAgent, @PathVariable String gatewayName, @RequestBody ValidateRequest request) {
         boolean valid = gateways.authorizeUploaderGateway(gatewayName, request.getGatewayCode());
-        log.info("Gateways auth uploader request: " + gatewayName + " (" + (valid ? "OK" : "INVALID") + ")");
+		log.info("Gateways auth uploader request: {} ({})", gatewayName, valid ? "OK" : "INVALID");
         if (valid) {
             gateways.updateLastUsed(gatewayName);
             logger.action("Feltöltő terminál authentikáció sikeres: <color>" + gatewayName + "</color> (User-Agent: " + userAgent + ")");

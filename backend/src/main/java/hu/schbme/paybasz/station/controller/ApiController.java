@@ -8,11 +8,11 @@ import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.service.GatewayService;
 import hu.schbme.paybasz.station.service.LoggingService;
 import hu.schbme.paybasz.station.service.TransactionService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,16 +23,12 @@ import static hu.schbme.paybasz.station.PaybaszApplication.VERSION;
 @Slf4j
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class ApiController {
 
-    @Autowired
-    private TransactionService system;
-
-    @Autowired
-    private GatewayService gateways;
-
-    @Autowired
-    private LoggingService logger;
+    private final TransactionService system;
+    private final GatewayService gateways;
+    private final LoggingService logger;
 
     @PostMapping("/pay/{gatewayName}")
     public PaymentStatus pay(@PathVariable String gatewayName, @RequestBody PaymentRequest request) {
@@ -62,7 +58,7 @@ public class ApiController {
             throw new UnauthorizedGateway();
 
         gateways.updateLastUsed(gatewayName);
-        log.info("New balance from gateway '" + gatewayName + "' card hash: '" + request.getCard().toUpperCase() + "'");
+		log.info("New balance from gateway '{}' card hash: '{}'", gatewayName, request.getCard().toUpperCase());
         Optional<AccountEntity> account = system.getAccountByCard(request.getCard().toUpperCase());
         var accountBalance = account.map(accountEntity -> new AccountBalance(accountEntity.getBalance(), isLoadAllowed(accountEntity), accountEntity.isAllowed()))
                 .orElseGet(() -> new AccountBalance(0, false, false));
@@ -75,7 +71,7 @@ public class ApiController {
     @PutMapping("/validate/{gatewayName}")
     public ValidationStatus validate(@PathVariable String gatewayName, @RequestBody ValidateRequest request) {
         boolean valid = gateways.authorizeGateway(gatewayName, request.getGatewayCode());
-        log.info("Gateways auth request: " + gatewayName + " (" + (valid ? "OK" : "INVALID") + ")");
+		log.info("Gateways auth request: {} ({})", gatewayName, valid ? "OK" : "INVALID");
         if (valid) {
             gateways.updateLastUsed(gatewayName);
             logger.action("Terminál authentikáció sikeres: <color>" + gatewayName + "</color>");
@@ -90,7 +86,7 @@ public class ApiController {
         if (!gateways.authorizeGateway(gatewayName, readingRequest.getGatewayCode()))
             return ValidationStatus.INVALID;
 
-        log.info("New reading from gateway '" + gatewayName + "' read card hash: '" + readingRequest.getCard().toUpperCase() + "'");
+		log.info("New reading from gateway '{}' read card hash: '{}'", gatewayName, readingRequest.getCard().toUpperCase());
         logger.action("Leolvasás történt: <badge>" + readingRequest.getCard().toUpperCase() + "</badge> (terminál: " + gatewayName + ")");
         gateways.appendReading(gatewayName, readingRequest.getCard().toUpperCase());
         gateways.updateLastUsed(gatewayName);
@@ -113,7 +109,7 @@ public class ApiController {
 
     @GetMapping("/status")
     public String test(HttpServletRequest request) {
-        log.info("Status endpoint triggered from IP: " + request.getRemoteAddr());
+		log.info("Status endpoint triggered from IP: {}", request.getRemoteAddr());
         logger.serverInfo("Státusz olvasás a <color>" + request.getRemoteAddr() + "</color> címről");
         return "Server: " + VERSION + ";"
                 + "by Schami;" // If you fork it, include your name
@@ -129,7 +125,7 @@ public class ApiController {
 
         return system.getALlItems().stream()
                 .filter(ItemEntity::isActive)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
     private boolean isLoadAllowed(AccountEntity accountEntity) {

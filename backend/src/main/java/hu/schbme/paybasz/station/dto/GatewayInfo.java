@@ -5,7 +5,7 @@ import hu.schbme.paybasz.station.model.InMemoryGatewayInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import javax.persistence.Transient;
+import jakarta.persistence.Transient;
 import java.util.Deque;
 
 @Data

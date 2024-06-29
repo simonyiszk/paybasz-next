@@ -1,11 +1,11 @@
 package hu.schbme.paybasz.station.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import hu.schbme.paybasz.station.serialize.CsvSerializeable;
+import hu.schbme.paybasz.station.serialize.CsvSerializable;
 import hu.schbme.paybasz.station.serialize.CsvSerializer;
 
 @JsonSerialize(using = CsvSerializer.class)
-public enum AddCardStatus implements CsvSerializeable {
+public enum AddCardStatus implements CsvSerializable {
     ACCEPTED,
     INTERNAL_ERROR,
     USER_NOT_FOUND,

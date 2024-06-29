@@ -1,6 +1,6 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="layout :: head" th:remove="body">
+<head th:replace="~{layout :: head}" th:remove="body">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Language" content="en">
@@ -18,11 +18,11 @@
 <body>
 <div class="app-container app-theme-gray">
     <div class="app-main">
-        <div th:replace="layout :: menu('transactions')"></div>
+        <div th:replace="~{layout :: menu('transactions')}"></div>
 
         <div class="app-main__outer">
             <div class="app-main__inner">
-                <div th:replace="layout :: menuMobile"></div>
+                <div th:replace="~{layout :: menuMobile}"></div>
                 <div class="app-header mt-lg-5">
                     <div class="page-title-heading">
                         <span class="material-icons fix-material-icons">payment</span> Tranzakciók
@@ -80,6 +80,6 @@
     </div>
 </div>
 <div class="app-drawer-overlay d-none animated fadeIn"></div>
-<object th:replace="layout :: scripts"></object>
+<object th:replace="~{layout :: scripts}"></object>
 </body>
 </html>

@@ -4,8 +4,8 @@ import hu.schbme.paybasz.station.dto.ItemCreateDto;
 import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.service.LoggingService;
 import hu.schbme.paybasz.station.service.TransactionService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +17,11 @@ import java.util.stream.Collectors;
 @Slf4j
 @Controller
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class ItemsController {
 
-    @Autowired
-    private TransactionService system;
-
-    @Autowired
-    private LoggingService logger;
+    private final TransactionService system;
+    private final LoggingService logger;
 
     @GetMapping("/items")
     public String items(Model model) {
@@ -83,7 +81,7 @@ public class ItemsController {
         item.ifPresent(it -> {
             system.setItemActive(id, true);
             logger.action("<color>" + it.getName() + "</color> termék rendelhető");
-            log.info("Item purchase activated for " + it.getName() + " (" +it.getQuantity() + ")");
+			log.info("Item purchase activated for {} ({})", it.getName(), it.getQuantity());
         });
         return "redirect:/admin/items";
     }
@@ -94,7 +92,7 @@ public class ItemsController {
         item.ifPresent(it -> {
             system.setItemActive(id, false);
             logger.failure("<color>" + it.getName() + "</color> termék nem redelhető");
-            log.info("Item purchase deactivated for " + it.getName() + " (" +it.getQuantity() + ")");
+			log.info("Item purchase deactivated for {} ({})", it.getName(), it.getQuantity());
         });
         return "redirect:/admin/items";
     }

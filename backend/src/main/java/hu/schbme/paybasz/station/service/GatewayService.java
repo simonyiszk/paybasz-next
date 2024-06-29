@@ -7,12 +7,12 @@ import hu.schbme.paybasz.station.model.InMemoryGatewayInfo;
 import hu.schbme.paybasz.station.model.TransactionEntity;
 import hu.schbme.paybasz.station.repo.GatewayRepository;
 import hu.schbme.paybasz.station.repo.TransactionRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,18 +22,14 @@ import static hu.schbme.paybasz.station.model.GatewayEntity.*;
 @SuppressWarnings({"DefaultAnnotationParam", "SpellCheckingInspection"})
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class GatewayService {
 
     public static final String WEB_TERMINAL_NAME = "WebTerminal";
 
-    @Autowired
-    private LoggingService logger;
-
-    @Autowired
-    private TransactionRepository transactions;
-
-    @Autowired
-    private GatewayRepository gateways;
+    private final LoggingService logger;
+    private final TransactionRepository transactions;
+    private final GatewayRepository gateways;
 
     private final Map<String, InMemoryGatewayInfo> gatewayInfo = new HashMap<>();
 
@@ -44,7 +40,7 @@ public class GatewayService {
                     return new GatewayInfo(it.getId(), it.getName(), gw.getLastPacket(), gw.getLastReadings(),
                             readTxCount(it), readAllTraffic(it), it.getType(), it.getMoney());
                 })
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
     private long readAllTraffic(GatewayEntity gw) {

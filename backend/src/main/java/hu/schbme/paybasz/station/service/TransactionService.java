@@ -10,8 +10,8 @@ import hu.schbme.paybasz.station.model.TransactionEntity;
 import hu.schbme.paybasz.station.repo.AccountRepository;
 import hu.schbme.paybasz.station.repo.ItemRepository;
 import hu.schbme.paybasz.station.repo.TransactionRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,25 +21,16 @@ import java.util.stream.Stream;
 
 import static hu.schbme.paybasz.station.service.GatewayService.WEB_TERMINAL_NAME;
 
-@SuppressWarnings({"DefaultAnnotationParam", "SpellCheckingInspection"})
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class TransactionService {
 
-    @Autowired
-    private TransactionRepository transactions;
-
-    @Autowired
-    private AccountRepository accounts;
-
-    @Autowired
-    private GatewayService gateways;
-
-    @Autowired
-    private ItemRepository items;
-
-    @Autowired
-    private LoggingService logger;
+    private final TransactionRepository transactions;
+    private final AccountRepository accounts;
+    private final GatewayService gateways;
+    private final ItemRepository items;
+    private final LoggingService logger;
 
     @Transactional(readOnly = true)
     public Optional<AccountEntity> getAccountByCard(String card) {
@@ -71,7 +62,7 @@ public class TransactionService {
         accountEntity.setBalance(accountEntity.getBalance() - amount);
         accounts.save(accountEntity);
         transactions.save(transaction);
-        log.info("Payment proceed: " + transaction.getId() + " with amount: " + transaction.getAmount() + " at gateway: " + transaction.getGateway());
+		log.info("Payment proceed: {} with amount: {} at gateway: {}", transaction.getId(), transaction.getAmount(), transaction.getGateway());
         logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
         return PaymentStatus.ACCEPTED;
     }
@@ -93,7 +84,7 @@ public class TransactionService {
         accountEntity.setBalance(accountEntity.getBalance() + amount);
         accounts.save(accountEntity);
         transactions.save(transaction);
-        log.info(transaction.getAmount() + " money added to: " + accountEntity.getName());
+		log.info("{} money added to: {}", transaction.getAmount(), accountEntity.getName());
         logger.success("<badge>" + accountEntity.getName() + "</badge> számlájára feltöltve: <color>" + amount + " JMF</color>" + (message.isBlank() ? "" : " (megjegyzés: " + message + ")"));
         return true;
     }
@@ -124,7 +115,7 @@ public class TransactionService {
         accountEntity.setBalance(accountEntity.getBalance() + amount);
         accounts.save(accountEntity);
         transactions.save(transaction);
-        log.info("Upload proceed: " + transaction.getId() + " with amount: " + transaction.getAmount() + " at gateway: " + transaction.getGateway());
+		log.info("Upload proceed: {} with amount: {} at gateway: {}", transaction.getId(), transaction.getAmount(), transaction.getGateway());
         logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres feltöltés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
         return PaymentStatus.ACCEPTED;
     }
@@ -154,7 +145,7 @@ public class TransactionService {
         accountEntity.setProcessed(false);
         accounts.save(accountEntity);
         transactions.save(transaction);
-        log.info("Free beer proceed: " + transaction.getId() + " at gateway: " + transaction.getGateway());
+		log.info("Free beer proceed: {} at gateway: {}", transaction.getId(), transaction.getGateway());
         logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres sör felhasználás (terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
         return PaymentStatus.ACCEPTED;
     }
@@ -162,14 +153,14 @@ public class TransactionService {
     @Transactional(readOnly = false)
     public void createAccount(String name, String email, String phone, String card, int amount, int minAmount, boolean allowed) {
         card = card.toUpperCase();
-        log.info("New user was created with card: " + card);
+		log.info("New user was created with card: {}", card);
         logger.note("<badge>" + name + "</badge> regisztrálva");
         accounts.save(new AccountEntity(null, name, card, phone, email, amount, minAmount, allowed, true, ""));
     }
 
     @Transactional(readOnly = false)
     public void createItem(String name, String quantity, String code, String abbreviation, int price, boolean active) {
-        log.info("New item was created: " + name + " (" + quantity + ") " + price + " JMF");
+		log.info("New item was created: {} ({}) {} JMF", name, quantity, price);
         logger.note("<badge>" + name + "</badge> termék hozzáadva");
         items.save(new ItemEntity(null, name, quantity, code, abbreviation, price, active));
     }
@@ -318,7 +309,7 @@ public class TransactionService {
         accountEntity.setBalance(accountEntity.getBalance() - amount);
         accounts.save(accountEntity);
         transactions.save(transaction);
-        log.info("Payment proceed: " + transaction.getId() + " with amount: " + transaction.getAmount() + " at gateway: " + transaction.getGateway());
+		log.info("Payment proceed: {} with amount: {} at gateway: {}", transaction.getId(), transaction.getAmount(), transaction.getGateway());
         logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>" + (message.isBlank() ? "" : " (megjegyzés: " + message + ")"));
         return PaymentStatus.ACCEPTED;
     }
@@ -354,7 +345,7 @@ public class TransactionService {
         return "id;name;quantity;code;abbreviation;price;active"
                 + System.lineSeparator()
                 + items.findAllByOrderById().stream()
-                .map(it -> Stream.of("" + it.getId(), "" + it.getName(), it.getQuantity(), it.getCode(), it.getAbbreviation(),
+                .map(it -> Stream.of("" + it.getId(), it.getName(), it.getQuantity(), it.getCode(), it.getAbbreviation(),
                             "" + it.getPrice(), "" + it.isActive())
                         .map(attr -> attr.replace(";", "\\;"))
                         .collect(Collectors.joining(";")))

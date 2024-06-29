@@ -10,11 +10,13 @@ import hu.schbme.paybasz.station.repo.AccountRepository;
 import hu.schbme.paybasz.station.service.GatewayService;
 import hu.schbme.paybasz.station.service.LoggingService;
 import hu.schbme.paybasz.station.service.TransactionService;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,7 +27,7 @@ import static hu.schbme.paybasz.station.PaybaszApplication.VERSION;
 @Slf4j
 @RestController
 @RequestMapping("/api/v2")
-@CrossOrigin(origins = "*", allowedHeaders = "*", allowCredentials = "true")
+@CrossOrigin
 public class Api2Controller {
 
     @Autowired
@@ -68,7 +70,7 @@ public class Api2Controller {
             throw new UnauthorizedGateway();
 
         gateways.updateLastUsed(gatewayName);
-        log.info("New balance from gateway '" + gatewayName + "' card hash: '" + request.getCard().toUpperCase() + "'");
+		log.info("New balance from gateway '{}' card hash: '{}'", gatewayName, request.getCard().toUpperCase());
         Optional<AccountEntity> account = system.getAccountByCard(request.getCard().toUpperCase());
         var accountBalance = account.map(accountEntity -> new AccountBalance(accountEntity.getBalance(), isLoadAllowed(accountEntity), accountEntity.isAllowed()))
                 .orElseGet(() -> new AccountBalance(-1, false, false));
@@ -82,7 +84,7 @@ public class Api2Controller {
     public int myBalance(@RequestBody MyBalanceRequest request) {
         if (request.getName().isBlank())
             throw new UnauthorizedGateway();
-        log.info("Balance check name: '" + request.getName() + "' card hash: '" + request.getCard().toUpperCase() + "'");
+		log.info("Balance check name: '{}' card hash: '{}'", request.getName(), request.getCard().toUpperCase());
         Optional<AccountEntity> account = system.getAccountByCard(request.getCard().toUpperCase());
         var accountBalance = account.map(accountEntity -> new AccountBalance(accountEntity.getBalance(), isLoadAllowed(accountEntity), accountEntity.isAllowed()))
                 .orElseGet(() -> new AccountBalance(-1, false, false));
@@ -95,7 +97,7 @@ public class Api2Controller {
     @PostMapping("/validate/{gatewayName}")
     public ValidationStatus validate(@RequestHeader("User-Agent") String userAgent, @PathVariable String gatewayName, @RequestBody ValidateRequest request) {
         boolean valid = gateways.authorizeGateway(gatewayName, request.getGatewayCode());
-        log.info("Gateways auth request: " + gatewayName + " (" + (valid ? "OK" : "INVALID") + ")");
+		log.info("Gateways auth request: {} ({})", gatewayName, valid ? "OK" : "INVALID");
         if (valid) {
             gateways.updateLastUsed(gatewayName);
             logger.action("Terminál authentikáció sikeres: <color>" + gatewayName + "</color> (User-Agent: " + userAgent + ")");
@@ -110,7 +112,7 @@ public class Api2Controller {
         if (!gateways.authorizeGateway(gatewayName, readingRequest.getGatewayCode()))
             return ValidationStatus.INVALID;
 
-        log.info("New reading from gateway '" + gatewayName + "' read card hash: '" + readingRequest.getCard().toUpperCase() + "'");
+		log.info("New reading from gateway '{}' read card hash: '{}'", gatewayName, readingRequest.getCard().toUpperCase());
         logger.action("Leolvasás történt: <badge>" + readingRequest.getCard().toUpperCase() + "</badge> (terminál: " + gatewayName + ")");
         gateways.appendReading(gatewayName, readingRequest.getCard().toUpperCase());
         gateways.updateLastUsed(gatewayName);
@@ -133,7 +135,7 @@ public class Api2Controller {
 
     @GetMapping("/status")
     public String test(HttpServletRequest request) {
-        log.info("Status endpoint triggered from IP: " + request.getRemoteAddr());
+		log.info("Status endpoint triggered from IP: {}", request.getRemoteAddr());
         logger.serverInfo("Státusz olvasás a <color>" + request.getRemoteAddr() + "</color> címről");
         return "Server: " + VERSION + ";"
                 + "by Balázs;" // If you fork it, include your name
@@ -149,7 +151,7 @@ public class Api2Controller {
 
         return system.getALlItems().stream()
                 .filter(ItemEntity::isActive)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
     @PostMapping("/set-card/{gatewayName}")
@@ -170,7 +172,7 @@ public class Api2Controller {
             return AddCardStatus.USER_HAS_CARD;
 
         account.setCard(request.getCard());
-        log.info("New card assignment from gateway '" + gatewayName + "' card hash: '" + request.getCard() + "', user: " + account.getName());
+		log.info("New card assignment from gateway '{}' card hash: '{}', user: {}", gatewayName, request.getCard(), account.getName());
         logger.action("<color>" + account.getName() + "</color> felhasználóhoz kártya rendelve: <badge>" + request.getCard() + "</badge>  (terminál: " + gatewayName + ")");
         accounts.save(account);
         return AddCardStatus.ACCEPTED;

@@ -3,14 +3,14 @@ package hu.schbme.paybasz.station.controller;
 import hu.schbme.paybasz.station.config.AppUtil;
 import hu.schbme.paybasz.station.service.LoggingService;
 import hu.schbme.paybasz.station.service.TransactionService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,15 +24,13 @@ import static hu.schbme.paybasz.station.config.AppUtil.formatNumber;
 @Slf4j
 @Controller
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class AdminController {
 
     public static final String DUPLICATE_CARD_ERROR = "DUPLICATE_CARD";
 
-    @Autowired
-    private TransactionService system;
-
-    @Autowired
-    private LoggingService logger;
+    private final TransactionService system;
+    private final LoggingService logger;
 
     @RequestMapping("/")
     public String index(Model model) {

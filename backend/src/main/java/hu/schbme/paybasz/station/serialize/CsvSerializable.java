@@ -1,6 +1,6 @@
 package hu.schbme.paybasz.station.serialize;
 
-public interface CsvSerializeable {
+public interface CsvSerializable {
 
     String csvSerialize();
 
