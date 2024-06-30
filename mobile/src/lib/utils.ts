@@ -1,3 +1,4 @@
+import { statusEnum } from '@/types';
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -13,8 +14,9 @@ export const post = async <T, R>({ url, data, asJson }: { url: string; data: T; 
     body: JSON.stringify(data)
   }).then((res) => (asJson ? res.json() : res.text()) as Promise<R>)
 
-export const scanNFC = () =>
+export const scanNFC = (setStatus: React.Dispatch<React.SetStateAction<statusEnum>>) =>
   new Promise<NDEFReadingEvent>((resolve, reject) => {
+    setStatus(statusEnum.WAITING_FOR_CARD)
     const ndef = new NDEFReader()
     ndef.scan().then(() => {
       ndef.addEventListener('reading', (e) => resolve(e as NDEFReadingEvent), { once: true })

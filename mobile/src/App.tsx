@@ -1,12 +1,17 @@
-import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState } from 'react'
 import NoNFCBanner from './components/NoNFCBanner'
 import TerminalTypeSelector from './components/TerminalTypeSelector.tsx'
-import WaitingForCardLoader from './components/WaitingForCardLoader'
-import { scanNFC } from './lib/utils'
-import { setCard, validate, validateUploader } from '@/api/api.ts'
-import { TerminalType, UserType } from '@/model/model.ts'
-import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
+
+import { scanNFC, sha256 } from './lib/utils'
+import { setCard, validate, validateUploader, balance } from '@/api/api.ts'
+import { statusEnum } from './types.ts'
+import { TerminalType } from './model/model.ts'
+import LoadingModal from './components/LoadingModal.tsx'
+import SuccessModal from './components/SuccessModal.tsx'
+import InfoModal from './components/InfoModal.tsx'
+import InputModal from './components/InputModal.tsx'
+import { Button } from './components/ui/Button.tsx'
+import { getBalanceData } from './lib/network.ts'
 
 const checkUserType = async (gatewayName: string, gatewayCode: string) => {
   if (!gatewayName || !gatewayCode) {
@@ -28,19 +33,13 @@ const checkUserType = async (gatewayName: string, gatewayCode: string) => {
 
 function App() {
   const [info, setInfo] = useState("");
-  const [terminalType, setTerminalType] = useState("select");
+  const [terminalType, setTerminalType] = useState<TerminalType>();
   const [status, setStatus] = useState<statusEnum>(statusEnum.OK);
-  const terminalData = useMemo(() => {
-    const pathName = window.location.pathname.split("/");
-    return {
-      terminalName: pathName[1],
-      terminalToken: pathName[2],
-    };
-  }, []);
+  const [, gatewayName, gatewayCode] = window.location.pathname.split('/')
   if (!("NDEFReader" in window)) {
     return <NoNFCBanner />;
   }
-  if (terminalType === "select") {
+  if (!terminalType) {
     return (
       <TerminalTypeSelector
         setTerminalType={setTerminalType}
@@ -52,7 +51,8 @@ function App() {
     const res = await scanNFC(setStatus);
     const networkData = await setCard({
       cardSerial: res.serialNumber,
-      terminalData,
+      gateway: gatewayName,
+      terminalToken: gatewayCode,
       userId: 1,
     });
     if (networkData.ok) {
@@ -64,9 +64,10 @@ function App() {
   };
   const getBalance = async () => {
     const res = await scanNFC(setStatus);
-    const balance = await getBalanceData({
-      cardSerial: res.serialNumber,
-      terminalData,
+    const balanceData = await balance({
+      card: await sha256(res.serialNumber),
+      gateway: gatewayName,
+      gatewayCode: gatewayCode,
     });
     setInfo((await balance.text()) + " JMF");
     setStatus(statusEnum.SHOWING_BALANCE);
@@ -125,7 +126,6 @@ function App() {
       <Button
         variant="destructive"
         onClick={() => {
-          setCardSerial(undefined)
           setTerminalType(undefined)
         }}
       >

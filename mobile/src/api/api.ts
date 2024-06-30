@@ -5,6 +5,7 @@ const getUrl = (gateway: string, endpoint: string) => `${import.meta.env.VITE_BA
 
 export const setCard = (data: CardData) => post({ url: getUrl(data.gateway, 'set-card'), data })
 
+
 /// Checks if gateway is valid
 export const validate = (data: ValidateRequest): Promise<boolean> =>
   post<ValidateRequest, string>({
