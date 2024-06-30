@@ -1,17 +1,18 @@
-import path from "path";
-import react from "@vitejs/plugin-react-swc";
-import mkcert from "vite-plugin-mkcert";
-import { defineConfig } from "vite";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react-swc'
+import * as path from 'node:path'
 
+// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), process.env.NODE_ENV == "development" ? mkcert() : null],
+  plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
+      '@': path.resolve(__dirname, './src')
+    }
   },
   server: {
-    host: "0.0.0.0",
+    host: '0.0.0.0',
     open: true,
-  },
-});
+    port: 3000
+  }
+})

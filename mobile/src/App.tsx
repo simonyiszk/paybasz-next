@@ -1,29 +1,30 @@
-import { useMemo, useState } from "react";
-import "./App.css";
-import Button from "./components/ui/Button";
-import NoNFCBanner from "./components/NoNFCBanner";
-import TerminalTypeSelector from "./TerminalTypeSelector";
-import ResetButton from "./components/ui/ResetButton";
-import { scanNFC, sha256 } from "./lib/utils";
-import { statusEnum } from "./types";
-import InfoModal from "./components/InfoModal";
-import { getBalanceData, setCard } from "./lib/network";
-import SuccessModal from "./components/SuccessModal";
-import InputModal from "./components/InputModal";
-import LoadingModal from "./components/LoadingModal";
+import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import NoNFCBanner from './components/NoNFCBanner'
+import TerminalTypeSelector from './components/TerminalTypeSelector.tsx'
+import WaitingForCardLoader from './components/WaitingForCardLoader'
+import { scanNFC } from './lib/utils'
+import { setCard, validate, validateUploader } from '@/api/api.ts'
+import { TerminalType, UserType } from '@/model/model.ts'
+import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 
-// async function httpFetchData(method = "POST", url = "", data = {}) {
-//   const response = await fetch(url, {
-//     method: method,
-//     mode: "cors",
-//     cache: "no-cache",
-//     headers: {
-//       "Content-Type": "application/json;charset=UTF-8",
-//     },
-//     body: JSON.stringify(data),
-//   });
-//   return response.text();
-// }
+const checkUserType = async (gatewayName: string, gatewayCode: string) => {
+  if (!gatewayName || !gatewayCode) {
+    return 'Basic'
+  }
+
+  const isUploader = await validateUploader({ gatewayCode, gateway: gatewayName })
+  if (isUploader) {
+    return 'Uploader'
+  }
+
+  const isMerchant = await validate({ gatewayCode, gateway: gatewayName })
+  if (isMerchant) {
+    return 'Merchant'
+  }
+
+  return 'Basic'
+}
 
 function App() {
   const [info, setInfo] = useState("");
@@ -121,15 +122,17 @@ function App() {
         <Button onClick={getAmount}>Feltöltés</Button>
         <Button onClick={() => {}}>Tételek</Button>
       </div>
-      <ResetButton
+      <Button
+        variant="destructive"
         onClick={() => {
-          setInfo("");
-          setTerminalType("select");
-          setStatus(statusEnum.OK);
+          setCardSerial(undefined)
+          setTerminalType(undefined)
         }}
-      />
+      >
+        Reset
+      </Button>
     </>
-  );
+  )
 }
 
-export default App;
+export default App
