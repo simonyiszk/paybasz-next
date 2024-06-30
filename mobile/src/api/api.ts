@@ -1,7 +1,7 @@
 import type { BalanceRequest, CardData, GetUserRequest, PaymentRequest, ReadingRequest, ValidateRequest } from '@/model/model.ts'
 import { post } from '@/lib/utils.ts'
 
-const getUrl = (gateway: string, endpoint: string) => `${import.meta.env.VITE_BACKEND_URL}/api/v2/${endpoint}/${gateway}`
+const getUrl = (gateway: string, endpoint: string) => `${import.meta.env.VITE_BACKEND_URL}/mapi/${endpoint}/${gateway}`
 
 export const setCard = (data: CardData) => post({ url: getUrl(data.gateway, 'set-card'), data })
 
