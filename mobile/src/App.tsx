@@ -1,28 +1,51 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import NoNFCBanner from './components/NoNFCBanner'
-import TerminalTypeSelector from './TerminalTypeSelector'
+import TerminalTypeSelector from './components/TerminalTypeSelector.tsx'
 import WaitingForCardLoader from './components/WaitingForCardLoader'
 import { scanNFC } from './lib/utils'
-import { setCard } from '@/api/api.ts'
+import { setCard, validate, validateUploader } from '@/api/api.ts'
+import { TerminalType, UserType } from '@/model/model.ts'
+import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 
-/**
- * set-card/<terminal name>
- *  {
- "card": <hashed card id>,
- "userId": 2,
- "gatewayCode":<terminal token>
- }
- */
+const checkUserType = async (gatewayName: string, gatewayCode: string) => {
+  if (!gatewayName || !gatewayCode) {
+    return 'Basic'
+  }
+
+  const isUploader = await validateUploader({ gatewayCode, gateway: gatewayName })
+  if (isUploader) {
+    return 'Uploader'
+  }
+
+  const isMerchant = await validate({ gatewayCode, gateway: gatewayName })
+  if (isMerchant) {
+    return 'Merchant'
+  }
+
+  return 'Basic'
+}
 
 function App() {
-  const [cardSerial, setCardSerial] = useState('')
-  const [terminalType, setTerminalType] = useState('select')
+  const [cardSerial, setCardSerial] = useState<string>()
+  const [terminalType, setTerminalType] = useState<TerminalType>()
   const [waitingForCard, setWaitingForCard] = useState(false)
+  const [userType, setUserType] = useState<UserType>()
+  const [, gatewayName, gatewayCode] = window.location.pathname.split('/')
+
+  useEffect(() => {
+    checkUserType(gatewayName, gatewayCode).then(setUserType)
+  }, [gatewayName, gatewayCode])
+
   if (!('NDEFReader' in window)) {
     return <NoNFCBanner />
   }
-  if (terminalType === 'select') {
+
+  if (!userType) {
+    return <LoadingIndicator />
+  }
+
+  if (!terminalType) {
     return <TerminalTypeSelector setTerminalType={setTerminalType} terminalType={terminalType} />
   }
 
@@ -67,8 +90,8 @@ function App() {
       <Button
         variant="destructive"
         onClick={() => {
-          setCardSerial('')
-          setTerminalType('select')
+          setCardSerial(undefined)
+          setTerminalType(undefined)
         }}
       >
         Reset

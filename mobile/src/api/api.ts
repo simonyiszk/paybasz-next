@@ -1,16 +1,18 @@
-import type { CardData } from '@/model/CardData.ts'
-import type { ValidateRequest } from '@/model/ValidateRequest.ts'
-import type { PaymentRequest } from '@/model/PaymentRequest.ts'
-import type { BalanceRequest } from '@/model/BalanceRequest.ts'
-import type { GetUserRequest } from '@/model/GetUserRequest.ts'
-import type { ReadingRequest } from '@/model/ReadingRequest.ts'
+import type { BalanceRequest, CardData, GetUserRequest, PaymentRequest, ReadingRequest, ValidateRequest } from '@/model/model.ts'
 import { post } from '@/lib/utils.ts'
 
 const getUrl = (gateway: string, endpoint: string) => `${import.meta.env.VITE_BACKEND_URL}/api/v2/${endpoint}/${gateway}`
 
 export const setCard = (data: CardData) => post({ url: getUrl(data.gateway, 'set-card'), data })
 
-export const validate = (data: ValidateRequest) => post({ url: getUrl(data.gateway, 'validate'), data })
+/// Checks if gateway is valid
+export const validate = (data: ValidateRequest): Promise<boolean> =>
+  post<ValidateRequest, string>({
+    url: getUrl(data.gateway, 'validate'),
+    data
+  })
+    .then((res) => res === 'OK')
+    .catch(() => false)
 
 export const freeBeer = (data: PaymentRequest) => post({ url: getUrl(data.gateway, 'free-beer'), data })
 
@@ -24,4 +26,11 @@ export const reading = (data: ReadingRequest) => post({ url: getUrl(data.gateway
 
 export const upload = (data: PaymentRequest) => post({ url: getUrl(data.gateway, 'upload'), data })
 
-export const validateUploader = (data: PaymentRequest) => post({ url: getUrl(data.gateway, 'validate-uploader'), data })
+/// Checks if the user can upload funds
+export const validateUploader = (data: ValidateRequest): Promise<boolean> =>
+  post<ValidateRequest, string>({
+    url: getUrl(data.gateway, 'validate-uploader'),
+    data
+  })
+    .then((res) => res === 'OK')
+    .catch(() => false)
