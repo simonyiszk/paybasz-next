@@ -4,5 +4,5 @@ export default function NoNFCBanner() {
       Nem támogatott böngésző.
       <br /> Kérlek próbáld meg telefonos chromeon
     </div>
-  );
+  )
 }

@@ -24,5 +24,5 @@ export default function WaitingForCardLoader() {
         </div>
       </div>
     </div>
-  );
+  )
 }

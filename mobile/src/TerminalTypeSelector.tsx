@@ -1,9 +1,9 @@
 export default function TerminalTypeSelector({
   setTerminalType,
-  terminalType,
+  terminalType
 }: {
-  setTerminalType: React.Dispatch<React.SetStateAction<string>>;
-  terminalType: string;
+  setTerminalType: React.Dispatch<React.SetStateAction<string>>
+  terminalType: string
 }) {
   return (
     <div>
@@ -22,5 +22,5 @@ export default function TerminalTypeSelector({
         <option value="Other">Egyéb</option>
       </select>
     </div>
-  );
+  )
 }
