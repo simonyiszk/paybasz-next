@@ -1,33 +1,13 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import NoNFCBanner from "./components/NoNFCBanner";
-import TerminalTypeSelector from "./TerminalTypeSelector";
-import WaitingForCardLoader from "./components/WaitingForCardLoader";
-import { scanNFC } from "./lib/utils";
-
-type CardData = {
-  cardSerial: string
-  terminalName: string
-  terminalToken: string
-  userId: number
-}
-const setCard = async (cardData: CardData) => {
-  return fetch(import.meta.env.VITE_BACKEND_URL + "/set-card/" + cardData.terminalName, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    mode: "cors",
-    body: JSON.stringify({
-      card: cardData.cardSerial,
-      userId: cardData.userId,
-      gatewayCode: cardData.terminalToken
-    })
-  });
-};
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import NoNFCBanner from './components/NoNFCBanner'
+import TerminalTypeSelector from './TerminalTypeSelector'
+import WaitingForCardLoader from './components/WaitingForCardLoader'
+import { scanNFC } from './lib/utils'
+import { setCard } from '@/api/api.ts'
 
 /**
- * /api/v2/set-card/<terminal name>
+ * set-card/<terminal name>
  *  {
  "card": <hashed card id>,
  "userId": 2,
@@ -36,14 +16,14 @@ const setCard = async (cardData: CardData) => {
  */
 
 function App() {
-  const [cardSerial, setCardSerial] = useState("");
-  const [terminalType, setTerminalType] = useState("select");
-  const [waitingForCard, setWaitingForCard] = useState(false);
-  if (!("NDEFReader" in window)) {
-    return <NoNFCBanner />;
+  const [cardSerial, setCardSerial] = useState('')
+  const [terminalType, setTerminalType] = useState('select')
+  const [waitingForCard, setWaitingForCard] = useState(false)
+  if (!('NDEFReader' in window)) {
+    return <NoNFCBanner />
   }
-  if (terminalType === "select") {
-    return <TerminalTypeSelector setTerminalType={setTerminalType} terminalType={terminalType} />;
+  if (terminalType === 'select') {
+    return <TerminalTypeSelector setTerminalType={setTerminalType} terminalType={terminalType} />
   }
 
   return (
@@ -53,10 +33,10 @@ function App() {
         {waitingForCard && <WaitingForCardLoader />}
         <Button
           onClick={async () => {
-            setWaitingForCard(true);
-            const res = await scanNFC();
-            setWaitingForCard(false);
-            setCardSerial(res.serialNumber);
+            setWaitingForCard(true)
+            const res = await scanNFC()
+            setWaitingForCard(false)
+            setCardSerial(res.serialNumber)
           }}
         >
           Kártya beolvasása
@@ -65,18 +45,18 @@ function App() {
         <Button onClick={() => scanNFC().then((result) => setCardSerial(result.serialNumber))}>Fizetés</Button>
         <Button
           onClick={async () => {
-            setWaitingForCard(true);
-            const res = await scanNFC();
-            setWaitingForCard(false);
-            setCardSerial(res.serialNumber);
-            const pathName = window.location.pathname.split("/");
-            console.log(pathName);
+            setWaitingForCard(true)
+            const res = await scanNFC()
+            setWaitingForCard(false)
+            setCardSerial(res.serialNumber)
+            const pathName = window.location.pathname.split('/')
+            console.log(pathName)
             setCard({
               cardSerial: res.serialNumber,
-              terminalName: pathName[1],
+              gateway: pathName[1],
               terminalToken: pathName[2],
               userId: 2
-            });
+            })
           }}
         >
           Kártya hozzárendelése
@@ -87,12 +67,14 @@ function App() {
       <Button
         variant="destructive"
         onClick={() => {
-          setCardSerial("");
-          setTerminalType("select");
+          setCardSerial('')
+          setTerminalType('select')
         }}
-      >Reset</Button>
+      >
+        Reset
+      </Button>
     </>
-  );
+  )
 }
 
-export default App;
+export default App
