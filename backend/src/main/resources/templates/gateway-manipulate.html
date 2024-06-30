@@ -1,87 +1,131 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="layout :: head" th:remove="body">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="Content-Language" content="en">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>paybasz</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no"/>
-    <link rel="icon" href="favicon.ico">
+<head th:remove="body" th:replace="~{layout :: head}">
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="en" http-equiv="Content-Language">
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <title>paybasz</title>
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no"
+        name="viewport"/>
+  <link href="favicon.ico" rel="icon">
 
-    <meta name="msapplication-tap-highlight" content="no">
+  <meta content="no" name="msapplication-tap-highlight">
 
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="/style.css" rel="stylesheet">
-    <link href="/custom-style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="/style.css" rel="stylesheet">
+  <link href="/custom-style.css" rel="stylesheet">
 </head>
 <body>
 <div class="app-container app-theme-gray">
-    <div class="app-main">
-        <div th:replace="layout :: menu('items')"></div>
+  <div class="app-main">
+    <div th:replace="~{layout :: menu('items')}"></div>
 
-        <div class="app-main__outer">
-            <div class="app-main__inner">
-                <div th:replace="layout :: menuMobile"></div>
-                <div class="app-header mt-lg-5">
-                    <div class="page-title-heading" th:if="${item == null}">
-                        <span class="material-icons fix-material-icons">add_box</span> Terminál hozzáadása
-                    </div>
-                    <div class="page-title-heading" th:unless="${item == null}">
-                        <span class="material-icons fix-material-icons">create</span> Terminál módosítása
-                    </div>
-                    <div class="app-header-right">
+    <div class="app-main__outer">
+      <div class="app-main__inner">
+        <div th:replace="~{layout :: menuMobile}"></div>
+        <div class="app-header mt-lg-5">
+          <div class="page-title-heading" th:if="${item == null}">
+            <span class="material-icons fix-material-icons">add_box</span> Terminál hozzáadása
+          </div>
+          <div class="page-title-heading" th:unless="${item == null}">
+            <span class="material-icons fix-material-icons">create</span> Terminál módosítása
+          </div>
+          <div class="app-header-right">
 
-                    </div>
-                    <div class="app-header-overlay d-none animated fadeIn"></div>
-                </div>
-                <div class="app-inner-layout app-inner-layout-page">
-
-                    <div class="app-inner-layout__wrapper">
-                        <div class="app-inner-layout__content">
-                            <div class="tab-content">
-                                <div class="container-fluid">
-                                    <div class="row">
-                                        <div class="col-sm-12 col-lg-6">
-                                            <div class="main-card mb-3 card">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">Terminál</h5>
-                                                    <img th:if="${!createMode}" style="display:block; height:250px; margin:auto;" id="base64image"
-                                                         th:src="|data:image/jpeg;base64, ${qrcode}|" />
-                                                    <form class="" th:action="|/admin/${createMode ? 'create' : 'modify' }-gateway|" method="post">
-                                                        <input th:unless="${gateway == null}"  type="hidden" name="id" th:value="${gateway?.getId()}" />
-                                                        <div class="position-relative form-group"><label for="name" class="">Név</label><input name="name" id="name" th:value="${gateway?.getName()}" th:readonly="${gateway?.getType() == 'web'}" placeholder="" type="text" class="form-control" autocomplete="off" spellcheck="false"></div>
-                                                        <div class="text-danger mb-2" th:if="${error != null && error}">Ez a név már foglalt</div>
-                                                        <div class="position-relative form-group" th:hidden="${gateway?.getType() == 'web'}"><label for="token" class="">Token</label><input name="token" id="token" th:value="${gateway?.getToken()}" th:readonly="${gateway?.getType() == 'web'}" placeholder="" type="text" class="form-control" autocomplete="off" spellcheck="false"></div>
-                                                        <div class="form-group">
-                                                            <label for="type">Típus</label>
-                                                            <select class="form-control" id="type" name="type" th:readonly="${gateway?.getType() == 'web'}">
-                                                                <option th:selected="${gateway?.getType() == 'physical'}" value="physical">Fizikai</option>
-                                                                <option th:selected="${gateway?.getType() == 'mobile'}" value="mobile">Mobil</option>
-                                                                <option th:selected="${gateway?.getType() == 'uploader'}" value="uploader">Feltöltő</option>
-                                                                <option th:if="${gateway?.getType() == 'web'}" th:selected="${gateway?.getType() == 'web'}" value="web">Webes</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="position-relative form-group" th:if="${gateway?.getType() == 'web' || gateway?.getType() == 'uploader'}"><label for="money" class="">Befizetések</label><input name="money" id="money" th:value="${gateway?.getMoney()}" placeholder="" type="number" class="form-control" autocomplete="off"></div>
-                                                        <input th:unless="${gateway?.getType() == 'web' || gateway?.getType() == 'uploader'}"  type="hidden" name="money" th:value="${gateway?.getMoney()}" />
-                                                        <input th:if="${createMode}" type="submit" class="mt-1 btn btn-dark" value="HOZZÁAD" />
-                                                        <input th:unless="${createMode}" type="submit" class="mt-1 btn btn-dark" value="MÓDOSÍT" />
-                                                        <a th:href="@{/admin/gateways}" class="mt-1 ml-1 btn btn-outline-light">VISSZA</a>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
+          <div class="app-header-overlay d-none animated fadeIn"></div>
         </div>
+        <div class="app-inner-layout app-inner-layout-page">
+
+          <div class="app-inner-layout__wrapper">
+            <div class="app-inner-layout__content">
+              <div class="tab-content">
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col-sm-12 col-lg-6">
+                      <div class="main-card mb-3 card">
+                        <div class="card-body">
+                          <h5 class="card-title">Terminál</h5>
+                          <img id="base64image"
+                               style="display:block; height:250px; margin:auto;"
+                               th:if="${!createMode}"
+                               th:src="|data:image/jpeg;base64, ${qrcode}|"/>
+                          <form class="" method="post"
+                                th:action="|/admin/${createMode ? 'create' : 'modify' }-gateway|">
+                            <input name="id" th:unless="${gateway == null}"
+                                   th:value="${gateway?.getId()}"
+                                   type="hidden"/>
+                            <div class="position-relative form-group"><label class=""
+                                                                             for="name">Név</label><input
+                                autocomplete="off" class="form-control" id="name"
+                                name="name" placeholder="" spellcheck="false"
+                                th:readonly="${gateway?.getType() == 'web'}"
+                                th:value="${gateway?.getName()}" type="text"></div>
+                            <div class="text-danger mb-2" th:if="${error != null && error}">
+                              Ez a név már foglalt
+                            </div>
+                            <div class="position-relative form-group"
+                                 th:hidden="${gateway?.getType() == 'web'}"><label
+                                class="" for="token">Token</label><input
+                                autocomplete="off" class="form-control"
+                                id="token"
+                                name="token"
+                                placeholder="" spellcheck="false"
+                                th:readonly="${gateway?.getType() == 'web'}"
+                                th:value="${gateway?.getToken()}" type="text"></div>
+                            <div class="form-group">
+                              <label for="type">Típus</label>
+                              <select class="form-control" id="type" name="type"
+                                      th:readonly="${gateway?.getType() == 'web'}">
+                                <option th:selected="${gateway?.getType() == 'physical'}"
+                                        value="physical">Fizikai
+                                </option>
+                                <option th:selected="${gateway?.getType() == 'mobile'}"
+                                        value="mobile">Mobil
+                                </option>
+                                <option th:selected="${gateway?.getType() == 'uploader'}"
+                                        value="uploader">Feltöltő
+                                </option>
+                                <option th:if="${gateway?.getType() == 'web'}"
+                                        th:selected="${gateway?.getType() == 'web'}"
+                                        value="web">Webes
+                                </option>
+                              </select>
+                            </div>
+                            <div class="position-relative form-group"
+                                 th:if="${gateway?.getType() == 'web' || gateway?.getType() == 'uploader'}">
+                              <label
+                                  class="" for="money">Befizetések</label><input
+                                autocomplete="off" class="form-control"
+                                id="money"
+                                name="money" placeholder=""
+                                th:value="${gateway?.getMoney()}" type="number">
+                            </div>
+                            <input name="money"
+                                   th:unless="${gateway?.getType() == 'web' || gateway?.getType() == 'uploader'}"
+                                   th:value="${gateway?.getMoney()}" type="hidden"/>
+                            <input class="mt-1 btn btn-dark" th:if="${createMode}"
+                                   type="submit" value="HOZZÁAD"/>
+                            <input class="mt-1 btn btn-dark" th:unless="${createMode}"
+                                   type="submit" value="MÓDOSÍT"/>
+                            <a class="mt-1 ml-1 btn btn-outline-light"
+                               th:href="@{/admin/gateways}">VISSZA</a>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 <div class="app-drawer-overlay d-none animated fadeIn"></div>
-<object th:replace="layout :: scripts"></object>
+<object th:replace="~{layout :: scripts}"></object>
 </body>
 </html>

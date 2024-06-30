@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GetUserRequest {
 
-    private Integer userId;
-    private String gatewayCode;
+	private Integer userId;
+	private String gatewayCode;
 
 }

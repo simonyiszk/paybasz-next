@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ValidateRequest {
 
-    private String gatewayCode;
+	private String gatewayCode;
 
 }

@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GatewayCreateDto {
 
-    private Integer id = null;
-    private String name;
-    private String token;
-    private String type;
-    private Integer money;
+	private Integer id = null;
+	private String name;
+	private String token;
+	private String type;
+	private Integer money;
 
 }

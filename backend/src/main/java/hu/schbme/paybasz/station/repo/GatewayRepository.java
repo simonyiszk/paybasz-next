@@ -10,8 +10,8 @@ import java.util.Optional;
 @Repository
 public interface GatewayRepository extends CrudRepository<GatewayEntity, Integer> {
 
-    List<GatewayEntity> findAll();
+	List<GatewayEntity> findAll();
 
-    Optional<GatewayEntity> findByName(String name);
+	Optional<GatewayEntity> findByName(String name);
 
 }

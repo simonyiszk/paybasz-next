@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ItemQueryRequest {
 
-    private String query;
-    private String gatewayCode;
+	private String query;
+	private String gatewayCode;
 
 }

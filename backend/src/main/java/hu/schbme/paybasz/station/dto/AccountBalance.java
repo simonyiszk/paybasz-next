@@ -1,7 +1,7 @@
 package hu.schbme.paybasz.station.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import hu.schbme.paybasz.station.serialize.CsvSerializeable;
+import hu.schbme.paybasz.station.serialize.CsvSerializable;
 import hu.schbme.paybasz.station.serialize.CsvSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonSerialize(using = CsvSerializer.class)
-public class AccountBalance implements CsvSerializeable {
+public class AccountBalance implements CsvSerializable {
 
-    private int balance;
-    private boolean loadAllowed;
-    private boolean allowed;
+	private int balance;
+	private boolean loadAllowed;
+	private boolean allowed;
 
-    @Override
-    public String csvSerialize() {
-        return balance + ";" + (loadAllowed ? "1" : "0") + ";" + (allowed ? "1" : "0");
-    }
+	@Override
+	public String csvSerialize() {
+		return balance + ";" + (loadAllowed ? "1" : "0") + ";" + (allowed ? "1" : "0");
+	}
 
 }
