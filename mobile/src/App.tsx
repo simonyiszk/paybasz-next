@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { scanNFC, sha256 } from './lib/utils'
-import { balance, setCard } from '@/api/api.ts'
+import { balance } from '@/api/api.ts'
 import { statusEnum } from './types.ts'
 import LoadingModal from './components/LoadingModal.tsx'
 import SuccessModal from './components/SuccessModal.tsx'
@@ -13,6 +13,7 @@ import { useTerminalType } from '@/components/TerminalTypeContext.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx'
 import { Logo } from '@/components/Logo.tsx'
 import { BalanceCheckPage } from '@/page/BalanceCheckPage.tsx'
+import { SetCardPage } from '@/page/set-card/SetCardPage.tsx'
 
 export const App = () => {
   const { gatewayName, gatewayCode } = useUserContext()
@@ -20,19 +21,6 @@ export const App = () => {
   const [info, setInfo] = useState('')
   const [status, setStatus] = useState<statusEnum>(statusEnum.OK)
 
-  const assignCard = async () => {
-    const res = await scanNFC(setStatus)
-    const networkData = await setCard({
-      cardSerial: res.serialNumber,
-      gateway: gatewayName,
-      terminalToken: gatewayCode,
-      userId: 1
-    })
-    if (networkData == 'ACCEPTED') {
-      setStatus(statusEnum.SUCCESS)
-      new Promise((resolve) => setTimeout(resolve, 1000)).then(() => setStatus(statusEnum.OK))
-    }
-  }
   const getBalance = async () => {
     const res = await scanNFC(setStatus)
     const balanceData = await balance({
@@ -72,7 +60,9 @@ export const App = () => {
       <TabsContent value="balance">
         <BalanceCheckPage />
       </TabsContent>
-      <TabsContent value="assign">Kártya hozzárendelés</TabsContent>
+      <TabsContent value="assign">
+        <SetCardPage />
+      </TabsContent>
       <TabsContent value="pay">Fizetés</TabsContent>
       <TabsContent value="upload">Feltöltés</TabsContent>
     </Tabs>
@@ -97,7 +87,6 @@ export const App = () => {
         <Button onClick={readCard}>Kártya beolvasása</Button>
         <Button onClick={getBalance}>Egyenleg</Button>
         <Button onClick={() => {}}>Fizetés</Button>
-        <Button onClick={assignCard}>Kártya hozzárendelése</Button>
         <Button onClick={getAmount}>Feltöltés</Button>
         <Button onClick={() => {}}>Tételek</Button>
       </div>

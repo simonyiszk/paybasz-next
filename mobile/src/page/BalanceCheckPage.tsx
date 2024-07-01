@@ -40,7 +40,7 @@ export const BalanceCheckPage = () => {
 
   return (
     <div className="flex items-center flex-col gap-4">
-      <h1 className="font-bold text-2xl pb-2">Érints kártyát az eszközhöz...</h1>
+      <h1 className="font-bold text-2xl pb-2 text-center">Érints kártyát az eszközhöz...</h1>
 
       {!!card && loading && (
         <div className="mt-4">

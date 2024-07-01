@@ -24,9 +24,9 @@ export type GetUserRequest = {
 }
 
 export type CardData = {
-  cardSerial: string
+  card: string
   gateway: string
-  terminalToken: string
+  gatewayCode: string
   userId: number
 }
 
