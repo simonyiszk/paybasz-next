@@ -28,7 +28,11 @@ export const UserStateValidator: FC<PropsWithChildren> = ({ children }) => {
   }, [gatewayName, gatewayCode])
 
   if (!userData) {
-    return <LoadingIndicator />
+    return (
+      <div className="flex w-full h-[100vh] items-center justify-center">
+        <LoadingIndicator />
+      </div>
+    )
   }
 
   return <UserContext.Provider value={userData}>{children}</UserContext.Provider>
