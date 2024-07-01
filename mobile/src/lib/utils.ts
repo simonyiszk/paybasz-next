@@ -1,10 +1,17 @@
-import { statusEnum } from '@/types';
+import { statusEnum } from '@/types'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+
+export const setPersistentState =
+  <T>(key: string, stateSetter: (state: T) => void) =>
+  (value: T) => {
+    localStorage.setItem(key, typeof value === 'object' ? JSON.stringify(value) : String(value))
+    stateSetter(value)
+  }
 
 export const post = async <T, R>({ url, data, asJson }: { url: string; data: T; asJson?: boolean }): Promise<R> =>
   fetch(url, {
@@ -25,12 +32,10 @@ export const scanNFC = (setStatus: React.Dispatch<React.SetStateAction<statusEnu
   })
 
 export async function sha256(message: string) {
-  const msgBuffer = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-  console.log(hashHex.toUpperCase());
-  return hashHex.toUpperCase();
+  const msgBuffer = new TextEncoder().encode(message)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  console.log(hashHex.toUpperCase())
+  return hashHex.toUpperCase()
 }

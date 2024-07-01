@@ -9,7 +9,8 @@ export type TerminalTypeSelectorProps = {
 export default function TerminalTypeSelector({ setTerminalType, terminalType }: TerminalTypeSelectorProps) {
   return (
     <Select value={terminalType} onValueChange={setTerminalType}>
-      <SelectTrigger className="w-[180px]">
+      <h1 className="font-bold text-2xl pb-4">Add meg, milyen terminállal dolgozol!</h1>
+      <SelectTrigger>
         <SelectValue placeholder="Válassz terminál típust" />
       </SelectTrigger>
       <SelectContent>

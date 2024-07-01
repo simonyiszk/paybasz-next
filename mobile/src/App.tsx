@@ -1,31 +1,21 @@
 import { useState } from 'react'
-import TerminalTypeSelector from './components/TerminalTypeSelector.tsx'
 
 import { scanNFC, sha256 } from './lib/utils'
 import { balance, setCard } from '@/api/api.ts'
 import { statusEnum } from './types.ts'
-import { TerminalType } from './model/model.ts'
 import LoadingModal from './components/LoadingModal.tsx'
 import SuccessModal from './components/SuccessModal.tsx'
 import InfoModal from './components/InfoModal.tsx'
 import InputModal from './components/InputModal.tsx'
 import { Button } from './components/ui/button.tsx'
 import { useUserContext } from '@/components/UserContext.tsx'
-import { NoPermissionBanner } from '@/components/NoPermissionBanner.tsx'
+import { useTerminalType } from '@/components/TerminalTypeContext.tsx'
 
 export const App = () => {
-  const { type: userType, gatewayName, gatewayCode } = useUserContext()
+  const { gatewayName, gatewayCode } = useUserContext()
+  const [, setTerminalType] = useTerminalType()
   const [info, setInfo] = useState('')
-  const [terminalType, setTerminalType] = useState<TerminalType>()
   const [status, setStatus] = useState<statusEnum>(statusEnum.OK)
-
-  if (userType == 'Basic') {
-    return <NoPermissionBanner />
-  }
-
-  if (!terminalType) {
-    return <TerminalTypeSelector setTerminalType={setTerminalType} terminalType={terminalType} />
-  }
 
   const assignCard = async () => {
     const res = await scanNFC(setStatus)

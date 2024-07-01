@@ -2,6 +2,7 @@ import { UserType } from '@/model/model.ts'
 import { createContext, FC, PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { validate, validateUploader } from '@/api/api.ts'
+import { NoPermissionBanner } from '@/components/NoPermissionBanner.tsx'
 
 const UserContext = createContext<UserData>({} as UserData)
 
@@ -33,6 +34,10 @@ export const UserStateValidator: FC<PropsWithChildren> = ({ children }) => {
         <LoadingIndicator />
       </div>
     )
+  }
+
+  if (userData.type == 'Basic') {
+    return <NoPermissionBanner />
   }
 
   return <UserContext.Provider value={userData}>{children}</UserContext.Provider>
