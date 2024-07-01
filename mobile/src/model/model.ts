@@ -51,3 +51,23 @@ export const terminalNames: { [key in TerminalType]: string } = {
 
 export const userTypes = ['Uploader', 'Merchant', 'Basic'] as const
 export type UserType = (typeof userTypes)[number]
+
+export const addCardStatuses = [
+  'ACCEPTED',
+  'INTERNAL_ERROR',
+  'USER_NOT_FOUND',
+  'ALREADY_ADDED',
+  'USER_HAS_CARD',
+  'UNAUTHORIZED_TERMINAL'
+] as const
+export type AddCardStatus = (typeof addCardStatuses)[number]
+
+export const paymentStatuses = [
+  'ACCEPTED',
+  'INTERNAL_ERROR',
+  'NOT_ENOUGH_CASH',
+  'VALIDATION_ERROR',
+  'CARD_REJECTED',
+  'UNAUTHORIZED_TERMINAL'
+] as const
+export type PaymentStatus = (typeof paymentStatuses)[number]
