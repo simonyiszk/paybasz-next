@@ -1,6 +1,7 @@
 import { statusEnum } from '@/types'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { DependencyList, useEffect } from 'react'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -31,11 +32,19 @@ export const scanNFC = (setStatus: React.Dispatch<React.SetStateAction<statusEnu
     })
   })
 
+export const useNFCScanner = (onScan: (event: NDEFReadingEvent) => void, deps: DependencyList) => {
+  useEffect(() => {
+    const ndef = new NDEFReader()
+    ndef.scan().then(() => ndef.addEventListener('reading', onScan as EventListenerOrEventListenerObject))
+    return ndef.removeEventListener('reading', onScan as EventListenerOrEventListenerObject)
+  }, deps)
+}
+
 export async function sha256(message: string) {
   const msgBuffer = new TextEncoder().encode(message)
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
   const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-  console.log(hashHex.toUpperCase())
+
   return hashHex.toUpperCase()
 }

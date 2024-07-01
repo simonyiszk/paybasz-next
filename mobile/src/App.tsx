@@ -10,6 +10,9 @@ import InputModal from './components/InputModal.tsx'
 import { Button } from './components/ui/button.tsx'
 import { useUserContext } from '@/components/UserContext.tsx'
 import { useTerminalType } from '@/components/TerminalTypeContext.tsx'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx'
+import { Logo } from '@/components/Logo.tsx'
+import { BalanceCheckPage } from '@/components/BalanceCheckPage.tsx'
 
 export const App = () => {
   const { gatewayName, gatewayCode } = useUserContext()
@@ -49,6 +52,31 @@ export const App = () => {
   const getAmount = async () => {
     setStatus(statusEnum.WAITING_FOR_AMOUNT)
   }
+
+  return (
+    <Tabs defaultValue="balance" className="p-4 max-w-2xl m-auto">
+      <div className="flex flex-col sm:flex-row sm:justify-between mb-8 gap-4 sm:gap-8">
+        <div className="m-auto sm:m-0">
+          <Logo />
+        </div>
+        <TabsList>
+          <TabsTrigger value="balance">Egyenleg</TabsTrigger>
+          <TabsTrigger value="assign">
+            Hozzáre<span className="sm:hidden">...</span>
+            <span className="hidden sm:inline">ndelés</span>
+          </TabsTrigger>
+          <TabsTrigger value="pay">Fizetés</TabsTrigger>
+          <TabsTrigger value="upload">Feltöltés</TabsTrigger>
+        </TabsList>
+      </div>
+      <TabsContent value="balance">
+        <BalanceCheckPage />
+      </TabsContent>
+      <TabsContent value="assign">Kártya hozzárendelés</TabsContent>
+      <TabsContent value="pay">Fizetés</TabsContent>
+      <TabsContent value="upload">Feltöltés</TabsContent>
+    </Tabs>
+  )
 
   return (
     <>

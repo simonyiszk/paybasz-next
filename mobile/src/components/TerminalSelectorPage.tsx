@@ -8,7 +8,7 @@ export type TerminalSelectorPageProps = {
 }
 
 export const TerminalSelectorPage = ({ setTerminalType, terminalType }: TerminalSelectorPageProps) => (
-  <div className="flex p-4 flex-col gap-6">
+  <div className="flex p-4 flex-col gap-6 items-center">
     <Logo />
     <TerminalTypeSelector setTerminalType={setTerminalType} terminalType={terminalType} />
   </div>
