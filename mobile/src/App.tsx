@@ -42,29 +42,52 @@ export const App = () => {
   }
 
   return (
-    <Tabs defaultValue="balance" className="p-4 max-w-2xl m-auto">
-      <div className="flex flex-col sm:flex-row sm:justify-between mb-8 gap-4 sm:gap-8">
+    <Tabs defaultValue="balance" className="p-4 max-w-2xl m-auto min-h-[100dvh] flex flex-col">
+      <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-8 gap-4 sm:gap-8">
         <div className="m-auto sm:m-0">
           <Logo />
         </div>
-        <TabsList>
-          <TabsTrigger value="balance">Egyenleg</TabsTrigger>
-          <TabsTrigger value="assign">
+        <TabsList className="py-8 hidden sm:flex">
+          <TabsTrigger className="py-4" value="balance">
+            Egyenleg
+          </TabsTrigger>
+          <TabsTrigger className="py-4" value="assign">
             Hozzáre<span className="sm:hidden">...</span>
             <span className="hidden sm:inline">ndelés</span>
           </TabsTrigger>
-          <TabsTrigger value="pay">Fizetés</TabsTrigger>
-          <TabsTrigger value="upload">Feltöltés</TabsTrigger>
+          <TabsTrigger className="py-4" value="pay">
+            Fizetés
+          </TabsTrigger>
+          <TabsTrigger className="py-4" value="upload">
+            Feltöltés
+          </TabsTrigger>
         </TabsList>
       </div>
-      <TabsContent value="balance">
-        <BalanceCheckPage />
-      </TabsContent>
-      <TabsContent value="assign">
-        <SetCardPage />
-      </TabsContent>
-      <TabsContent value="pay">Fizetés</TabsContent>
-      <TabsContent value="upload">Feltöltés</TabsContent>
+      <div className="flex-1">
+        <TabsContent value="balance">
+          <BalanceCheckPage />
+        </TabsContent>
+        <TabsContent value="assign">
+          <SetCardPage />
+        </TabsContent>
+        <TabsContent value="pay">Fizetés</TabsContent>
+        <TabsContent value="upload">Feltöltés</TabsContent>
+      </div>
+      <TabsList className="py-8 flex sm:hidden">
+        <TabsTrigger className="py-4" value="balance">
+          Egyenleg
+        </TabsTrigger>
+        <TabsTrigger className="py-4" value="assign">
+          Hozzáre<span className="sm:hidden">...</span>
+          <span className="hidden sm:inline">ndelés</span>
+        </TabsTrigger>
+        <TabsTrigger className="py-4" value="pay">
+          Fizetés
+        </TabsTrigger>
+        <TabsTrigger className="py-4" value="upload">
+          Feltöltés
+        </TabsTrigger>
+      </TabsList>
     </Tabs>
   )
 
