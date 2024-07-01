@@ -12,7 +12,7 @@ import { useUserContext } from '@/components/UserContext.tsx'
 import { useTerminalType } from '@/components/TerminalTypeContext.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx'
 import { Logo } from '@/components/Logo.tsx'
-import { BalanceCheckPage } from '@/components/BalanceCheckPage.tsx'
+import { BalanceCheckPage } from '@/page/BalanceCheckPage.tsx'
 
 export const App = () => {
   const { gatewayName, gatewayCode } = useUserContext()

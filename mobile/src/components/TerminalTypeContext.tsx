@@ -1,7 +1,7 @@
 import { createContext, FC, PropsWithChildren, useContext, useMemo, useState } from 'react'
 import { TerminalType, terminalTypes } from '@/model/model.ts'
 import { TerminalTypeKey } from '@/lib/constants.ts'
-import { TerminalSelectorPage } from '@/components/TerminalSelectorPage.tsx'
+import { TerminalSelectorPage } from '@/page/TerminalSelectorPage.tsx'
 import { setPersistentState } from '@/lib/utils.ts'
 
 export type TerminalTypeState = [TerminalType, (state?: TerminalType) => void]
