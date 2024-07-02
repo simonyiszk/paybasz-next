@@ -7,7 +7,7 @@ import {
   PaymentStatus,
   ReadingRequest,
   ValidateRequest
-} from '@/model/model.ts'
+} from '@/lib/model.ts'
 import { post } from '@/lib/utils.ts'
 
 const getUrl = (gateway: string, endpoint: string) => `${import.meta.env.VITE_BACKEND_URL}/mapi/${endpoint}/${gateway}`

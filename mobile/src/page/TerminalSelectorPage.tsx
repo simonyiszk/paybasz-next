@@ -1,4 +1,4 @@
-import { TerminalType } from '@/model/model.ts'
+import { TerminalType } from '@/lib/model.ts'
 import TerminalTypeSelector from '@/components/TerminalTypeSelector.tsx'
 import { Logo } from '@/components/Logo.tsx'
 

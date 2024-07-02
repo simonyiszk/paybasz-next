@@ -2,7 +2,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.tsx'
 import { CircleDollarSign, CircleX } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { sha256 } from '@/lib/utils.ts'
-import * as api from '@/api/api.ts'
+import * as api from '@/lib/api.ts'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { useUserContext } from '@/components/UserContext.tsx'
 

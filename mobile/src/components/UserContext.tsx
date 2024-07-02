@@ -1,7 +1,7 @@
-import { UserType } from '@/model/model.ts'
+import { UserType } from '@/lib/model.ts'
 import { createContext, FC, PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
-import { validate, validateUploader } from '@/api/api.ts'
+import { validate, validateUploader } from '@/lib/api.ts'
 import { NoPermissionBanner } from '@/components/NoPermissionBanner.tsx'
 
 const UserContext = createContext<UserData>({} as UserData)

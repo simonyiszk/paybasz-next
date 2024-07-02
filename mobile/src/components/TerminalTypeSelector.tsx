@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select.tsx'
-import { terminalNames, TerminalType, terminalTypes } from '@/model/model.ts'
+import { terminalNames, TerminalType, terminalTypes } from '@/lib/model.ts'
 
 export type TerminalTypeSelectorProps = {
   setTerminalType: (type: TerminalType) => void
