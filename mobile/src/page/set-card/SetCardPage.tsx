@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { EnterUserIdStep } from '@/page/set-card/EnterUserIdStep.tsx'
-import { ScanCardStep } from '@/page/set-card/ScanCardStep.tsx'
+import { ScanCardStep } from '@/page/common/ScanCardStep.tsx'
 import { ConnectStep } from '@/page/set-card/ConnectStep.tsx'
 
 export const SetCardPage = () => {

@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.t
 import { Logo } from '@/components/Logo.tsx'
 import { BalanceCheckPage } from '@/page/BalanceCheckPage.tsx'
 import { SetCardPage } from '@/page/set-card/SetCardPage.tsx'
+import { UploadPage } from '@/page/upload/UploadPage.tsx'
 
 export const App = () => {
   const { gatewayName, gatewayCode } = useUserContext()
@@ -71,7 +72,9 @@ export const App = () => {
           <SetCardPage />
         </TabsContent>
         <TabsContent value="pay">Fizetés</TabsContent>
-        <TabsContent value="upload">Feltöltés</TabsContent>
+        <TabsContent value="upload">
+          <UploadPage />
+        </TabsContent>
       </div>
       <TabsList className="py-8 flex sm:hidden">
         <TabsTrigger className="py-4" value="balance">
@@ -86,7 +89,8 @@ export const App = () => {
         </TabsTrigger>
         <TabsTrigger className="py-4" value="upload">
           Feltöltés
-        </TabsTrigger>
+        </TabsTrigger>{' '}
+        {/*todo only show if user has permission to do this*/}
       </TabsList>
     </Tabs>
   )

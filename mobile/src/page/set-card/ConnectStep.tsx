@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { setCard } from '@/api/api.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
+import { sha256 } from '@/lib/utils.ts'
 
 export const ConnectStep = ({ onReset, card, userId }: { onReset: () => void; card: string; userId: number }) => {
   const { gatewayCode, gatewayName } = useUserContext()
@@ -12,12 +13,8 @@ export const ConnectStep = ({ onReset, card, userId }: { onReset: () => void; ca
   const [error, setError] = useState<string>()
 
   useEffect(() => {
-    setCard({
-      gateway: gatewayName,
-      card,
-      gatewayCode,
-      userId
-    })
+    sha256(card)
+      .then((cardHash) => setCard({ gateway: gatewayName, card: cardHash, gatewayCode, userId }))
       .then(setStatus)
       .catch(() => setError('A hozzárendelés sikertelen!'))
   }, [card, userId, retries])

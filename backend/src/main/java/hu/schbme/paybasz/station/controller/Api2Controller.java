@@ -168,7 +168,7 @@ public class Api2Controller {
 		if (!account.getCard().isEmpty())
 			return AddCardStatus.USER_HAS_CARD;
 
-		account.setCard(request.getCard());
+		account.setCard(request.getCard().toUpperCase());
 		log.info("New card assignment from gateway '{}' card hash: '{}', user: {}", gatewayName, request.getCard(), account.getName());
 		logger.action("<color>" + account.getName() + "</color> felhasználóhoz kártya rendelve: <badge>" + request.getCard() + "</badge>  (terminál: " + gatewayName + ")");
 		accounts.save(account);
