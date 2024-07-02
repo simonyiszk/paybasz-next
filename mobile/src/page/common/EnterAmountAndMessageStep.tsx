@@ -11,31 +11,35 @@ const paymentDetailsSchema = z.object({
   message: z.string().min(1)
 })
 
-const MessageKey = 'uploadMessage'
-
 export const EnterAmountAndMessageStep = ({
   setAmount,
-  setMessage
+  setMessage,
+  messageKey,
+  title,
+  messagePlaceholder
 }: {
+  messagePlaceholder: string
+  title: string
+  messageKey: string
   setAmount: (amount: number) => void
   setMessage: (message: string) => void
 }) => {
   const form = useForm<z.infer<typeof paymentDetailsSchema>>({
     resolver: zodResolver(paymentDetailsSchema),
     defaultValues: {
-      message: localStorage.getItem(MessageKey) || undefined
+      message: localStorage.getItem(messageKey) || undefined
     }
   })
 
   return (
     <>
-      <h1 className="font-bold text-2xl pb-2 text-center">Add meg a feltöltés mennyiségét!</h1>
+      <h1 className="font-bold text-2xl pb-2 text-center">{title}</h1>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit((data) => {
             setAmount(data.amount)
             setMessage(data.message)
-            localStorage.setItem(MessageKey, data.message)
+            localStorage.setItem(messageKey, data.message)
           })}
         >
           <FormField
@@ -60,7 +64,7 @@ export const EnterAmountAndMessageStep = ({
                 <FormControl>
                   <div className="relative">
                     <X className="w-4 h-4 m-auto mr-3 absolute top-0 bottom-0 right-0" onClick={() => form.setValue('message', '')} />
-                    <Input placeholder="Mé kap pészt" {...field} />
+                    <Input placeholder={messagePlaceholder} {...field} />
                   </div>
                 </FormControl>
                 <FormMessage />

@@ -1,13 +1,13 @@
 import { useUserContext } from '@/components/UserContext.tsx'
 import { useEffect, useState } from 'react'
 import { PaymentStatus } from '@/model/model.ts'
-import { upload } from '@/api/api.ts'
+import { pay } from '@/api/api.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { BalanceCheck } from '@/page/common/BalanceCheck.tsx'
 import { sha256 } from '@/lib/utils.ts'
 
-export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => void; card: string; amount: number; message: string }) => {
+export const PayStep = ({ onReset, card, amount, message }: { onReset: () => void; card: string; amount: number; message: string }) => {
   const { gatewayCode, gatewayName } = useUserContext()
   const [retries, setRetries] = useState(0)
   const [status, setStatus] = useState<PaymentStatus>()
@@ -16,9 +16,9 @@ export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => 
 
   useEffect(() => {
     sha256(card)
-      .then((cardHash) => upload({ gateway: gatewayName, details: message, card: cardHash, gatewayCode, amount }))
+      .then((cardHash) => pay({ gateway: gatewayName, details: message, card: cardHash, gatewayCode, amount }))
       .then(setStatus)
-      .catch(() => setError('A feltöltés sikertelen!'))
+      .catch(() => setError('A fizetés sikertelen!'))
   }, [card, amount, message, retries])
 
   if (error)
@@ -40,7 +40,7 @@ export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => 
   if (!status)
     return (
       <>
-        <h1 className="font-bold text-2xl pb-2 text-center">Összeg feltöltése...</h1>
+        <h1 className="font-bold text-2xl pb-2 text-center">Tranzakció folyamatban...</h1>
         <div className="mt-4">
           <LoadingIndicator />
         </div>
@@ -52,7 +52,7 @@ export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => 
       <h1 className="font-bold text-2xl pb-2 text-center">{getMessageFromStatus(status)}</h1>
       <BalanceCheck card={card} loading={balanceCheckLoading} setLoading={setBalanceCheckLoading} />
 
-      <Button onClick={onReset}>Új feltöltés</Button>
+      <Button onClick={onReset}>Új tranzakció</Button>
     </>
   )
 }
@@ -60,13 +60,13 @@ export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => 
 const getMessageFromStatus = (status: PaymentStatus) => {
   switch (status) {
     case 'NOT_ENOUGH_CASH':
-      return 'Nincs elég egyenleg a feltöltéshez!'
+      return 'Nincs elég egyenleg a tranzakcióhoz!'
     case 'VALIDATION_ERROR':
       return 'Validációs hiba!'
     case 'CARD_REJECTED':
       return 'Kártya elutasítva!'
     case 'ACCEPTED':
-      return 'A feltöltés sikeres!'
+      return 'Sikeres tranzakció!'
     case 'INTERNAL_ERROR':
       return 'Váratlan hiba.'
     default:

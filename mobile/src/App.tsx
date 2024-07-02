@@ -4,6 +4,7 @@ import { BalanceCheckPage } from '@/page/BalanceCheckPage.tsx'
 import { SetCardPage } from '@/page/set-card/SetCardPage.tsx'
 import { UploadPage } from '@/page/upload/UploadPage.tsx'
 import { useUserContext } from '@/components/UserContext.tsx'
+import { PayPage } from '@/page/pay/PayPage.tsx'
 
 const TabKey = 'selectedTab'
 
@@ -42,7 +43,9 @@ export const App = () => {
         <TabsContent value="assign">
           <SetCardPage />
         </TabsContent>
-        <TabsContent value="pay">Fizetés</TabsContent>
+        <TabsContent value="pay">
+          <PayPage />
+        </TabsContent>
         {userType == 'Uploader' && (
           <TabsContent value="upload">
             <UploadPage />

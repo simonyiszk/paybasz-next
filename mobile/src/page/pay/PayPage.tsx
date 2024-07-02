@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { ScanCardStep } from '@/page/common/ScanCardStep.tsx'
 import { EnterAmountAndMessageStep } from '@/page/common/EnterAmountAndMessageStep.tsx'
-import { UploadStep } from '@/page/upload/UploadStep.tsx'
+import { ScanCardStep } from '@/page/common/ScanCardStep.tsx'
+import { PayStep } from '@/page/pay/PayStep.tsx'
 
-export const UploadPage = () => {
+export const PayPage = () => {
   const [amount, setAmount] = useState<number>()
   const [message, setMessage] = useState<string>()
   const [card, setCard] = useState<string>()
@@ -12,9 +12,9 @@ export const UploadPage = () => {
   if (!amount || !message) {
     currentStep = (
       <EnterAmountAndMessageStep
-        title="Add meg a feltöltés mennyiségét!"
-        messagePlaceholder="Mé kap pészt?"
-        messageKey="uploadMessage"
+        title="Add meg a fizetendő összeget"
+        messagePlaceholder="Mit vásárol?"
+        messageKey="payMessage"
         setAmount={setAmount}
         setMessage={setMessage}
       />
@@ -23,7 +23,7 @@ export const UploadPage = () => {
     currentStep = <ScanCardStep setCard={setCard} />
   } else {
     currentStep = (
-      <UploadStep
+      <PayStep
         amount={amount}
         message={message}
         card={card}
