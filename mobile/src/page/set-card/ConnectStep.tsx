@@ -62,7 +62,7 @@ const getMessageFromStatus = (status: AddCardStatus) => {
     case 'USER_NOT_FOUND':
       return 'A felhasználó nem létezik.'
     case 'ALREADY_ADDED':
-      return 'Hozzárendelés sikeres!'
+      return 'A kártyát már hozzárendelték valakihez!'
     case 'USER_HAS_CARD':
       return 'A felhasználónak már van egy másik kártyája.'
     default:
