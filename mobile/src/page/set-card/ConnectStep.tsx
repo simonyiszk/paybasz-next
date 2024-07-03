@@ -1,5 +1,5 @@
 import { AddCardStatus } from '@/lib/model.ts'
-import { useUserContext } from '@/components/UserContext.tsx'
+import { useAppContext } from '@/components/AppContext.tsx'
 import { useEffect, useState } from 'react'
 import { setCard } from '@/lib/api.ts'
 import { Button } from '@/components/ui/button.tsx'
@@ -7,7 +7,7 @@ import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { sha256 } from '@/lib/utils.ts'
 
 export const ConnectStep = ({ onReset, card, userId }: { onReset: () => void; card: string; userId: number }) => {
-  const { gatewayCode, gatewayName } = useUserContext()
+  const { gatewayCode, gatewayName } = useAppContext()
   const [retries, setRetries] = useState(0)
   const [status, setStatus] = useState<AddCardStatus>()
   const [error, setError] = useState<string>()

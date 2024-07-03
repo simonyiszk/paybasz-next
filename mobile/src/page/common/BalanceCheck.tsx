@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { cn, sha256 } from '@/lib/utils.ts'
 import * as api from '@/lib/api.ts'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
-import { useUserContext } from '@/components/UserContext.tsx'
+import { useAppContext } from '@/components/AppContext.tsx'
 
 export const BalanceCheck = ({
   card,
@@ -15,7 +15,7 @@ export const BalanceCheck = ({
   loading: boolean
   setLoading: (loading: boolean) => void
 }) => {
-  const { gatewayName, gatewayCode } = useUserContext()
+  const { gatewayName, gatewayCode } = useAppContext()
   const [balance, setBalance] = useState<number>(NaN)
   const [error, setError] = useState<string>()
 

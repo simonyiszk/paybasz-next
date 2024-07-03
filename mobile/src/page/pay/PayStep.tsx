@@ -1,4 +1,4 @@
-import { useUserContext } from '@/components/UserContext.tsx'
+import { useAppContext } from '@/components/AppContext.tsx'
 import { useEffect, useState } from 'react'
 import { PaymentStatus } from '@/lib/model.ts'
 import { pay } from '@/lib/api.ts'
@@ -8,7 +8,7 @@ import { BalanceCheck } from '@/page/common/BalanceCheck.tsx'
 import { sha256 } from '@/lib/utils.ts'
 
 export const PayStep = ({ onReset, card, amount, message }: { onReset: () => void; card: string; amount: number; message: string }) => {
-  const { gatewayCode, gatewayName } = useUserContext()
+  const { gatewayCode, gatewayName } = useAppContext()
   const [retries, setRetries] = useState(0)
   const [status, setStatus] = useState<PaymentStatus>()
   const [error, setError] = useState<string>()

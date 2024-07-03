@@ -36,6 +36,25 @@ export type BalanceRequest = {
   gateway: string
 }
 
+export type Item = {
+  id: number
+  name: string
+  quantity: number
+  code: string
+  abbreviation: string
+  price: number
+}
+
+export type AppRequest = {
+  gatewayCode: string
+  gateway: string
+}
+
+export type AppResponse = {
+  uploader: boolean
+  items: Item[]
+}
+
 export const terminalTypes = ['Bar', 'Food', 'Check-in', 'Merch', 'Charity', 'Withdraw', 'Other'] as const
 export type TerminalType = (typeof terminalTypes)[number]
 

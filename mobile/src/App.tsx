@@ -3,13 +3,13 @@ import { Logo } from '@/components/Logo.tsx'
 import { BalanceCheckPage } from '@/page/BalanceCheckPage.tsx'
 import { SetCardPage } from '@/page/set-card/SetCardPage.tsx'
 import { UploadPage } from '@/page/upload/UploadPage.tsx'
-import { useUserContext } from '@/components/UserContext.tsx'
+import { useAppContext } from '@/components/AppContext.tsx'
 import { PayPage } from '@/page/pay/PayPage.tsx'
 
 const TabKey = 'selectedTab'
 
 export const App = () => {
-  const { type: userType } = useUserContext()
+  const { uploader } = useAppContext()
   return (
     <Tabs
       onValueChange={(tab) => localStorage.setItem(TabKey, tab)}
@@ -46,7 +46,7 @@ export const App = () => {
         <TabsContent value="pay">
           <PayPage />
         </TabsContent>
-        {userType == 'Uploader' && (
+        {uploader && (
           <TabsContent value="upload">
             <UploadPage />
           </TabsContent>
@@ -62,7 +62,7 @@ export const App = () => {
         <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base" value="pay">
           Fizetés
         </TabsTrigger>
-        {userType == 'Uploader' && (
+        {uploader && (
           <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base" value="upload">
             Feltöltés
           </TabsTrigger>
