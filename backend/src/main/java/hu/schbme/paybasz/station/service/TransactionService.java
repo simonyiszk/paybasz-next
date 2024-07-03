@@ -161,7 +161,7 @@ public class TransactionService {
 	}
 
 	@Transactional(readOnly = false)
-	public void createItem(String name, String quantity, String code, String abbreviation, int price, boolean active) {
+	public void createItem(String name, int quantity, String code, String abbreviation, int price, boolean active) {
 		log.info("New item was created: {} ({}) {} JMF", name, quantity, price);
 		logger.note("<badge>" + name + "</badge> termék hozzáadva");
 		items.save(new ItemEntity(null, name, quantity, code, abbreviation, price, active));
@@ -347,7 +347,7 @@ public class TransactionService {
 		return "id;name;quantity;code;abbreviation;price;active"
 				+ System.lineSeparator()
 				+ items.findAllByOrderById().stream()
-				.map(it -> Stream.of("" + it.getId(), it.getName(), it.getQuantity(), it.getCode(), it.getAbbreviation(),
+				.map(it -> Stream.of("" + it.getId(), it.getName(), "" + it.getQuantity(), it.getCode(), it.getAbbreviation(),
 								"" + it.getPrice(), "" + it.isActive())
 						.map(attr -> attr.replace(";", "\\;"))
 						.collect(Collectors.joining(";")))
@@ -355,7 +355,7 @@ public class TransactionService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ItemEntity> getALlItems() {
+	public List<ItemEntity> getAllItems() {
 		return items.findAll();
 	}
 
@@ -408,5 +408,10 @@ public class TransactionService {
 						it.getAbbreviation() + (amount > 1 ? ("x" + amount) : ""),
 						it.getPrice() * amount))
 				.orElseGet(() -> new ItemQueryResult(false, "not found", 0));
+	}
+
+	@Transactional(readOnly = true)
+	public List<ItemEntity> getAllActiveItems() {
+		return items.findAllByActiveTrueOrderByName();
 	}
 }

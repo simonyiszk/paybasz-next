@@ -25,7 +25,7 @@ public class ItemsController {
 
 	@GetMapping("/items")
 	public String items(Model model) {
-		final var items = system.getALlItems();
+		final var items = system.getAllItems();
 		model.addAttribute("items", items);
 		model.addAttribute("invalid", items.stream()
 				.filter(ItemEntity::isActive)

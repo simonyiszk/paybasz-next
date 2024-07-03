@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ValidateRequest {
+@AllArgsConstructor
+public class AppRequest {
 
 	private String gatewayCode;
 

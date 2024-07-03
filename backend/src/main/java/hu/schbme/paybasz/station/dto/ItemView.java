@@ -5,9 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class MyBalanceRequest {
-	private String card;
-	private String name;
+@NoArgsConstructor
+public class ItemView {
+	Integer id;
+	String name;
+	Integer quantity;
+	String code;
+	String abbreviation;
+	Integer price;
 }

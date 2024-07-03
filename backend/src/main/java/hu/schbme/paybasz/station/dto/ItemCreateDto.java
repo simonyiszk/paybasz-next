@@ -11,7 +11,7 @@ public class ItemCreateDto {
 
 	private Integer id = null;
 	private String name;
-	private String quantity;
+	private Integer quantity;
 	private String code;
 	private String abbreviation;
 	private Integer price;

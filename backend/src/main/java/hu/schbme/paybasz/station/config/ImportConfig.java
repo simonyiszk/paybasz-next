@@ -41,7 +41,7 @@ public class ImportConfig {
 	}
 
 	void importItems() throws IOException {
-		if (system.getALlItems().iterator().hasNext()) {
+		if (system.getAllItems().iterator().hasNext()) {
 			System.out.println("There are already items in you db!");
 			return;
 		}
@@ -52,7 +52,7 @@ public class ImportConfig {
 			try (final var lines = Files.lines(data)) {
 				lines.map(it -> it.split(";"))
 						// format: name; quantity; code; short name; price int; active boolean
-						.forEach(it -> system.createItem(it[0].trim(), it[1].trim(), it[2].trim(), it[3].trim(), Integer.parseInt(it[4].trim()), Boolean.parseBoolean(it[5].trim())));
+						.forEach(it -> system.createItem(it[0].trim(), Integer.parseInt(it[1].trim()), it[2].trim(), it[3].trim(), Integer.parseInt(it[4].trim()), Boolean.parseBoolean(it[5].trim())));
 			}
 		} else {
 			System.out.println(data + " does not exists!");
