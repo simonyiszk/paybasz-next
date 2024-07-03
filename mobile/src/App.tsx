@@ -53,24 +53,17 @@ export const App = () => {
         )}
       </div>
       <TabsList className="py-8 flex sm:hidden">
-        <TabsTrigger className="py-4 text-[.6rem] sm:text-base" value="balance">
+        <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base" value="balance">
           Egyenleg
         </TabsTrigger>
-        <TabsTrigger className="py-4 text-[.6rem] sm:text-base" value="assign">
-          {userType == 'Uploader' ? (
-            <>
-              Hozzáre<span className="sm:hidden">...</span>
-              <span className="hidden sm:inline">ndelés</span>
-            </>
-          ) : (
-            <>Hozzárendelés</>
-          )}
+        <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base" value="assign">
+          Hozzárendelés
         </TabsTrigger>
-        <TabsTrigger className="py-4 text-[.6rem] sm:text-base" value="pay">
+        <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base" value="pay">
           Fizetés
         </TabsTrigger>
         {userType == 'Uploader' && (
-          <TabsTrigger className="py-4 text-[.6rem] sm:text-base" value="upload">
+          <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base" value="upload">
             Feltöltés
           </TabsTrigger>
         )}
