@@ -31,17 +31,10 @@ jobs:
     # Build checks
     - name: Build with Maven - Backend
       run: mvn -f backend/pom.xml clean package
-    - name: Build with Maven - Mobile
-      run: mvn -f mobile/pom.xml clean package
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph - Backend
       uses: advanced-security/maven-dependency-submission-action@v3.0.2
       with:
         directory: ./backend
-        ignore-maven-wrapper: true
-    - name: Update dependency graph - Mobile
-      uses: advanced-security/maven-dependency-submission-action@v3.0.2
-      with:
-        directory: ./mobile
         ignore-maven-wrapper: true

@@ -2,3 +2,4 @@
 !.env.example
 .idea
 saves
+node-modules/
