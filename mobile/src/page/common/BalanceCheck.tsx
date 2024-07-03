@@ -1,7 +1,7 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.tsx'
 import { CircleDollarSign, CircleX } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { sha256 } from '@/lib/utils.ts'
+import { cn, sha256 } from '@/lib/utils.ts'
 import * as api from '@/lib/api.ts'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { useUserContext } from '@/components/UserContext.tsx'
@@ -63,7 +63,9 @@ const BalanceReadResult = ({ card, balance, error }: { card: string; balance: nu
     <Alert className="w-[auto]">
       <CircleDollarSign className="px-1" />
       <AlertTitle>{card} kártya egyenlege</AlertTitle>
-      <AlertDescription className={balance > 0 ? 'text-primary' : 'text-destructive'}>{balance} JMF</AlertDescription>
+      <AlertDescription className={cn(balance > 0 ? 'text-primary' : 'text-destructive', 'text-lg font-bold')}>
+        {balance} JMF
+      </AlertDescription>
     </Alert>
   )
 }
