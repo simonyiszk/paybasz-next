@@ -14,13 +14,28 @@ export const setPersistentState =
     stateSetter(value)
   }
 
-export const post = async <T, R>({ url, data, asJson }: { url: string; data: T; asJson?: boolean }): Promise<R> =>
+export const post = async <T, R>({
+  url,
+  data,
+  asJson,
+  deserialize
+}: {
+  url: string
+  data: T
+  asJson?: boolean
+  deserialize?: (res: Response) => Promise<R>
+}): Promise<R> =>
   fetch(url, {
     method: 'POST',
     mode: 'cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
-  }).then((res) => (asJson ? res.json() : res.text()) as Promise<R>)
+  }).then((res) => {
+    if (deserialize) {
+      return deserialize(res)
+    }
+    return (asJson ? res.json() : res.text()) as Promise<R>
+  })
 
 export const scanNFC = (setStatus: React.Dispatch<React.SetStateAction<statusEnum>>) =>
   new Promise<NDEFReadingEvent>((resolve, reject) => {

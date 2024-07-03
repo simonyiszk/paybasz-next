@@ -118,19 +118,27 @@ public class MobileController {
 	 * NOTE: Do not use for transaction purposes. Might be effected by dirty read.
 	 */
 	@PostMapping("/balance/{gatewayName}")
-	public int balance(@PathVariable String gatewayName, @RequestBody BalanceRequest request) {
+	public ResponseEntity<BalanceResponse> balance(@PathVariable String gatewayName, @RequestBody BalanceRequest request) {
 		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
-			throw new UnauthorizedGateway();
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
 		gateways.updateLastUsed(gatewayName);
 		log.info("New balance from gateway '{}' card hash: '{}'", gatewayName, request.getCard().toUpperCase());
 		Optional<AccountEntity> account = system.getAccountByCard(request.getCard().toUpperCase());
-		var accountBalance = account.map(accountEntity -> new AccountBalance(accountEntity.getBalance(), isLoadAllowed(accountEntity), accountEntity.isAllowed()))
-				.orElseGet(() -> new AccountBalance(-1, false, false));
+		if (account.isEmpty()) {
+			logger.action("<color>Ismeretlen kártya került leolvasásra.</color> (terminál: " + gatewayName + ")");
+			return ResponseEntity.notFound().build();
+		}
 
+		var accountBalance = account.get();
 		logger.action("<badge>" + account.map(AccountEntity::getName).orElse("n/a")
 				+ "</badge> egyenlege leolvasva: <color>" + accountBalance.getBalance() + " JMF</color> (terminál: " + gatewayName + ")");
-		return accountBalance.getBalance();
+
+		var response = BalanceResponse.builder()
+				.balance(accountBalance.getBalance())
+				.maxLoan(accountBalance.getMaxLoan())
+				.build();
+		return ResponseEntity.ok(response);
 	}
 
 	@PostMapping("/reading/{gatewayName}")
@@ -228,10 +236,6 @@ public class MobileController {
 
 		logger.note("<color>" + account.get().getName() + "</color> felhasználó egyenlegének lekérdezése e-mail alapján (terminál: " + gatewayName + ")");
 		return account.get().getBalance();
-	}
-
-	private boolean isLoadAllowed(AccountEntity accountEntity) {
-		return accountEntity.getMinimumBalance() < 0;
 	}
 
 }

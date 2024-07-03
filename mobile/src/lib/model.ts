@@ -36,6 +36,11 @@ export type BalanceRequest = {
   gateway: string
 }
 
+export type BalanceResponse = {
+  balance: number
+  maxLoan: number
+}
+
 export type Item = {
   id: number
   name: string
