@@ -9,7 +9,9 @@ Run the following commands in the root directory of the project:
 docker-compose up -d
 ```
 
-If you deploy on lois with certbot and NGINX, it's better to disable `server.ssl.enabled` in the mobile and backend `application.properties` files.
+If you deploy on lois with certbot and NGINX, it's better to disable `server.ssl.enabled` in the backend `application.properties` files.
+
+The mobile frontend Vite.js app is deployed on Vercel preferably. (Don't forget to set the `VITE_BACKEND_URL` env var on Vercel too.)
 
 # Old documentation
 

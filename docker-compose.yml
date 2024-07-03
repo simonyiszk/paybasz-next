@@ -25,15 +25,6 @@ services:
       - network-x
     depends_on:
       - db-x
-  mobile-x:
-    build: ./mobile
-    env_file:
-      - .env
-    environment:
-      SERVER_PORT: 8080
-    restart: always
-    ports:
-      - "8002:8080"
 networks:
   network-x:
 volumes:
