@@ -114,6 +114,19 @@ public class MobileController {
 		}
 	}
 
+	@PostMapping("/buy-item/{gatewayName}")
+	public PaymentStatus buyItem(@PathVariable String gatewayName, @RequestBody ItemPurchaseRequest request) {
+		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
+			return PaymentStatus.UNAUTHORIZED_TERMINAL;
+		gateways.updateLastUsed(gatewayName);
+		try {
+			return system.decreaseItemCountAndBuy(request.getCard().toUpperCase(), gatewayName, request.getId());
+		} catch (Exception e) {
+			logger.failure("Sikertelen termék vásárlása: " + request.getId());
+			return PaymentStatus.INTERNAL_ERROR;
+		}
+	}
+
 	/**
 	 * NOTE: Do not use for transaction purposes. Might be effected by dirty read.
 	 */
