@@ -21,7 +21,7 @@ export const App = () => {
       <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-8 gap-4 sm:gap-8 m-auto sm:m-0">
         <Logo />
       </div>
-      <div className="flex-1">
+      <div className="flex-1 relative">
         <TabsContent value="balance">
           <BalanceCheckPage />
         </TabsContent>

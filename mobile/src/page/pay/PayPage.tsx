@@ -7,6 +7,7 @@ export const PayPage = () => {
   const [amount, setAmount] = useState<number>()
   const [message, setMessage] = useState<string>()
   const [card, setCard] = useState<string>()
+
   const reset = () => {
     setAmount(undefined)
     setMessage(undefined)

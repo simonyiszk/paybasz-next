@@ -8,7 +8,7 @@ export const SetCardPage = () => {
   const [card, setCard] = useState<string>()
   const reset = () => {
     setUserId(undefined)
-    setCard
+    setCard(undefined)
   }
   let currentStep
   if (!userId) {

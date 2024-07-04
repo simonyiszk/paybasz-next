@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { BalanceCheck } from '@/page/common/BalanceCheck.tsx'
 import { sha256 } from '@/lib/utils.ts'
+import CheckAnimation from '@/components/CheckAnimation'
 
 export const PayStep = ({ onReset, card, amount, message }: { onReset: () => void; card: string; amount: number; message: string }) => {
   const { gatewayCode, gatewayName } = useAppContext()
@@ -46,15 +47,17 @@ export const PayStep = ({ onReset, card, amount, message }: { onReset: () => voi
         </div>
       </>
     )
-
-  return (
+  const data = (
     <>
       <h1 className="font-bold text-2xl pb-2 text-center">{getMessageFromStatus(status)}</h1>
       <BalanceCheck card={card} loading={balanceCheckLoading} setLoading={setBalanceCheckLoading} />
-
       <Button onClick={onReset}>Új tranzakció</Button>
     </>
   )
+  if (status == 'ACCEPTED') {
+    return <CheckAnimation>{data}</CheckAnimation>
+  }
+  return data
 }
 
 const getMessageFromStatus = (status: PaymentStatus) => {
