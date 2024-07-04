@@ -4,7 +4,6 @@ import hu.schbme.paybasz.station.config.AppUtil;
 import hu.schbme.paybasz.station.dto.*;
 import hu.schbme.paybasz.station.error.UnauthorizedGateway;
 import hu.schbme.paybasz.station.error.UserNotFoundException;
-import hu.schbme.paybasz.station.mapper.ItemMapper;
 import hu.schbme.paybasz.station.model.AccountEntity;
 import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.repo.AccountRepository;
@@ -46,7 +45,7 @@ public class MobileController {
 		try {
 			final var items = system.getAllActiveItems()
 					.stream()
-					.map(ItemMapper.INSTANCE::toView)
+					// .map(ItemMapper.INSTANCE::toView)
 					.toList();
 			final var response = AppResponse.builder()
 					.isUploader(isUploader)
@@ -86,7 +85,8 @@ public class MobileController {
 		gateways.updateLastUsed(gatewayName);
 
 		try {
-			return system.getBeer(request.getCard().toUpperCase(), request.getDetails() == null ? "" : request.getDetails(),
+			return system.getBeer(request.getCard().toUpperCase(),
+					request.getDetails() == null ? "" : request.getDetails(),
 					gatewayName);
 		} catch (Exception e) {
 			log.error("Error during proceeding free beer", e);
@@ -118,7 +118,8 @@ public class MobileController {
 	 * NOTE: Do not use for transaction purposes. Might be effected by dirty read.
 	 */
 	@PostMapping("/balance/{gatewayName}")
-	public ResponseEntity<BalanceResponse> balance(@PathVariable String gatewayName, @RequestBody BalanceRequest request) {
+	public ResponseEntity<BalanceResponse> balance(@PathVariable String gatewayName,
+			@RequestBody BalanceRequest request) {
 		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
@@ -132,7 +133,8 @@ public class MobileController {
 
 		var accountBalance = account.get();
 		logger.action("<badge>" + account.map(AccountEntity::getName).orElse("n/a")
-				+ "</badge> egyenlege leolvasva: <color>" + accountBalance.getBalance() + " JMF</color> (terminál: " + gatewayName + ")");
+				+ "</badge> egyenlege leolvasva: <color>" + accountBalance.getBalance() + " JMF</color> (terminál: "
+				+ gatewayName + ")");
 
 		var response = BalanceResponse.builder()
 				.balance(accountBalance.getBalance())
@@ -146,8 +148,10 @@ public class MobileController {
 		if (!gateways.authorizeGateway(gatewayName, readingRequest.getGatewayCode()))
 			return ValidationStatus.INVALID;
 
-		log.info("New reading from gateway '{}' read card hash: '{}'", gatewayName, readingRequest.getCard().toUpperCase());
-		logger.action("Leolvasás történt: <badge>" + readingRequest.getCard().toUpperCase() + "</badge> (terminál: " + gatewayName + ")");
+		log.info("New reading from gateway '{}' read card hash: '{}'", gatewayName,
+				readingRequest.getCard().toUpperCase());
+		logger.action("Leolvasás történt: <badge>" + readingRequest.getCard().toUpperCase() + "</badge> (terminál: "
+				+ gatewayName + ")");
 		gateways.appendReading(gatewayName, readingRequest.getCard().toUpperCase());
 		gateways.updateLastUsed(gatewayName);
 		return ValidationStatus.OK;
@@ -206,8 +210,10 @@ public class MobileController {
 			return AddCardStatus.USER_HAS_CARD;
 
 		account.setCard(request.getCard().toUpperCase());
-		log.info("New card assignment from gateway '{}' card hash: '{}', user: {}", gatewayName, request.getCard(), account.getName());
-		logger.action("<color>" + account.getName() + "</color> felhasználóhoz kártya rendelve: <badge>" + request.getCard() + "</badge>  (terminál: " + gatewayName + ")");
+		log.info("New card assignment from gateway '{}' card hash: '{}', user: {}", gatewayName, request.getCard(),
+				account.getName());
+		logger.action("<color>" + account.getName() + "</color> felhasználóhoz kártya rendelve: <badge>"
+				+ request.getCard() + "</badge>  (terminál: " + gatewayName + ")");
 		accounts.save(account);
 		return AddCardStatus.ACCEPTED;
 	}
@@ -221,7 +227,8 @@ public class MobileController {
 		if (account.isEmpty())
 			return "USER_NOT_FOUND";
 
-		logger.note("<color>" + account.get().getName() + "</color> felhasználó nevének lekérdezés (terminál: " + gatewayName + ")");
+		logger.note("<color>" + account.get().getName() + "</color> felhasználó nevének lekérdezés (terminál: "
+				+ gatewayName + ")");
 		return account.get().getName();
 	}
 
@@ -234,7 +241,8 @@ public class MobileController {
 		if (account.isEmpty())
 			throw new UserNotFoundException();
 
-		logger.note("<color>" + account.get().getName() + "</color> felhasználó egyenlegének lekérdezése e-mail alapján (terminál: " + gatewayName + ")");
+		logger.note("<color>" + account.get().getName()
+				+ "</color> felhasználó egyenlegének lekérdezése e-mail alapján (terminál: " + gatewayName + ")");
 		return account.get().getBalance();
 	}
 
