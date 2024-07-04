@@ -1,26 +1,30 @@
 import { useAppContext } from '@/components/AppContext.tsx'
 import { useEffect, useState } from 'react'
 import { PaymentStatus } from '@/lib/model.ts'
-import { pay } from '@/lib/api.ts'
+import { payItem } from '@/lib/api.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { BalanceCheck } from '@/page/common/BalanceCheck.tsx'
 import { sha256 } from '@/lib/utils.ts'
 import CheckAnimation from '@/components/CheckAnimation'
+import { useQueryClient } from 'react-query'
 
-export const PayStep = ({ onReset, card, amount, message }: { onReset: () => void; card: string; amount: number; message: string }) => {
+export const PayItemStep = ({ onReset, card, itemId }: { onReset: () => void; card: string; itemId: number }) => {
   const { gatewayCode, gatewayName } = useAppContext()
   const [retries, setRetries] = useState(0)
   const [status, setStatus] = useState<PaymentStatus>()
   const [error, setError] = useState<string>()
   const [balanceCheckLoading, setBalanceCheckLoading] = useState(false)
-
+  const queryClient = useQueryClient()
   useEffect(() => {
     sha256(card)
-      .then((cardHash) => pay({ gateway: gatewayName, details: message, card: cardHash, gatewayCode, amount }))
-      .then(setStatus)
+      .then((cardHash) => payItem({ gateway: gatewayName, card: cardHash, gatewayCode, id: itemId }))
+      .then((data) => {
+        setStatus(data)
+        queryClient.invalidateQueries('app')
+      })
       .catch(() => setError('A fizetés sikertelen!'))
-  }, [card, amount, message, retries, gatewayName, gatewayCode])
+  }, [card, gatewayCode, gatewayName, itemId, queryClient, retries])
 
   if (error)
     return (

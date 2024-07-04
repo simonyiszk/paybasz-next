@@ -35,7 +35,7 @@ export const BalanceCheck = ({
         setError('Sikertelen leolvasás')
         setLoading(false)
       })
-  }, [card])
+  }, [card, gatewayCode, gatewayName])
 
   if (!card) return null
 

@@ -6,6 +6,7 @@ import {
   BalanceResponse,
   CardData,
   GetUserRequest,
+  ItemPurchaseRequest,
   PaymentRequest,
   PaymentStatus,
   ReadingRequest
@@ -47,6 +48,7 @@ export const balance = (data: BalanceRequest): Promise<BalanceResponse | null> =
 export const getUser = (data: GetUserRequest): Promise<string> => post({ url: getUrl(data.gateway, 'get-user'), data })
 
 export const pay = (data: PaymentRequest): Promise<PaymentStatus> => post({ url: getUrl(data.gateway, 'pay'), data })
+export const payItem = (data: ItemPurchaseRequest): Promise<PaymentStatus> => post({ url: getUrl(data.gateway, 'buy-item'), data })
 
 export const reading = (data: ReadingRequest) =>
   parseValidationStatus(

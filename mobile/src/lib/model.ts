@@ -16,6 +16,12 @@ export type PaymentRequest = {
   details: string
   gateway: string
 }
+export type ItemPurchaseRequest = {
+  id: number
+  card: string
+  gatewayCode: string
+  gateway: string
+}
 
 export type GetUserRequest = {
   userId: number

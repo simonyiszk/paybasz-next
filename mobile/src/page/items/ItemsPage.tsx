@@ -2,8 +2,8 @@ import { useAppContext } from '@/components/AppContext'
 import { ItemCard } from './ItemCard'
 import { Item } from '@/lib/model'
 import { useState } from 'react'
-import { PayStep } from '../pay/PayStep'
 import { ScanCardStep } from '../common/ScanCardStep'
+import { PayItemStep } from './PayItemStep'
 
 export const ItemsPage = () => {
   const { items } = useAppContext()
@@ -25,7 +25,7 @@ export const ItemsPage = () => {
   } else if (!card) {
     currentStep = <ScanCardStep setCard={setCard} amount={selectedItem.price} message={selectedItem.code} onAbort={reset} />
   } else {
-    currentStep = <PayStep amount={selectedItem.price} message={selectedItem.name} card={card} onReset={reset} />
+    currentStep = <PayItemStep itemId={selectedItem.id} card={card} onReset={reset} />
   }
   return <div className="flex items-center flex-col gap-4">{currentStep}</div>
 }

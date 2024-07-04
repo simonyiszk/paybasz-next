@@ -1,8 +1,9 @@
-import { createContext, FC, PropsWithChildren, useContext, useEffect, useState } from 'react'
+import { createContext, FC, PropsWithChildren, useContext } from 'react'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { app } from '@/lib/api.ts'
 import { NoPermissionBanner } from '@/components/NoPermissionBanner.tsx'
 import { Item } from '@/lib/model.ts'
+import { useQuery } from 'react-query'
 
 const AppContext = createContext<AppData>({} as AppData)
 
@@ -14,31 +15,20 @@ export type AppData = {
 }
 
 export const useAppContext = (): AppData => useContext(AppContext)
-
 export const AppContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [, gatewayName, gatewayCode] = window.location.pathname.split('/')
-  const [appData, setAppData] = useState<AppData>()
-  const [hasPermission, setHasPermission] = useState(true)
-
-  useEffect(() => {
-    app({ gateway: gatewayName, gatewayCode: gatewayCode }).then((appResponse) => {
-      if (!appResponse) {
-        setHasPermission(false)
-      } else {
-        setAppData({
-          gatewayCode,
-          gatewayName,
-          ...appResponse
-        })
+  const appQuery = useQuery(['app', gatewayName, gatewayCode], () => app({ gateway: gatewayName, gatewayCode }), {
+    enabled: !!gatewayName && !!gatewayCode,
+    select: (data) => {
+      if (!data) return
+      return {
+        gatewayCode,
+        gatewayName,
+        ...data
       }
-    })
-  }, [gatewayName, gatewayCode])
-
-  if (!hasPermission) {
-    return <NoPermissionBanner />
-  }
-
-  if (!appData) {
+    }
+  })
+  if (appQuery.isLoading) {
     return (
       <div className="flex w-full h-[100vh] items-center justify-center">
         <LoadingIndicator />
@@ -46,5 +36,9 @@ export const AppContextProvider: FC<PropsWithChildren> = ({ children }) => {
     )
   }
 
-  return <AppContext.Provider value={appData}>{children}</AppContext.Provider>
+  if (!appQuery.data) {
+    return <NoPermissionBanner />
+  }
+
+  return <AppContext.Provider value={appQuery.data}>{children}</AppContext.Provider>
 }
