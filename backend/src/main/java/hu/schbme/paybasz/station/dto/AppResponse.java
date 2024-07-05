@@ -6,12 +6,10 @@ import lombok.Data;
 
 import java.util.List;
 
-import hu.schbme.paybasz.station.model.ItemEntity;
-
 @Data
 @Builder
 @AllArgsConstructor
 public class AppResponse {
 	final boolean isUploader;
-	final List<ItemEntity> items;
+	final List<ItemView> items;
 }

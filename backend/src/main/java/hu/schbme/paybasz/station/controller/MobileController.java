@@ -4,6 +4,7 @@ import hu.schbme.paybasz.station.config.AppUtil;
 import hu.schbme.paybasz.station.dto.*;
 import hu.schbme.paybasz.station.error.UnauthorizedGateway;
 import hu.schbme.paybasz.station.error.UserNotFoundException;
+import hu.schbme.paybasz.station.mapper.ItemMapper;
 import hu.schbme.paybasz.station.model.AccountEntity;
 import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.repo.AccountRepository;
@@ -45,7 +46,7 @@ public class MobileController {
 		try {
 			final var items = system.getAllActiveItems()
 					.stream()
-					// .map(ItemMapper.INSTANCE::toView)
+					.map(ItemMapper.INSTANCE::toView)
 					.toList();
 			final var response = AppResponse.builder()
 					.isUploader(isUploader)
@@ -131,8 +132,7 @@ public class MobileController {
 	 * NOTE: Do not use for transaction purposes. Might be effected by dirty read.
 	 */
 	@PostMapping("/balance/{gatewayName}")
-	public ResponseEntity<BalanceResponse> balance(@PathVariable String gatewayName,
-			@RequestBody BalanceRequest request) {
+	public ResponseEntity<BalanceResponse> balance(@PathVariable String gatewayName, @RequestBody BalanceRequest request) {
 		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
