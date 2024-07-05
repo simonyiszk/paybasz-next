@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNFCScanner } from '@/lib/utils.ts'
 import { BalanceCheck } from '@/page/common/BalanceCheck.tsx'
+import { Button } from '@/components/ui/button.tsx'
 
 export const BalanceCheckPage = () => {
   const [card, setCard] = useState<string>()
@@ -19,6 +20,18 @@ export const BalanceCheckPage = () => {
       <h1 className="font-bold text-2xl pb-2 text-center">Érints kártyát az eszközhöz...</h1>
 
       <BalanceCheck card={card} loading={loading} setLoading={setLoading} />
+      {card && !loading && (
+        <Button variant="destructive" className="w-full">
+          <span
+            onClick={() => {
+              setCard(undefined)
+              setLoading(false)
+            }}
+          >
+            Vissza
+          </span>
+        </Button>
+      )}
     </div>
   )
 }
