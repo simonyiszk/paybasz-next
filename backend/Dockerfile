@@ -11,6 +11,6 @@ RUN mvn -f /home/app/pom.xml clean package
 #
 FROM eclipse-temurin:21-jre-alpine
 EXPOSE 8080
-COPY --from=build /home/app/target/paybasz-0.0.2.jar app.jar
+COPY --from=build /home/app/target/paybasz.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
