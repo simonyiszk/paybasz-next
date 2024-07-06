@@ -49,12 +49,14 @@ public class TransactionService {
 
 		var accountEntity = possibleAccount.get();
 		if (!accountEntity.isAllowed()) {
-			logger.failure("Sikertelen fizetés: <badge>" + accountEntity.getName() + "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
+			logger.failure("Sikertelen fizetés: <badge>" + accountEntity.getName()
+					+ "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
 			return PaymentStatus.CARD_REJECTED;
 		}
 
 		if (accountEntity.getBalance() - amount < accountEntity.getMinimumBalance()) {
-			logger.failure("Sikertelen fizetés: <color>" + accountEntity.getName() + ", nincs elég fedezet</color>" + "(terminál: " + gateway + ")");
+			logger.failure("Sikertelen fizetés: <color>" + accountEntity.getName() + ", nincs elég fedezet</color>"
+					+ "(terminál: " + gateway + ")");
 			return PaymentStatus.NOT_ENOUGH_CASH;
 		}
 
@@ -64,8 +66,54 @@ public class TransactionService {
 		accountEntity.setBalance(accountEntity.getBalance() - amount);
 		accounts.save(accountEntity);
 		transactions.save(transaction);
-		log.info("Payment proceed: {} with amount: {} at gateway: {}", transaction.getId(), transaction.getAmount(), transaction.getGateway());
-		logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
+		log.info("Payment proceed: {} with amount: {} at gateway: {}", transaction.getId(), transaction.getAmount(),
+				transaction.getGateway());
+		logger.success(
+				"<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>"
+						+ "(terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
+		return PaymentStatus.ACCEPTED;
+	}
+
+	@Transactional()
+	public PaymentStatus decreaseItemCountAndBuy(String card, String gateway, Integer itemId) {
+		Optional<AccountEntity> possibleAccount = this.accounts.findByCard(card);
+		if (possibleAccount.isEmpty()) {
+			logger.failure("Sikertelen fizetés: <color>kártya nem található</color> " + "(terminál: " + gateway + ")");
+			return PaymentStatus.VALIDATION_ERROR;
+		}
+
+		Optional<ItemEntity> possibleItem = this.items.findById(itemId);
+		if (possibleItem.isEmpty()) {
+			logger.failure("Sikertelen fizetés: <color>termék nem található</color> " + "(terminál: " + gateway + ")");
+			return PaymentStatus.VALIDATION_ERROR;
+		}
+
+		var itemEntity = possibleItem.get();
+		if (!itemEntity.isActive()) {
+			logger.failure("Sikertelen fizetés: <color>termék nem elérhető</color> " + "(terminál: " + gateway + ")");
+			return PaymentStatus.VALIDATION_ERROR;
+		}
+
+		if (itemEntity.getQuantity() <= 0) {
+			logger.failure("Sikertelen fizetés: <color>termék elfogyott</color> " + "(terminál: " + gateway + ")");
+			return PaymentStatus.VALIDATION_ERROR;
+		}
+
+		var accountEntity = possibleAccount.get();
+		if (accountEntity.getBalance() - itemEntity.getPrice() < accountEntity.getMinimumBalance()) {
+			return PaymentStatus.NOT_ENOUGH_CASH;
+		}
+
+		var transaction = new TransactionEntity(null, System.currentTimeMillis(), card, accountEntity.getId(),
+				accountEntity.getName(), accountEntity.getName() + " payed " + itemEntity.getPrice(),
+				itemEntity.getPrice(), itemEntity.getName(), gateway, "SYSTEM", true);
+
+		accountEntity.setBalance(accountEntity.getBalance() - itemEntity.getPrice());
+		itemEntity.setQuantity(itemEntity.getQuantity() - 1);
+		accounts.save(accountEntity);
+		items.save(itemEntity);
+		transactions.save(transaction);
+
 		return PaymentStatus.ACCEPTED;
 	}
 
@@ -87,7 +135,8 @@ public class TransactionService {
 		accounts.save(accountEntity);
 		transactions.save(transaction);
 		log.info("{} money added to: {}", transaction.getAmount(), accountEntity.getName());
-		logger.success("<badge>" + accountEntity.getName() + "</badge> számlájára feltöltve: <color>" + amount + " JMF</color>" + (message.isBlank() ? "" : " (megjegyzés: " + message + ")"));
+		logger.success("<badge>" + accountEntity.getName() + "</badge> számlájára feltöltve: <color>" + amount
+				+ " JMF</color>" + (message.isBlank() ? "" : " (megjegyzés: " + message + ")"));
 		return true;
 	}
 
@@ -101,12 +150,14 @@ public class TransactionService {
 
 		var accountEntity = possibleAccount.get();
 		if (!accountEntity.isAllowed()) {
-			logger.failure("Sikertelen feltöltés: <badge>" + accountEntity.getName() + "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
+			logger.failure("Sikertelen feltöltés: <badge>" + accountEntity.getName()
+					+ "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
 			return PaymentStatus.CARD_REJECTED;
 		}
 
 		if (amount > 50000) {
-			logger.failure("Sikertelen feltöltés: <color>" + accountEntity.getName() + ", túl magas összeg</color>" + "(terminál: " + gateway + ")");
+			logger.failure("Sikertelen feltöltés: <color>" + accountEntity.getName() + ", túl magas összeg</color>"
+					+ "(terminál: " + gateway + ")");
 			return PaymentStatus.NOT_ENOUGH_CASH;
 		}
 
@@ -117,8 +168,11 @@ public class TransactionService {
 		accountEntity.setBalance(accountEntity.getBalance() + amount);
 		accounts.save(accountEntity);
 		transactions.save(transaction);
-		log.info("Upload proceed: {} with amount: {} at gateway: {}", transaction.getId(), transaction.getAmount(), transaction.getGateway());
-		logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres feltöltés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
+		log.info("Upload proceed: {} with amount: {} at gateway: {}", transaction.getId(), transaction.getAmount(),
+				transaction.getGateway());
+		logger.success(
+				"<badge>" + accountEntity.getName() + "</badge> sikeres feltöltés: <color>" + amount + " JMF</color>"
+						+ "(terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
 		return PaymentStatus.ACCEPTED;
 	}
 
@@ -126,18 +180,21 @@ public class TransactionService {
 	public PaymentStatus getBeer(String card, String message, String gateway) {
 		Optional<AccountEntity> possibleAccount = this.accounts.findByCard(card);
 		if (possibleAccount.isEmpty()) {
-			logger.failure("Sikertelen ingyen sör: <color>kártya nem található</color>" + "(terminál: " + gateway + ")");
+			logger.failure(
+					"Sikertelen ingyen sör: <color>kártya nem található</color>" + "(terminál: " + gateway + ")");
 			return PaymentStatus.VALIDATION_ERROR;
 		}
 
 		var accountEntity = possibleAccount.get();
 		if (!accountEntity.isAllowed()) {
-			logger.failure("Sikertelen ingyen sör: <badge>" + accountEntity.getName() + "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
+			logger.failure("Sikertelen ingyen sör: <badge>" + accountEntity.getName()
+					+ "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
 			return PaymentStatus.CARD_REJECTED;
 		}
 
 		if (!accountEntity.isProcessed()) {
-			logger.failure("Sikertelen ingyen sör: <color>" + accountEntity.getName() + ", már fel lett használva</color>" + "(terminál: " + gateway + ")");
+			logger.failure("Sikertelen ingyen sör: <color>" + accountEntity.getName()
+					+ ", már fel lett használva</color>" + "(terminál: " + gateway + ")");
 			return PaymentStatus.NOT_ENOUGH_CASH;
 		}
 
@@ -148,12 +205,14 @@ public class TransactionService {
 		accounts.save(accountEntity);
 		transactions.save(transaction);
 		log.info("Free beer proceed: {} at gateway: {}", transaction.getId(), transaction.getGateway());
-		logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres sör felhasználás (terminál: " + gateway + (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
+		logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres sör felhasználás (terminál: " + gateway
+				+ (message.isBlank() ? "" : ", megjegyzés: " + message) + ")");
 		return PaymentStatus.ACCEPTED;
 	}
 
 	@Transactional(readOnly = false)
-	public void createAccount(String name, String email, String phone, String card, int amount, int minAmount, boolean allowed) {
+	public void createAccount(String name, String email, String phone, String card, int amount, int minAmount,
+			boolean allowed) {
 		card = card.toUpperCase();
 		log.info("New user was created with card: {}", card);
 		logger.note("<badge>" + name + "</badge> regisztrálva");
@@ -161,7 +220,7 @@ public class TransactionService {
 	}
 
 	@Transactional(readOnly = false)
-	public void createItem(String name, String quantity, String code, String abbreviation, int price, boolean active) {
+	public void createItem(String name, int quantity, String code, String abbreviation, int price, boolean active) {
 		log.info("New item was created: {} ({}) {} JMF", name, quantity, price);
 		logger.note("<badge>" + name + "</badge> termék hozzáadva");
 		items.save(new ItemEntity(null, name, quantity, code, abbreviation, price, active));
@@ -253,11 +312,13 @@ public class TransactionService {
 
 	@Transactional(readOnly = false)
 	public boolean modifyAccount(AccountCreateDto acc) {
-		Optional<AccountEntity> cardCheck = acc.getCard().length() > 24 ? accounts.findByCard(acc.getCard()) : Optional.empty();
+		Optional<AccountEntity> cardCheck = acc.getCard().length() > 24 ? accounts.findByCard(acc.getCard())
+				: Optional.empty();
 		Optional<AccountEntity> user = accounts.findById(acc.getId());
 		if (user.isPresent()) {
 			final var account = user.get();
-			if (acc.getCard().length() > 24 && cardCheck.isPresent() && !cardCheck.get().getId().equals(account.getId()))
+			if (acc.getCard().length() > 24 && cardCheck.isPresent()
+					&& !cardCheck.get().getId().equals(account.getId()))
 				return false;
 
 			account.setName(acc.getName());
@@ -311,8 +372,10 @@ public class TransactionService {
 		accountEntity.setBalance(accountEntity.getBalance() - amount);
 		accounts.save(accountEntity);
 		transactions.save(transaction);
-		log.info("Payment proceed: {} with amount: {} at gateway: {}", transaction.getId(), transaction.getAmount(), transaction.getGateway());
-		logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>" + (message.isBlank() ? "" : " (megjegyzés: " + message + ")"));
+		log.info("Payment proceed: {} with amount: {} at gateway: {}", transaction.getId(), transaction.getAmount(),
+				transaction.getGateway());
+		logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount
+				+ " JMF</color>" + (message.isBlank() ? "" : " (megjegyzés: " + message + ")"));
 		return PaymentStatus.ACCEPTED;
 	}
 
@@ -321,12 +384,13 @@ public class TransactionService {
 		return "id;name;email;phone;card;balance;minimumBalance;allowedToPay;processed;comment"
 				+ System.lineSeparator()
 				+ accounts.findAllByOrderById().stream()
-				.map(it -> Stream.of("" + it.getId(), it.getName(), it.getEmail(), it.getPhone(), it.getCard(),
-								"" + it.getBalance(), "" + it.getMinimumBalance(), "" + it.isAllowed(), "" + it.isProcessed(),
+						.map(it -> Stream.of("" + it.getId(), it.getName(), it.getEmail(), it.getPhone(), it.getCard(),
+								"" + it.getBalance(), "" + it.getMinimumBalance(), "" + it.isAllowed(),
+								"" + it.isProcessed(),
 								it.getComment())
-						.map(attr -> attr.replace(";", "\\;"))
-						.collect(Collectors.joining(";")))
-				.collect(Collectors.joining(System.lineSeparator()));
+								.map(attr -> attr.replace(";", "\\;"))
+								.collect(Collectors.joining(";")))
+						.collect(Collectors.joining(System.lineSeparator()));
 	}
 
 	@Transactional(readOnly = true)
@@ -334,12 +398,12 @@ public class TransactionService {
 		return "id;timestamp;time;sender;receiver;amount;card;description;message;senderId;paymentOrUpload"
 				+ System.lineSeparator()
 				+ transactions.findAllByOrderById().stream()
-				.map(it -> Stream.of("" + it.getId(), "" + it.getTime(), it.formattedTime(), it.getCardHolder(),
+						.map(it -> Stream.of("" + it.getId(), "" + it.getTime(), it.formattedTime(), it.getCardHolder(),
 								it.getReceiver(), "" + it.getAmount(), it.getCardId(), it.getPaymentDescription(),
 								it.getMessage(), "" + it.getAmount(), "" + it.isRegular())
-						.map(attr -> attr.replace(";", "\\;"))
-						.collect(Collectors.joining(";")))
-				.collect(Collectors.joining(System.lineSeparator()));
+								.map(attr -> attr.replace(";", "\\;"))
+								.collect(Collectors.joining(";")))
+						.collect(Collectors.joining(System.lineSeparator()));
 	}
 
 	@Transactional(readOnly = true)
@@ -347,15 +411,17 @@ public class TransactionService {
 		return "id;name;quantity;code;abbreviation;price;active"
 				+ System.lineSeparator()
 				+ items.findAllByOrderById().stream()
-				.map(it -> Stream.of("" + it.getId(), it.getName(), it.getQuantity(), it.getCode(), it.getAbbreviation(),
-								"" + it.getPrice(), "" + it.isActive())
-						.map(attr -> attr.replace(";", "\\;"))
-						.collect(Collectors.joining(";")))
-				.collect(Collectors.joining(System.lineSeparator()));
+						.map(it -> Stream
+								.of("" + it.getId(), it.getName(), "" + it.getQuantity(), it.getCode(),
+										it.getAbbreviation(),
+										"" + it.getPrice(), "" + it.isActive())
+								.map(attr -> attr.replace(";", "\\;"))
+								.collect(Collectors.joining(";")))
+						.collect(Collectors.joining(System.lineSeparator()));
 	}
 
 	@Transactional(readOnly = true)
-	public List<ItemEntity> getALlItems() {
+	public List<ItemEntity> getAllItems() {
 		return items.findAll();
 	}
 
@@ -408,5 +474,10 @@ public class TransactionService {
 						it.getAbbreviation() + (amount > 1 ? ("x" + amount) : ""),
 						it.getPrice() * amount))
 				.orElseGet(() -> new ItemQueryResult(false, "not found", 0));
+	}
+
+	@Transactional(readOnly = true)
+	public List<ItemEntity> getAllActiveItems() {
+		return items.findAllByActiveTrueOrderByName();
 	}
 }

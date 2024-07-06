@@ -16,6 +16,26 @@ export type PaymentRequest = {
   details: string
   gateway: string
 }
+export type ItemPurchaseRequest = {
+  id: number
+  card: string
+  gatewayCode: string
+  gateway: string
+}
+export type UserData = {
+  id: number
+  name: string
+  card: string
+  phone: string
+  email: string
+  balance: number
+  minimumBalance: number
+  allowed: boolean
+  processed: boolean
+  comment: string
+  maxLoan: number
+  formattedCard: string
+}
 
 export type GetUserRequest = {
   userId: number
@@ -34,6 +54,30 @@ export type BalanceRequest = {
   card: string
   gatewayCode: string
   gateway: string
+}
+
+export type BalanceResponse = {
+  balance: number
+  maxLoan: number
+}
+
+export type Item = {
+  id: number
+  name: string
+  quantity: number
+  code: string
+  abbreviation: string
+  price: number
+}
+
+export type AppRequest = {
+  gatewayCode: string
+  gateway: string
+}
+
+export type AppResponse = {
+  uploader: boolean
+  items: Item[]
 }
 
 export const terminalTypes = ['Bar', 'Food', 'Check-in', 'Merch', 'Charity', 'Withdraw', 'Other'] as const

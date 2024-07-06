@@ -7,8 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ValidateRequest {
-
-	private String gatewayCode;
-
+public class ItemView {
+	Integer id;
+	String name;
+	Integer quantity;
+	String code;
+	String abbreviation;
+	Integer price;
 }

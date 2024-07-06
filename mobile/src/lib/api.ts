@@ -1,12 +1,14 @@
 import {
-  AddCardStatus,
+  AppRequest,
+  AppResponse,
   BalanceRequest,
+  BalanceResponse,
   CardData,
   GetUserRequest,
+  ItemPurchaseRequest,
   PaymentRequest,
   PaymentStatus,
-  ReadingRequest,
-  ValidateRequest
+  ReadingRequest
 } from '@/lib/model.ts'
 import { post } from '@/lib/utils.ts'
 
@@ -14,16 +16,22 @@ const getUrl = (gateway: string, endpoint: string) => `${import.meta.env.VITE_BA
 
 const parseValidationStatus = (result: Promise<string>): Promise<boolean> => result.then((res) => res === 'OK').catch(() => false)
 
-export const setCard = (data: CardData): Promise<AddCardStatus> => post({ url: getUrl(data.gateway, 'set-card'), data })
+export const app = (data: AppRequest): Promise<AppResponse | null> =>
+  post({
+    url: getUrl(data.gateway, 'app'),
+    deserialize: async (res) => {
+      if (res.status !== 200) return null
+      return res.json()
+    },
+    data
+  })
 
-/// Checks if gateway is valid
-export const validate = (data: ValidateRequest): Promise<boolean> =>
-  parseValidationStatus(
-    post<ValidateRequest, string>({
-      url: getUrl(data.gateway, 'validate'),
-      data
-    })
-  )
+export const setCard = (data: CardData): Promise<Response> =>
+  post({
+    url: getUrl(data.gateway, 'set-card'),
+    deserialize: async (res) => res,
+    data
+  })
 
 export const freeBeer = (data: PaymentRequest): Promise<PaymentStatus> =>
   post({
@@ -31,15 +39,20 @@ export const freeBeer = (data: PaymentRequest): Promise<PaymentStatus> =>
     data
   })
 
-export const balance = (data: BalanceRequest): Promise<number> =>
+export const balance = (data: BalanceRequest): Promise<BalanceResponse | null> =>
   post({
     url: getUrl(data.gateway, 'balance'),
+    deserialize: async (res) => {
+      if (res.status !== 200) return null
+      return res.json()
+    },
     data
-  }).then((res) => Number(res))
+  })
 
 export const getUser = (data: GetUserRequest): Promise<string> => post({ url: getUrl(data.gateway, 'get-user'), data })
 
 export const pay = (data: PaymentRequest): Promise<PaymentStatus> => post({ url: getUrl(data.gateway, 'pay'), data })
+export const payItem = (data: ItemPurchaseRequest): Promise<PaymentStatus> => post({ url: getUrl(data.gateway, 'buy-item'), data })
 
 export const reading = (data: ReadingRequest) =>
   parseValidationStatus(
@@ -54,12 +67,3 @@ export const upload = (data: PaymentRequest): Promise<PaymentStatus> =>
     url: getUrl(data.gateway, 'upload'),
     data
   })
-
-/// Checks if the user can upload funds
-export const validateUploader = (data: ValidateRequest): Promise<boolean> =>
-  parseValidationStatus(
-    post<ValidateRequest, string>({
-      url: getUrl(data.gateway, 'validate-uploader'),
-      data
-    })
-  )

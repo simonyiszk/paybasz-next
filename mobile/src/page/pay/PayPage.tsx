@@ -8,6 +8,11 @@ export const PayPage = () => {
   const [message, setMessage] = useState<string>()
   const [card, setCard] = useState<string>()
 
+  const reset = () => {
+    setAmount(undefined)
+    setMessage(undefined)
+    setCard(undefined)
+  }
   let currentStep
   if (!amount || !message) {
     currentStep = (
@@ -20,20 +25,9 @@ export const PayPage = () => {
       />
     )
   } else if (!card) {
-    currentStep = <ScanCardStep setCard={setCard} />
+    currentStep = <ScanCardStep setCard={setCard} amount={amount} message={message} onAbort={reset} />
   } else {
-    currentStep = (
-      <PayStep
-        amount={amount}
-        message={message}
-        card={card}
-        onReset={() => {
-          setAmount(undefined)
-          setMessage(undefined)
-          setCard(undefined)
-        }}
-      />
-    )
+    currentStep = <PayStep amount={amount} message={message} card={card} onReset={reset} />
   }
 
   return <div className="flex items-center flex-col gap-4">{currentStep}</div>

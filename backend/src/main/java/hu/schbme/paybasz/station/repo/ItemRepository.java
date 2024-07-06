@@ -15,4 +15,6 @@ public interface ItemRepository extends CrudRepository<ItemEntity, Integer> {
 
 	List<ItemEntity> findAllByCodeAndActiveTrueOrderByPriceDesc(String code);
 
+	List<ItemEntity> findAllByActiveTrueOrderByName();
+
 }
