@@ -22,6 +22,20 @@ export type ItemPurchaseRequest = {
   gatewayCode: string
   gateway: string
 }
+export type UserData = {
+  id: number
+  name: string
+  card: string
+  phone: string
+  email: string
+  balance: number
+  minimumBalance: number
+  allowed: boolean
+  processed: boolean
+  comment: string
+  maxLoan: number
+  formattedCard: string
+}
 
 export type GetUserRequest = {
   userId: number

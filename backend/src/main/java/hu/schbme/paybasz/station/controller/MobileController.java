@@ -132,7 +132,8 @@ public class MobileController {
 	 * NOTE: Do not use for transaction purposes. Might be effected by dirty read.
 	 */
 	@PostMapping("/balance/{gatewayName}")
-	public ResponseEntity<BalanceResponse> balance(@PathVariable String gatewayName, @RequestBody BalanceRequest request) {
+	public ResponseEntity<BalanceResponse> balance(@PathVariable String gatewayName,
+			@RequestBody BalanceRequest request) {
 		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
@@ -206,21 +207,22 @@ public class MobileController {
 	}
 
 	@PostMapping("/set-card/{gatewayName}")
-	public AddCardStatus addCard(@PathVariable String gatewayName, @RequestBody AddCardRequest request) {
+	public ResponseEntity<AccountEntity> addCard(@PathVariable String gatewayName,
+			@RequestBody AddCardRequest request) {
 		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
-			return AddCardStatus.UNAUTHORIZED_TERMINAL;
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
 		gateways.updateLastUsed(gatewayName);
 
 		if (accounts.findByCard(request.getCard().toUpperCase()).isPresent())
-			return AddCardStatus.ALREADY_ADDED;
+			return ResponseEntity.status(HttpStatus.CONFLICT).build();// card is already assigned
 
 		Optional<AccountEntity> user = accounts.findById(request.getUserId());
 		if (user.isEmpty())
-			return AddCardStatus.USER_NOT_FOUND;
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		final var account = user.get();
 		if (!account.getCard().isEmpty())
-			return AddCardStatus.USER_HAS_CARD;
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // User already has a card assigned
 
 		account.setCard(request.getCard().toUpperCase());
 		log.info("New card assignment from gateway '{}' card hash: '{}', user: {}", gatewayName, request.getCard(),
@@ -228,7 +230,7 @@ public class MobileController {
 		logger.action("<color>" + account.getName() + "</color> felhasználóhoz kártya rendelve: <badge>"
 				+ request.getCard() + "</badge>  (terminál: " + gatewayName + ")");
 		accounts.save(account);
-		return AddCardStatus.ACCEPTED;
+		return ResponseEntity.ok(account);
 	}
 
 	@PostMapping("/get-user/{gatewayName}")

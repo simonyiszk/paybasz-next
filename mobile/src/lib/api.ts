@@ -1,5 +1,4 @@
 import {
-  AddCardStatus,
   AppRequest,
   AppResponse,
   BalanceRequest,
@@ -27,7 +26,12 @@ export const app = (data: AppRequest): Promise<AppResponse | null> =>
     data
   })
 
-export const setCard = (data: CardData): Promise<AddCardStatus> => post({ url: getUrl(data.gateway, 'set-card'), data })
+export const setCard = (data: CardData): Promise<Response> =>
+  post({
+    url: getUrl(data.gateway, 'set-card'),
+    deserialize: async (res) => res,
+    data
+  })
 
 export const freeBeer = (data: PaymentRequest): Promise<PaymentStatus> =>
   post({

@@ -1,23 +1,27 @@
-import { AddCardStatus } from '@/lib/model.ts'
+import { UserData } from '@/lib/model.ts'
 import { useAppContext } from '@/components/AppContext.tsx'
 import { useEffect, useState } from 'react'
 import { setCard } from '@/lib/api.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { sha256 } from '@/lib/utils.ts'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 export const ConnectStep = ({ onReset, card, userId }: { onReset: () => void; card: string; userId: number }) => {
   const { gatewayCode, gatewayName } = useAppContext()
   const [retries, setRetries] = useState(0)
-  const [status, setStatus] = useState<AddCardStatus>()
   const [error, setError] = useState<string>()
+  const [user, setUser] = useState<UserData>()
 
   useEffect(() => {
     sha256(card)
       .then((cardHash) => setCard({ gateway: gatewayName, card: cardHash, gatewayCode, userId }))
-      .then(setStatus)
-      .catch(() => setError('A hozzárendelés sikertelen!'))
-  }, [card, userId, retries])
+      .then(async (data) => {
+        if (data.status === 200) setUser(await data.json())
+        else setError(getMessageFromStatus(data.status))
+      })
+      .catch((error) => console.error(error.status))
+  }, [card, userId, retries, gatewayName, gatewayCode])
 
   if (error)
     return (
@@ -26,7 +30,7 @@ export const ConnectStep = ({ onReset, card, userId }: { onReset: () => void; ca
         <Button
           onClick={() => {
             setError(undefined)
-            setStatus(undefined)
+            setUser(undefined)
             setRetries(retries + 1)
           }}
         >
@@ -35,7 +39,7 @@ export const ConnectStep = ({ onReset, card, userId }: { onReset: () => void; ca
       </>
     )
 
-  if (!status)
+  if (!user)
     return (
       <>
         <h1 className="font-bold text-2xl pb-2 text-center">Kártya és felhasználó összekapcsolása...</h1>
@@ -47,25 +51,30 @@ export const ConnectStep = ({ onReset, card, userId }: { onReset: () => void; ca
 
   return (
     <>
-      <h1 className="font-bold text-2xl pb-2 text-center">{getMessageFromStatus(status)}</h1>
+      <Alert className="w-[auto]">
+        <AlertTitle className="text-center text-primary text-xl">{user.name}</AlertTitle>
+        <AlertDescription className="font-bold text-lg flex flex-col gap-2 mt-4">
+          <span>Azonosító: {user.id}</span>
+          <span>Email: {user.email}</span>
+          <span>Megjegyzés: {user.comment}</span>
+          {user.maxLoan > 0 && <span>Hitelkeret: {user?.maxLoan} JMF</span>}
+        </AlertDescription>
+      </Alert>
       <Button onClick={onReset}>Új hozzárendelés</Button>
     </>
   )
 }
-
-const getMessageFromStatus = (status: AddCardStatus) => {
+const getMessageFromStatus = (status: number) => {
   switch (status) {
-    case 'ACCEPTED':
-      return 'Hozzárendelés sikeres!'
-    case 'INTERNAL_ERROR':
-      return 'Váratlan hiba.'
-    case 'USER_NOT_FOUND':
+    case 404:
       return 'A felhasználó nem létezik.'
-    case 'ALREADY_ADDED':
+    case 409:
       return 'A kártyát már hozzárendelték valakihez!'
-    case 'USER_HAS_CARD':
+    case 400:
       return 'A felhasználónak már van egy másik kártyája.'
-    default:
+    case 403:
       return 'Nincs jogosultságod hozzárendelésekhez!'
+    default:
+      return 'Váratlan hiba.'
   }
 }
