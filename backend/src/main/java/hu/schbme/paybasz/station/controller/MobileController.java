@@ -26,7 +26,7 @@ import static hu.schbme.paybasz.station.PaybaszApplication.VERSION;
 @SuppressWarnings("SpellCheckingInspection")
 @Slf4j
 @RestController
-@RequestMapping("/mapi")
+@RequestMapping("/api")
 @CrossOrigin
 @RequiredArgsConstructor
 public class MobileController {

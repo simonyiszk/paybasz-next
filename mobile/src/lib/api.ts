@@ -12,7 +12,7 @@ import {
 } from '@/lib/model.ts'
 import { post } from '@/lib/utils.ts'
 
-const getUrl = (gateway: string, endpoint: string) => `${import.meta.env.VITE_BACKEND_URL}/mapi/${endpoint}/${gateway}`
+const getUrl = (gateway: string, endpoint: string) => `${import.meta.env.VITE_BACKEND_URL}/api/${endpoint}/${gateway}`
 
 const parseValidationStatus = (result: Promise<string>): Promise<boolean> => result.then((res) => res === 'OK').catch(() => false)
 
