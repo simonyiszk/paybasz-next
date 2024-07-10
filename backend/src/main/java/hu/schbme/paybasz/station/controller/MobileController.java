@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import static hu.schbme.paybasz.station.PaybaszApplication.VERSION;
 
@@ -59,9 +60,30 @@ public class MobileController {
 		}
 	}
 
-	@PostMapping("/upload/{gatewayName}")
-	public PaymentStatus upload(@PathVariable String gatewayName, @RequestBody PaymentRequest request) {
-		if (!gateways.authorizeUploaderGateway(gatewayName, request.getGatewayCode()))
+	@PostMapping("/users")
+	public ResponseEntity<List<UserListItem>> getUsers(@RequestBody AuthorizedApiRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode())) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
+
+		try {
+			var accounts = system.getAllAccounts();
+			var userList = StreamSupport
+					.stream(accounts.spliterator(), false)
+					.map(AccountMapper.INSTANCE::toListItem)
+					.toList();
+			return ResponseEntity.ok(userList);
+		} catch (Exception e) {
+			log.error("Error returning all the users", e);
+			logger.failure("A felhasználók lekérése sikertelen: belső szerver hiba");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+
+	}
+
+	@PostMapping("/upload")
+	public PaymentStatus upload(@RequestBody PaymentRequest request) {
+		if (!gateways.authorizeUploaderGateway(request.getGatewayName(), request.getGatewayCode()))
 			return PaymentStatus.UNAUTHORIZED_TERMINAL;
 		gateways.updateLastUsed(request.getGatewayName());
 		if (request.getAmount() < 0)
