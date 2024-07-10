@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppRequest {
-
+public class AuthorizedApiRequest {
 	private String gatewayCode;
+	private String gatewayName;
 
 }

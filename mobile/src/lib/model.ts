@@ -1,27 +1,23 @@
-export type ValidateRequest = {
+export type ApiRequest = {
   gatewayCode: string
-  gateway: string
+  gatewayName: string
 }
 
-export type ReadingRequest = {
+export type ReadingRequest = ApiRequest & {
   card: string
-  gatewayCode: string
-  gateway: string
 }
 
-export type PaymentRequest = {
+export type PaymentRequest = ApiRequest & {
   card: string
   amount: number
-  gatewayCode: string
   details: string
-  gateway: string
 }
-export type ItemPurchaseRequest = {
+
+export type ItemPurchaseRequest = ApiRequest & {
   id: number
   card: string
-  gatewayCode: string
-  gateway: string
 }
+
 export type UserData = {
   id: number
   name: string
@@ -37,23 +33,17 @@ export type UserData = {
   formattedCard: string
 }
 
-export type GetUserRequest = {
-  userId: number
-  gatewayCode: string
-  gateway: string
-}
-
-export type CardData = {
-  card: string
-  gateway: string
-  gatewayCode: string
+export type GetUserRequest = ApiRequest & {
   userId: number
 }
 
-export type BalanceRequest = {
+export type CardData = ApiRequest & {
   card: string
-  gatewayCode: string
-  gateway: string
+  userId: number
+}
+
+export type BalanceRequest = ApiRequest & {
+  card: string
 }
 
 export type BalanceResponse = {
@@ -70,15 +60,19 @@ export type Item = {
   price: number
 }
 
-export type AppRequest = {
-  gatewayCode: string
-  gateway: string
-}
+export type AppRequest = ApiRequest
 
 export type AppResponse = {
   uploader: boolean
   items: Item[]
 }
+
+export type UserListItem = {
+  id: number
+  name: string
+}
+
+export type UserList = UserListItem[]
 
 export const terminalTypes = ['Bar', 'Food', 'Check-in', 'Merch', 'Charity', 'Withdraw', 'Other'] as const
 export type TerminalType = (typeof terminalTypes)[number]

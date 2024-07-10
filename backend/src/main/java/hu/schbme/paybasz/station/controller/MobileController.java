@@ -3,10 +3,9 @@ package hu.schbme.paybasz.station.controller;
 import hu.schbme.paybasz.station.config.AppUtil;
 import hu.schbme.paybasz.station.dto.*;
 import hu.schbme.paybasz.station.error.UnauthorizedGateway;
-import hu.schbme.paybasz.station.error.UserNotFoundException;
+import hu.schbme.paybasz.station.mapper.AccountMapper;
 import hu.schbme.paybasz.station.mapper.ItemMapper;
 import hu.schbme.paybasz.station.model.AccountEntity;
-import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.repo.AccountRepository;
 import hu.schbme.paybasz.station.service.GatewayService;
 import hu.schbme.paybasz.station.service.LoggingService;
@@ -36,10 +35,10 @@ public class MobileController {
 	private final LoggingService logger;
 	private final AccountRepository accounts;
 
-	@PostMapping("/app/{gatewayName}")
-	public ResponseEntity<AppResponse> app(@PathVariable String gatewayName, @RequestBody AppRequest request) {
-		final boolean isUploader = gateways.authorizeUploaderGateway(gatewayName, request.getGatewayCode());
-		if (!isUploader && !gateways.authorizeGateway(gatewayName, request.getGatewayCode())) {
+	@PostMapping("/app")
+	public ResponseEntity<AppResponse> app(@RequestBody AuthorizedApiRequest request) {
+		final boolean isUploader = gateways.authorizeUploaderGateway(request.getGatewayName(), request.getGatewayCode());
+		if (!isUploader && !gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode())) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		}
 
@@ -64,14 +63,14 @@ public class MobileController {
 	public PaymentStatus upload(@PathVariable String gatewayName, @RequestBody PaymentRequest request) {
 		if (!gateways.authorizeUploaderGateway(gatewayName, request.getGatewayCode()))
 			return PaymentStatus.UNAUTHORIZED_TERMINAL;
-		gateways.updateLastUsed(gatewayName);
+		gateways.updateLastUsed(request.getGatewayName());
 		if (request.getAmount() < 0)
 			return PaymentStatus.INTERNAL_ERROR;
 
 		try {
 			return system.addMoneyToCard(request.getCard().toUpperCase(), request.getAmount(),
 					request.getDetails() == null ? "" : request.getDetails(),
-					gatewayName);
+					request.getGatewayName());
 		} catch (Exception e) {
 			log.error("Error during proceeding payment", e);
 			logger.failure("Sikertelen fizetés: belső szerver hiba");
@@ -79,16 +78,16 @@ public class MobileController {
 		}
 	}
 
-	@PostMapping("/free-beer/{gatewayName}")
-	public PaymentStatus freeBeer(@PathVariable String gatewayName, @RequestBody PaymentRequest request) {
-		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
+	@PostMapping("/free-beer")
+	public PaymentStatus freeBeer(@RequestBody PaymentRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
 			return PaymentStatus.UNAUTHORIZED_TERMINAL;
-		gateways.updateLastUsed(gatewayName);
+		gateways.updateLastUsed(request.getGatewayName());
 
 		try {
 			return system.getBeer(request.getCard().toUpperCase(),
 					request.getDetails() == null ? "" : request.getDetails(),
-					gatewayName);
+					request.getGatewayName());
 		} catch (Exception e) {
 			log.error("Error during proceeding free beer", e);
 			logger.failure("Sikertelen ingyen sör: belső szerver hiba");
@@ -96,32 +95,32 @@ public class MobileController {
 		}
 	}
 
-	@PostMapping("/pay/{gatewayName}")
-	public PaymentStatus pay(@PathVariable String gatewayName, @RequestBody PaymentRequest request) {
-		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
+	@PostMapping("/pay")
+	public PaymentStatus pay(@RequestBody PaymentRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
 			return PaymentStatus.UNAUTHORIZED_TERMINAL;
-		gateways.updateLastUsed(gatewayName);
+		gateways.updateLastUsed(request.getGatewayName());
 		if (request.getAmount() < 0)
 			return PaymentStatus.INTERNAL_ERROR;
 
 		try {
 			return system.proceedPayment(request.getCard().toUpperCase(), request.getAmount(),
 					request.getDetails() == null ? "" : request.getDetails(),
-					gatewayName);
+					request.getGatewayName());
 		} catch (Exception e) {
 			log.error("Error during proceeding payment", e);
-			logger.failure("Sikertelen fizetés: belső szerver hiba (terminál: " + gatewayName + ")");
+			logger.failure("Sikertelen fizetés: belső szerver hiba (terminál: " + request.getGatewayName() + ")");
 			return PaymentStatus.INTERNAL_ERROR;
 		}
 	}
 
-	@PostMapping("/buy-item/{gatewayName}")
-	public PaymentStatus buyItem(@PathVariable String gatewayName, @RequestBody ItemPurchaseRequest request) {
-		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
+	@PostMapping("/buy-item")
+	public PaymentStatus buyItem(@RequestBody ItemPurchaseRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
 			return PaymentStatus.UNAUTHORIZED_TERMINAL;
-		gateways.updateLastUsed(gatewayName);
+		gateways.updateLastUsed(request.getGatewayName());
 		try {
-			return system.decreaseItemCountAndBuy(request.getCard().toUpperCase(), gatewayName, request.getId());
+			return system.decreaseItemCountAndBuy(request.getCard().toUpperCase(), request.getGatewayName(), request.getId());
 		} catch (Exception e) {
 			logger.failure("Sikertelen termék vásárlása: " + request.getId());
 			return PaymentStatus.INTERNAL_ERROR;
@@ -131,24 +130,23 @@ public class MobileController {
 	/**
 	 * NOTE: Do not use for transaction purposes. Might be effected by dirty read.
 	 */
-	@PostMapping("/balance/{gatewayName}")
-	public ResponseEntity<BalanceResponse> balance(@PathVariable String gatewayName,
-			@RequestBody BalanceRequest request) {
-		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
+	@PostMapping("/balance")
+	public ResponseEntity<BalanceResponse> balance(@RequestBody BalanceRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
-		gateways.updateLastUsed(gatewayName);
-		log.info("New balance from gateway '{}' card hash: '{}'", gatewayName, request.getCard().toUpperCase());
+		gateways.updateLastUsed(request.getGatewayName());
+		log.info("New balance from gateway '{}' card hash: '{}'", request.getGatewayName(), request.getCard().toUpperCase());
 		Optional<AccountEntity> account = system.getAccountByCard(request.getCard().toUpperCase());
 		if (account.isEmpty()) {
-			logger.action("<color>Ismeretlen kártya került leolvasásra.</color> (terminál: " + gatewayName + ")");
+			logger.action("<color>Ismeretlen kártya került leolvasásra.</color> (terminál: " + request.getGatewayName() + ")");
 			return ResponseEntity.notFound().build();
 		}
 
 		var accountBalance = account.get();
 		logger.action("<badge>" + account.map(AccountEntity::getName).orElse("n/a")
 				+ "</badge> egyenlege leolvasva: <color>" + accountBalance.getBalance() + " JMF</color> (terminál: "
-				+ gatewayName + ")");
+				+ request.getGatewayName() + ")");
 
 		var response = BalanceResponse.builder()
 				.balance(accountBalance.getBalance())
@@ -157,25 +155,25 @@ public class MobileController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PostMapping("/reading/{gatewayName}")
-	public ValidationStatus reading(@PathVariable String gatewayName, @RequestBody ReadingRequest readingRequest) {
-		if (!gateways.authorizeGateway(gatewayName, readingRequest.getGatewayCode()))
+	@PostMapping("/reading")
+	public ValidationStatus reading(@RequestBody ReadingRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
 			return ValidationStatus.INVALID;
 
-		log.info("New reading from gateway '{}' read card hash: '{}'", gatewayName,
-				readingRequest.getCard().toUpperCase());
-		logger.action("Leolvasás történt: <badge>" + readingRequest.getCard().toUpperCase() + "</badge> (terminál: "
-				+ gatewayName + ")");
-		gateways.appendReading(gatewayName, readingRequest.getCard().toUpperCase());
-		gateways.updateLastUsed(gatewayName);
+		log.info("New reading from gateway '{}' read card hash: '{}'", request.getGatewayName(),
+				request.getCard().toUpperCase());
+		logger.action("Leolvasás történt: <badge>" + request.getCard().toUpperCase() + "</badge> (terminál: "
+				+ request.getGatewayName() + ")");
+		gateways.appendReading(request.getGatewayName(), request.getCard().toUpperCase());
+		gateways.updateLastUsed(request.getGatewayName());
 		return ValidationStatus.OK;
 	}
 
-	@PostMapping("/query/{gatewayName}")
-	public ItemQueryResult query(@PathVariable String gatewayName, @RequestBody ItemQueryRequest request) {
-		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
+	@PostMapping("/query")
+	public ItemQueryResult query(@RequestBody ItemQueryRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
 			return new ItemQueryResult(false, "unauthorized", 0);
-		gateways.updateLastUsed(gatewayName);
+		gateways.updateLastUsed(request.getGatewayName());
 
 		try {
 			return system.resolveItemQuery(request.getQuery());
@@ -196,23 +194,12 @@ public class MobileController {
 				+ AppUtil.TIME_ONLY_FORMATTER.format(System.currentTimeMillis());
 	}
 
-	@GetMapping("/items/{gatewayName}")
-	public List<ItemEntity> listItems(@PathVariable String gatewayName, @RequestBody ItemQueryRequest request) {
-		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
-			return List.of();
-
-		return system.getAllItems().stream()
-				.filter(ItemEntity::isActive)
-				.toList();
-	}
-
-	@PostMapping("/set-card/{gatewayName}")
-	public ResponseEntity<AccountEntity> addCard(@PathVariable String gatewayName,
-			@RequestBody AddCardRequest request) {
-		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
+	@PostMapping("/set-card")
+	public ResponseEntity<AccountEntity> addCard(@RequestBody AddCardRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
-		gateways.updateLastUsed(gatewayName);
+		gateways.updateLastUsed(request.getGatewayName());
 
 		if (accounts.findByCard(request.getCard().toUpperCase()).isPresent())
 			return ResponseEntity.status(HttpStatus.CONFLICT).build();// card is already assigned
@@ -225,17 +212,17 @@ public class MobileController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // User already has a card assigned
 
 		account.setCard(request.getCard().toUpperCase());
-		log.info("New card assignment from gateway '{}' card hash: '{}', user: {}", gatewayName, request.getCard(),
+		log.info("New card assignment from gateway '{}' card hash: '{}', user: {}", request.getGatewayName(), request.getCard(),
 				account.getName());
 		logger.action("<color>" + account.getName() + "</color> felhasználóhoz kártya rendelve: <badge>"
-				+ request.getCard() + "</badge>  (terminál: " + gatewayName + ")");
+				+ request.getCard() + "</badge>  (terminál: " + request.getGatewayName() + ")");
 		accounts.save(account);
 		return ResponseEntity.ok(account);
 	}
 
-	@PostMapping("/get-user/{gatewayName}")
-	public String getUser(@PathVariable String gatewayName, @RequestBody GetUserRequest request) {
-		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
+	@PostMapping("/get-user")
+	public String getUser(@RequestBody GetUserRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
 			throw new UnauthorizedGateway();
 
 		Optional<AccountEntity> account = accounts.findById(request.getUserId());
@@ -243,22 +230,8 @@ public class MobileController {
 			return "USER_NOT_FOUND";
 
 		logger.note("<color>" + account.get().getName() + "</color> felhasználó nevének lekérdezés (terminál: "
-				+ gatewayName + ")");
+				+ request.getGatewayName() + ")");
 		return account.get().getName();
-	}
-
-	@GetMapping("/get-balance/{gatewayName}")
-	public int getBalance(@PathVariable String gatewayName, @RequestBody GetUserByEmailRequest request) {
-		if (!gateways.authorizeGateway(gatewayName, request.getGatewayCode()))
-			throw new UnauthorizedGateway();
-
-		Optional<AccountEntity> account = accounts.findByEmail(request.getEmail());
-		if (account.isEmpty())
-			throw new UserNotFoundException();
-
-		logger.note("<color>" + account.get().getName()
-				+ "</color> felhasználó egyenlegének lekérdezése e-mail alapján (terminál: " + gatewayName + ")");
-		return account.get().getBalance();
 	}
 
 }

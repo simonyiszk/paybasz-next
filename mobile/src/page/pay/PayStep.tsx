@@ -17,7 +17,7 @@ export const PayStep = ({ onReset, card, amount, message }: { onReset: () => voi
 
   useEffect(() => {
     sha256(card)
-      .then((cardHash) => pay({ gateway: gatewayName, details: message, card: cardHash, gatewayCode, amount }))
+      .then((cardHash) => pay({ gatewayName, details: message, card: cardHash, gatewayCode, amount }))
       .then(setStatus)
       .catch(() => setError('A fizetés sikertelen!'))
   }, [card, amount, message, retries, gatewayName, gatewayCode])

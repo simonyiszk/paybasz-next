@@ -16,7 +16,7 @@ export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => 
 
   useEffect(() => {
     sha256(card)
-      .then((cardHash) => upload({ gateway: gatewayName, details: message, card: cardHash, gatewayCode, amount }))
+      .then((cardHash) => upload({ gatewayName, details: message, card: cardHash, gatewayCode, amount }))
       .then(setStatus)
       .catch(() => setError('A feltöltés sikertelen!'))
   }, [card, amount, message, retries])

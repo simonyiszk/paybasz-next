@@ -17,7 +17,7 @@ export type AppData = {
 export const useAppContext = (): AppData => useContext(AppContext)
 export const AppContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [, gatewayName, gatewayCode] = window.location.pathname.split('/')
-  const appQuery = useQuery(['app', gatewayName, gatewayCode], () => app({ gateway: gatewayName, gatewayCode }), {
+  const appQuery = useQuery(['app', gatewayName, gatewayCode], () => app({ gatewayName, gatewayCode }), {
     enabled: !!gatewayName && !!gatewayCode,
     select: (data) => {
       if (!data) return

@@ -26,7 +26,7 @@ export const BalanceCheck = ({
 
     setLoading(true)
     sha256(card)
-      .then((cardHash) => api.balance({ gateway: gatewayName, gatewayCode, card: cardHash }))
+      .then((cardHash) => api.balance({ gatewayName, gatewayCode, card: cardHash }))
       .then((balance) => {
         setBalance(balance)
         setLoading(false)

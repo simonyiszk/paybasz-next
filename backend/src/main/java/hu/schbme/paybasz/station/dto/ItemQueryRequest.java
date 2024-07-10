@@ -2,14 +2,15 @@ package hu.schbme.paybasz.station.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemQueryRequest {
+@EqualsAndHashCode(callSuper = true)
+public class ItemQueryRequest extends AuthorizedApiRequest {
 
 	private String query;
-	private String gatewayCode;
 
 }

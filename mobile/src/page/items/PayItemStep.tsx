@@ -18,7 +18,7 @@ export const PayItemStep = ({ onReset, card, itemId }: { onReset: () => void; ca
   const queryClient = useQueryClient()
   useEffect(() => {
     sha256(card)
-      .then((cardHash) => payItem({ gateway: gatewayName, card: cardHash, gatewayCode, id: itemId }))
+      .then((cardHash) => payItem({ gatewayName, card: cardHash, gatewayCode, id: itemId }))
       .then((data) => {
         setStatus(data)
         queryClient.invalidateQueries('app')

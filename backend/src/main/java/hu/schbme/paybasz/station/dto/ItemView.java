@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemView {
-	Integer id;
-	String name;
-	Integer quantity;
-	String code;
-	String abbreviation;
-	Integer price;
+	private Integer id;
+	private String name;
+	private Integer quantity;
+	private String code;
+	private String abbreviation;
+	private Integer price;
 }

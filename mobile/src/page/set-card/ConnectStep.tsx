@@ -15,7 +15,7 @@ export const ConnectStep = ({ onReset, card, userId }: { onReset: () => void; ca
 
   useEffect(() => {
     sha256(card)
-      .then((cardHash) => setCard({ gateway: gatewayName, card: cardHash, gatewayCode, userId }))
+      .then((cardHash) => setCard({ gatewayName, card: cardHash, gatewayCode, userId }))
       .then(async (data) => {
         if (data.status === 200) setUser(await data.json())
         else setError(getMessageFromStatus(data.status))
