@@ -1,14 +1,15 @@
 import {
+  ApiRequest,
   AppRequest,
   AppResponse,
   BalanceRequest,
   BalanceResponse,
   CardData,
-  GetUserRequest,
   ItemPurchaseRequest,
   PaymentRequest,
   PaymentStatus,
-  ReadingRequest
+  ReadingRequest,
+  UserList
 } from '@/lib/model.ts'
 import { post } from '@/lib/utils.ts'
 
@@ -45,7 +46,7 @@ export const balance = (data: BalanceRequest): Promise<BalanceResponse | null> =
     data
   })
 
-export const getUser = (data: GetUserRequest): Promise<string> => post({ url: getUrl('get-user'), data })
+export const userList = (data: ApiRequest): Promise<UserList> => post({ url: getUrl('users'), data, asJson: true })
 
 export const pay = (data: PaymentRequest): Promise<PaymentStatus> => post({ url: getUrl('pay'), data })
 

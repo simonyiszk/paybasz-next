@@ -70,6 +70,8 @@ export type AppResponse = {
 export type UserListItem = {
   id: number
   name: string
+  email: string
+  hasCardAssigned: boolean
 }
 
 export type UserList = UserListItem[]

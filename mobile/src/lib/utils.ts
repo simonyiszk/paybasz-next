@@ -2,6 +2,7 @@ import { statusEnum } from '@/types'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { DependencyList, useEffect } from 'react'
+import { filter } from 'fuzzy'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -62,4 +63,12 @@ export async function sha256(message: string) {
   const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 
   return hashHex.toUpperCase()
+}
+
+const replaceSpecialChars = (text: string) => text.normalize('NFKD').replace(/\W/g, '')
+
+export const fuzzySearch = <T>({ needle, haystack, getText }: { needle: string; haystack: T[]; getText: (data: T) => string }): T[] => {
+  const sanitizedNeedle = replaceSpecialChars(needle.toLowerCase())
+  const result = filter(sanitizedNeedle, haystack, { extract: (data) => replaceSpecialChars(getText(data).toLowerCase()) })
+  return result.map((res) => res.original)
 }

@@ -1,4 +1,4 @@
-import { UserData } from '@/lib/model.ts'
+import { UserData, UserListItem } from '@/lib/model.ts'
 import { useAppContext } from '@/components/AppContext.tsx'
 import { useEffect, useState } from 'react'
 import { setCard } from '@/lib/api.ts'
@@ -7,30 +7,31 @@ import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { sha256 } from '@/lib/utils.ts'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
-export const ConnectStep = ({ onReset, card, userId }: { onReset: () => void; card: string; userId: number }) => {
+export const ConnectStep = ({ onReset, card, user }: { onReset: () => void; card: string; user: UserListItem }) => {
   const { gatewayCode, gatewayName } = useAppContext()
   const [retries, setRetries] = useState(0)
   const [error, setError] = useState<string>()
-  const [user, setUser] = useState<UserData>()
+  const [pairingResult, setPairingResult] = useState<UserData>()
 
   useEffect(() => {
     sha256(card)
-      .then((cardHash) => setCard({ gatewayName, card: cardHash, gatewayCode, userId }))
+      .then((cardHash) => setCard({ gatewayName, card: cardHash, gatewayCode, userId: user.id }))
       .then(async (data) => {
-        if (data.status === 200) setUser(await data.json())
+        if (data.status === 200) setPairingResult(await data.json())
         else setError(getMessageFromStatus(data.status))
       })
       .catch((error) => console.error(error.status))
-  }, [card, userId, retries, gatewayName, gatewayCode])
+  }, [card, user.id, retries, gatewayName, gatewayCode])
 
   if (error)
     return (
       <>
-        <h1 className="font-bold text-2xl pb-2 text-center">{error}</h1>
+        <h1 className="font-bold text-2xl pb-4 text-center">{error}</h1>
         <Button
+          className="w-full"
           onClick={() => {
             setError(undefined)
-            setUser(undefined)
+            setPairingResult(undefined)
             setRetries(retries + 1)
           }}
         >
@@ -39,7 +40,7 @@ export const ConnectStep = ({ onReset, card, userId }: { onReset: () => void; ca
       </>
     )
 
-  if (!user)
+  if (!pairingResult)
     return (
       <>
         <h1 className="font-bold text-2xl pb-2 text-center">Kártya és felhasználó összekapcsolása...</h1>
@@ -51,16 +52,18 @@ export const ConnectStep = ({ onReset, card, userId }: { onReset: () => void; ca
 
   return (
     <>
-      <Alert className="w-[auto]">
-        <AlertTitle className="text-center text-primary text-xl">{user.name}</AlertTitle>
+      <Alert className="mb-4">
+        <AlertTitle className="text-center text-primary text-xl">{pairingResult.name}</AlertTitle>
         <AlertDescription className="font-bold text-lg flex flex-col gap-2 mt-4">
-          <span>Azonosító: {user.id}</span>
-          <span>Email: {user.email}</span>
-          <span>Megjegyzés: {user.comment}</span>
-          {user.maxLoan > 0 && <span>Hitelkeret: {user?.maxLoan} JMF</span>}
+          <span>Azonosító: {pairingResult.id}</span>
+          <span>Email: {pairingResult.email}</span>
+          {!!pairingResult.comment && <span>Megjegyzés: {pairingResult.comment}</span>}
+          {pairingResult.maxLoan > 0 && <span>Hitelkeret: {pairingResult?.maxLoan} JMF</span>}
         </AlertDescription>
       </Alert>
-      <Button onClick={onReset}>Új hozzárendelés</Button>
+      <Button className="w-full" onClick={onReset}>
+        Új hozzárendelés
+      </Button>
     </>
   )
 }

@@ -21,10 +21,7 @@ export const ScanCardStep = ({
       <div className="flex flex-col gap-4 relative flex-1">
         {message && <h1 className="font-bold text-2xl text-center">{message}</h1>}
         {amount && <h1 className="font-bold text-2xl text-center">{amount} JMF</h1>}
-        <h1 className="font-bold text-xl pb-2 text-center">
-          Érints kártyát
-          <br /> az eszközhöz...
-        </h1>
+        <h1 className="font-bold text-2xl pb-8 text-center">Érints kártyát az eszközhöz...</h1>
         {onAbort && (
           <Button variant="destructive">
             <span onClick={onAbort}>Vissza</span>

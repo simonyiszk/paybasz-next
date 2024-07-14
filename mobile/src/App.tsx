@@ -16,12 +16,12 @@ export const App = () => {
     <Tabs
       onValueChange={(tab) => localStorage.setItem(TabKey, tab)}
       defaultValue={localStorage.getItem(TabKey) || 'balance'}
-      className="p-4 max-w-2xl m-auto min-h-[100dvh] flex flex-col relative"
+      className="p-4 max-w-2xl m-auto h-[100dvh] flex flex-col items-center relative"
     >
       <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-8 gap-4 sm:gap-8 m-auto sm:m-0">
         <Logo />
       </div>
-      <div className="flex-1 relative">
+      <main className="flex-1 w-full overflow-y-auto overflow-x-visible relative scrollbar-thin">
         <TabsContent value="balance">
           <BalanceCheckPage />
         </TabsContent>
@@ -39,8 +39,8 @@ export const App = () => {
             <UploadPage />
           </TabsContent>
         )}
-      </div>
-      <div className="fixed bottom-0 p-4 left-0 w-full">
+      </main>
+      <div className="w-full">
         <TabsList className="flex justify-between p-0 ">
           <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base flex-1" value="balance">
             <CircleHelp />

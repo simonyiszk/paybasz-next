@@ -1,23 +1,24 @@
 import { useState } from 'react'
-import { EnterUserIdStep } from '@/page/set-card/EnterUserIdStep.tsx'
+import { SelectUserStep } from '@/page/set-card/SelectUserStep.tsx'
 import { ScanCardStep } from '@/page/common/ScanCardStep.tsx'
 import { ConnectStep } from '@/page/set-card/ConnectStep.tsx'
+import { UserListItem } from '@/lib/model.ts'
 
 export const SetCardPage = () => {
-  const [userId, setUserId] = useState<number>()
+  const [user, setUser] = useState<UserListItem>()
   const [card, setCard] = useState<string>()
   const reset = () => {
-    setUserId(undefined)
+    setUser(undefined)
     setCard(undefined)
   }
   let currentStep
-  if (!userId) {
-    currentStep = <EnterUserIdStep setUserId={setUserId} />
+  if (!user) {
+    currentStep = <SelectUserStep setUser={setUser} />
   } else if (!card) {
-    currentStep = <ScanCardStep setCard={setCard} message={`Felhasználó azonosítója: ${userId}`} onAbort={reset} />
+    currentStep = <ScanCardStep setCard={setCard} message={`Kártya ${user.name} részére`} onAbort={reset} />
   } else {
-    currentStep = <ConnectStep card={card} userId={userId} onReset={reset} />
+    currentStep = <ConnectStep card={card} user={user} onReset={reset} />
   }
 
-  return <div className="flex items-center flex-col gap-4">{currentStep}</div>
+  return <div className="flex-1 h-full self-stretch relative">{currentStep}</div>
 }

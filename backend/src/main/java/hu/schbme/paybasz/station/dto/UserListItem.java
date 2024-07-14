@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 public class UserListItem {
 
 	private String name;
+	private String email;
+	private boolean hasCardAssigned;
 	private Integer id;
 
 }
