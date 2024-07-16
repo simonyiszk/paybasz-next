@@ -11,6 +11,7 @@ import hu.schbme.paybasz.station.service.GatewayService;
 import hu.schbme.paybasz.station.service.LoggingService;
 import hu.schbme.paybasz.station.service.TransactionService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -57,6 +58,21 @@ public class MobileController {
 			log.error("Error creating app response", e);
 			logger.failure("Sikertelen app információ lekérés: belső szerver hiba");
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	@PostMapping("/checkout")
+	public PaymentStatus checkout(@Valid @RequestBody CheckoutRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode())) {
+			return PaymentStatus.UNAUTHORIZED_TERMINAL;
+		}
+
+		try {
+			return system.checkout(request.getCard().toUpperCase(), request.getCart(), request.getGatewayName());
+		} catch (Exception e) {
+			log.error("Error creating app response", e);
+			logger.failure("Sikertelen tranzakció: belső szerver hiba");
+			return PaymentStatus.INTERNAL_ERROR;
 		}
 	}
 
