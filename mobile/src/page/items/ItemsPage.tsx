@@ -1,31 +1,81 @@
-import { useAppContext } from '@/components/AppContext'
-import { ItemCard } from './ItemCard'
-import { Item } from '@/lib/model'
 import { useState } from 'react'
 import { ScanCardStep } from '../common/ScanCardStep'
-import { PayItemStep } from './PayItemStep'
+import { CartPayStep } from './CartPayStep.tsx'
+import { ItemAddStep } from '@/page/items/ItemAddStep.tsx'
+import {
+  addCustomItem,
+  addItem,
+  CustomItem,
+  EmptyCart,
+  getCartTotal,
+  getCartTotalCount,
+  removeCustomItem,
+  removeItem
+} from '@/page/items/cart.ts'
+import { Item } from '@/lib/model.ts'
+import { CartEditStep } from '@/page/items/CartEditStep.tsx'
 
 export const ItemsPage = () => {
-  const { items } = useAppContext()
-  const [selectedItem, setSelectedItem] = useState<Item | undefined>()
+  const [cart, setCart] = useState(EmptyCart)
+  const [itemSelectionFinished, setItemSelectionFinished] = useState(false)
+  const [cartEditFinished, setCartEditFinished] = useState(false)
   const [card, setCard] = useState<string>()
+
   const reset = () => {
-    setSelectedItem(undefined)
+    setCart(EmptyCart)
+    setItemSelectionFinished(false)
+    setCartEditFinished(false)
     setCard(undefined)
   }
+
+  const onItemAdded = (item: Item) => {
+    setCart(addItem(cart, item))
+  }
+
+  const onItemRemoved = (item: Item) => {
+    setCart(removeItem(cart, item))
+  }
+
+  const onCustomItemAdded = (item: CustomItem) => {
+    setCart(addCustomItem(cart, item))
+  }
+
+  const onCustomItemRemoved = (item: CustomItem) => {
+    setCart(removeCustomItem(cart, item))
+  }
+
   let currentStep
-  if (!selectedItem) {
+  if (!itemSelectionFinished) {
     currentStep = (
-      <div className="grid grid-cols-[repeat(auto-fit,_40%)] gap-6 justify-items-center items-center w-full justify-center">
-        {items.map((item) => (
-          <ItemCard key={item.id} item={item} onClick={() => setSelectedItem(item)} />
-        ))}
-      </div>
+      <ItemAddStep
+        cart={cart}
+        onFinished={() => setItemSelectionFinished(true)}
+        onItemAdded={onItemAdded}
+        onItemRemoved={onItemRemoved}
+        onCustomItemAdded={onCustomItemAdded}
+        onCustomItemRemoved={onCustomItemRemoved}
+      />
+    )
+  } else if (!cartEditFinished) {
+    currentStep = (
+      <CartEditStep
+        cart={cart}
+        onFinished={() => setCartEditFinished(true)}
+        onBack={() => setItemSelectionFinished(false)}
+        clearCart={reset}
+        onItemAdded={onItemAdded}
+        onItemRemoved={onItemRemoved}
+        onCustomItemAdded={onCustomItemAdded}
+        onCustomItemRemoved={onCustomItemRemoved}
+      />
     )
   } else if (!card) {
-    currentStep = <ScanCardStep setCard={setCard} amount={selectedItem.price} message={selectedItem.code} onAbort={reset} />
+    currentStep = (
+      <ScanCardStep setCard={setCard} amount={getCartTotal(cart)} message={`${getCartTotalCount(cart)} tétel vásárlása`} onAbort={reset} />
+    )
   } else {
-    currentStep = <PayItemStep itemId={selectedItem.id} card={card} onReset={reset} />
+    currentStep = <CartPayStep cart={cart} card={card} onReset={reset} />
   }
-  return <div className="flex items-center flex-col gap-4">{currentStep}</div>
+
+  return <div className="flex-1 h-full relative">{currentStep}</div>
 }

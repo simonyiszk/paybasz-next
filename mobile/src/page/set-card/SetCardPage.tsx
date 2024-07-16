@@ -20,5 +20,5 @@ export const SetCardPage = () => {
     currentStep = <ConnectStep card={card} user={user} onReset={reset} />
   }
 
-  return <div className="flex-1 h-full self-stretch relative">{currentStep}</div>
+  return <div className="flex-1 h-full relative">{currentStep}</div>
 }

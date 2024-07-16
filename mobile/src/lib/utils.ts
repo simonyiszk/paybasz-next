@@ -1,4 +1,4 @@
-import { statusEnum } from '@/types'
+import { statusEnum } from '@/lib/model.ts'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { DependencyList, useEffect } from 'react'
@@ -72,3 +72,6 @@ export const fuzzySearch = <T>({ needle, haystack, getText }: { needle: string; 
   const result = filter(sanitizedNeedle, haystack, { extract: (data) => replaceSpecialChars(getText(data).toLowerCase()) })
   return result.map((res) => res.original)
 }
+
+export const formatNumber = Intl.NumberFormat(navigator.language).format
+export const compactFormat = Intl.NumberFormat(navigator.language, { notation: 'compact' }).format

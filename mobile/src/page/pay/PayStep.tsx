@@ -76,6 +76,6 @@ const getMessageFromStatus = (status: PaymentStatus) => {
     case 'INTERNAL_ERROR':
       return 'Váratlan hiba.'
     default:
-      return 'Nincs jogosultságod feltöltéshez!'
+      return 'Nincs jogosultságod tranzakciók végrehajtásához!'
   }
 }

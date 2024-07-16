@@ -1,15 +1,16 @@
 import { useAppContext } from '@/components/AppContext.tsx'
 import { useEffect, useState } from 'react'
 import { PaymentStatus } from '@/lib/model.ts'
-import { payItem } from '@/lib/api.ts'
+import { payCart } from '@/lib/api.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { BalanceCheck } from '@/page/common/BalanceCheck.tsx'
 import { sha256 } from '@/lib/utils.ts'
 import CheckAnimation from '@/components/CheckAnimation'
 import { useQueryClient } from 'react-query'
+import { Cart } from '@/page/items/cart.ts'
 
-export const PayItemStep = ({ onReset, card, itemId }: { onReset: () => void; card: string; itemId: number }) => {
+export const CartPayStep = ({ onReset, card, cart }: { onReset: () => void; card: string; cart: Cart }) => {
   const { gatewayCode, gatewayName } = useAppContext()
   const [retries, setRetries] = useState(0)
   const [status, setStatus] = useState<PaymentStatus>()
@@ -18,19 +19,30 @@ export const PayItemStep = ({ onReset, card, itemId }: { onReset: () => void; ca
   const queryClient = useQueryClient()
   useEffect(() => {
     sha256(card)
-      .then((cardHash) => payItem({ gatewayName, card: cardHash, gatewayCode, id: itemId }))
+      .then((cardHash) =>
+        payCart({
+          gatewayName,
+          card: cardHash,
+          gatewayCode,
+          cart: {
+            customItems: cart.customEntries,
+            items: cart.items.map((item) => ({ id: item.item.id, quantity: item.quantity }))
+          }
+        })
+      )
       .then((data) => {
         setStatus(data)
         queryClient.invalidateQueries('app')
       })
       .catch(() => setError('A fizetés sikertelen!'))
-  }, [card, gatewayCode, gatewayName, itemId, queryClient, retries])
+  }, [card, gatewayCode, gatewayName, cart, queryClient, retries])
 
   if (error)
     return (
       <>
         <h1 className="font-bold text-2xl pb-2 text-center">{error}</h1>
         <Button
+          className="w-full"
           onClick={() => {
             setError(undefined)
             setStatus(undefined)
@@ -51,17 +63,21 @@ export const PayItemStep = ({ onReset, card, itemId }: { onReset: () => void; ca
         </div>
       </>
     )
-  const data = (
+
+  const confirmation = (
     <>
       <h1 className="font-bold text-2xl pb-2 text-center">{getMessageFromStatus(status)}</h1>
       <BalanceCheck card={card} loading={balanceCheckLoading} setLoading={setBalanceCheckLoading} />
-      <Button onClick={onReset}>Új tranzakció</Button>
+      <Button className="w-full mt-2" onClick={onReset}>
+        Új tranzakció
+      </Button>
     </>
   )
   if (status == 'ACCEPTED') {
-    return <CheckAnimation>{data}</CheckAnimation>
+    return <CheckAnimation>{confirmation}</CheckAnimation>
   }
-  return data
+
+  return confirmation
 }
 
 const getMessageFromStatus = (status: PaymentStatus) => {
@@ -77,6 +93,6 @@ const getMessageFromStatus = (status: PaymentStatus) => {
     case 'INTERNAL_ERROR':
       return 'Váratlan hiba.'
     default:
-      return 'Nincs jogosultságod feltöltéshez!'
+      return 'Nincs jogosultságod tranzakciók végrehajtásához!'
   }
 }

@@ -5,6 +5,7 @@ import {
   BalanceRequest,
   BalanceResponse,
   CardData,
+  CartCheckoutRequest,
   ItemPurchaseRequest,
   PaymentRequest,
   PaymentStatus,
@@ -51,6 +52,8 @@ export const userList = (data: ApiRequest): Promise<UserList> => post({ url: get
 export const pay = (data: PaymentRequest): Promise<PaymentStatus> => post({ url: getUrl('pay'), data })
 
 export const payItem = (data: ItemPurchaseRequest): Promise<PaymentStatus> => post({ url: getUrl('buy-item'), data })
+
+export const payCart = (data: CartCheckoutRequest): Promise<PaymentStatus> => post({ url: getUrl('checkout'), data })
 
 export const reading = (data: ReadingRequest) => parseValidationStatus(post({ url: getUrl('reading'), data }))
 

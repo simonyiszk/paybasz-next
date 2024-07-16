@@ -18,6 +18,27 @@ export type ItemPurchaseRequest = ApiRequest & {
   card: string
 }
 
+export type CartItem = {
+  id: number
+  quantity: number
+}
+
+export type CustomCartItem = {
+  name: string
+  price: number
+  quantity: number
+}
+
+export type CartData = {
+  items: CartItem[]
+  customItems: CustomCartItem[]
+}
+
+export type CartCheckoutRequest = ApiRequest & {
+  cart: CartData
+  card: string
+}
+
 export type UserData = {
   id: number
   name: string
@@ -72,6 +93,17 @@ export type UserListItem = {
   name: string
   email: string
   hasCardAssigned: boolean
+}
+
+export enum statusEnum {
+  OK,
+  WAITING_FOR_CARD,
+  WAITING_FOR_USERID,
+  WAITING_FOR_AMOUNT,
+  SHOWING_BALANCE,
+  SHOWING_CARD_ID,
+  SUCCESS,
+  LOADING
 }
 
 export type UserList = UserListItem[]
