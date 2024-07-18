@@ -52,8 +52,9 @@ export const ConnectStep = ({ onReset, card, user }: { onReset: () => void; card
 
   return (
     <>
+      <h1 className="font-bold text-2xl pb-4 text-center">Sikeres hozzárendelés!</h1>
       <Alert className="mb-4">
-        <AlertTitle className="text-center text-primary text-xl">{pairingResult.name}</AlertTitle>
+        <AlertTitle className="text-primary text-xl">{pairingResult.name}</AlertTitle>
         <AlertDescription className="font-bold text-lg flex flex-col gap-2 mt-4">
           <span>Azonosító: {pairingResult.id}</span>
           <span>Email: {pairingResult.email}</span>
