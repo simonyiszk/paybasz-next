@@ -68,6 +68,8 @@ export type BalanceRequest = ApiRequest & {
 }
 
 export type BalanceResponse = {
+  username: string
+  email: string
   balance: number
   maxLoan: number
 }

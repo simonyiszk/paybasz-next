@@ -1,16 +1,26 @@
-import { useAppContext } from '@/components/AppContext.tsx'
+import { useAppContext } from '@/hooks/useAppContext'
 import { useEffect, useState } from 'react'
 import { PaymentStatus } from '@/lib/model.ts'
 import { payCart } from '@/lib/api.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { BalanceCheck } from '@/page/common/BalanceCheck.tsx'
-import { sha256 } from '@/lib/utils.ts'
+import { cn, sha256 } from '@/lib/utils.ts'
 import CheckAnimation from '@/components/CheckAnimation'
 import { useQueryClient } from 'react-query'
 import { Cart } from '@/page/items/cart.ts'
 
-export const CartPayStep = ({ onReset, card, cart }: { onReset: () => void; card: string; cart: Cart }) => {
+export const CartPayStep = ({
+  onReset,
+  onBackToCart,
+  card,
+  cart
+}: {
+  onReset: () => void
+  onBackToCart: () => void
+  card: string
+  cart: Cart
+}) => {
   const { gatewayCode, gatewayName } = useAppContext()
   const [retries, setRetries] = useState(0)
   const [status, setStatus] = useState<PaymentStatus>()
@@ -40,7 +50,10 @@ export const CartPayStep = ({ onReset, card, cart }: { onReset: () => void; card
   if (error)
     return (
       <>
-        <h1 className="font-bold text-2xl pb-2 text-center">{error}</h1>
+        <h1 className="font-bold text-2xl pb-4 text-center text-destructive">{error}</h1>
+        <Button variant="secondary" className="w-full mb-2" onClick={onReset}>
+          Új tranzakció
+        </Button>
         <Button
           className="w-full"
           onClick={() => {
@@ -66,9 +79,14 @@ export const CartPayStep = ({ onReset, card, cart }: { onReset: () => void; card
 
   const confirmation = (
     <>
-      <h1 className="font-bold text-2xl pb-2 text-center">{getMessageFromStatus(status)}</h1>
+      <h1 className={cn('font-bold text-2xl pb-2 text-center', status !== 'ACCEPTED' && 'text-destructive')}>
+        {getMessageFromStatus(status)}
+      </h1>
       <BalanceCheck card={card} loading={balanceCheckLoading} setLoading={setBalanceCheckLoading} />
-      <Button className="w-full mt-2" onClick={onReset}>
+      <Button className="w-full mt-2" onClick={onBackToCart}>
+        Még egy ilyet
+      </Button>
+      <Button variant="secondary" className="w-full mt-2" onClick={onReset}>
         Új tranzakció
       </Button>
     </>

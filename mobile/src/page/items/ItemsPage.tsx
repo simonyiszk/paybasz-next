@@ -71,10 +71,25 @@ export const ItemsPage = () => {
     )
   } else if (!card) {
     currentStep = (
-      <ScanCardStep setCard={setCard} amount={getCartTotal(cart)} message={`${getCartTotalCount(cart)} tétel vásárlása`} onAbort={reset} />
+      <ScanCardStep
+        setCard={setCard}
+        amount={getCartTotal(cart)}
+        message={`${getCartTotalCount(cart)} tétel vásárlása`}
+        onAbort={() => setCartEditFinished(false)}
+      />
     )
   } else {
-    currentStep = <CartPayStep cart={cart} card={card} onReset={reset} />
+    currentStep = (
+      <CartPayStep
+        cart={cart}
+        card={card}
+        onReset={reset}
+        onBackToCart={() => {
+          setCartEditFinished(false)
+          setCard(undefined)
+        }}
+      />
+    )
   }
 
   return <div className="flex-1 h-full relative">{currentStep}</div>

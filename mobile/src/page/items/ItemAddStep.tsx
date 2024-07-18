@@ -1,4 +1,4 @@
-import { useAppContext } from '@/components/AppContext.tsx'
+import { useAppContext } from '@/hooks/useAppContext'
 import { ItemCard } from '@/page/items/ItemCard.tsx'
 import { Cart, CustomCartEntry, CustomItem, getCustomItemQuantity, getItemQuantity } from '@/page/items/cart.ts'
 import { Item } from '@/lib/model.ts'

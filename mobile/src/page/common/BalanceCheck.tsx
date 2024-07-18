@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { sha256 } from '@/lib/utils.ts'
 import * as api from '@/lib/api.ts'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
-import { useAppContext } from '@/components/AppContext.tsx'
+import { useAppContext } from '@/hooks/useAppContext'
 import { BalanceResponse } from '@/lib/model.ts'
 
 export const BalanceCheck = ({
@@ -35,7 +35,7 @@ export const BalanceCheck = ({
         setError('Sikertelen leolvasás')
         setLoading(false)
       })
-  }, [card, gatewayCode, gatewayName])
+  }, [card, gatewayCode, gatewayName, setLoading])
 
   if (!card) return null
 
@@ -63,8 +63,10 @@ const BalanceReadResult = ({ card, balance, error }: { card: string; balance?: B
   return (
     <Alert className="w-[auto]">
       <CircleDollarSign className="px-1" />
-      <AlertTitle>{card} kártya</AlertTitle>
+      <AlertTitle>{balance?.username}</AlertTitle>
       <AlertDescription className="font-bold text-lg flex flex-col">
+        <span className="font-normal text-sm pb-2">{balance?.email}</span>
+        <span>Kártya: {card.substring(0, 10)}...</span>
         <span>
           Egyenleg: <span className={balance!.balance > 0 ? 'text-primary' : 'text-destructive'}>{balance!.balance} JMF</span>
         </span>

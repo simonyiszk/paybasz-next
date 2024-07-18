@@ -23,8 +23,8 @@ export const ScanCardStep = ({
         {amount && <h1 className="font-bold text-2xl text-center">{amount} JMF</h1>}
         <h1 className="font-bold text-2xl pb-8 text-center">Érints kártyát az eszközhöz...</h1>
         {onAbort && (
-          <Button variant="destructive">
-            <span onClick={onAbort}>Vissza</span>
+          <Button variant="destructive" onClick={onAbort}>
+            Vissza
           </Button>
         )}
       </div>

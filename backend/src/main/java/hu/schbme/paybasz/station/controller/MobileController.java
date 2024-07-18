@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class MobileController {
 	private final LoggingService logger;
 	private final AccountRepository accounts;
 
+	@Transactional
 	@PostMapping("/app")
 	public ResponseEntity<AppResponse> app(@RequestBody AuthorizedApiRequest request) {
 		final boolean isUploader = gateways.authorizeUploaderGateway(request.getGatewayName(), request.getGatewayCode());
@@ -61,6 +63,7 @@ public class MobileController {
 		}
 	}
 
+	@Transactional
 	@PostMapping("/checkout")
 	public PaymentStatus checkout(@Valid @RequestBody CheckoutRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode())) {
@@ -76,6 +79,7 @@ public class MobileController {
 		}
 	}
 
+	@Transactional
 	@PostMapping("/users")
 	public ResponseEntity<List<UserListItem>> getUsers(@RequestBody AuthorizedApiRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode())) {
@@ -97,6 +101,7 @@ public class MobileController {
 
 	}
 
+	@Transactional
 	@PostMapping("/upload")
 	public PaymentStatus upload(@RequestBody PaymentRequest request) {
 		if (!gateways.authorizeUploaderGateway(request.getGatewayName(), request.getGatewayCode()))
@@ -116,6 +121,7 @@ public class MobileController {
 		}
 	}
 
+	@Transactional
 	@PostMapping("/free-beer")
 	public PaymentStatus freeBeer(@RequestBody PaymentRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
@@ -133,6 +139,7 @@ public class MobileController {
 		}
 	}
 
+	@Transactional
 	@PostMapping("/pay")
 	public PaymentStatus pay(@RequestBody PaymentRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
@@ -152,6 +159,7 @@ public class MobileController {
 		}
 	}
 
+	@Transactional
 	@PostMapping("/buy-item")
 	public PaymentStatus buyItem(@RequestBody ItemPurchaseRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
@@ -168,6 +176,7 @@ public class MobileController {
 	/**
 	 * NOTE: Do not use for transaction purposes. Might be effected by dirty read.
 	 */
+	@Transactional
 	@PostMapping("/balance")
 	public ResponseEntity<BalanceResponse> balance(@RequestBody BalanceRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
@@ -186,13 +195,10 @@ public class MobileController {
 				+ "</badge> egyenlege leolvasva: <color>" + accountBalance.getBalance() + " JMF</color> (terminál: "
 				+ request.getGatewayName() + ")");
 
-		var response = BalanceResponse.builder()
-				.balance(accountBalance.getBalance())
-				.maxLoan(accountBalance.getMaxLoan())
-				.build();
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(AccountMapper.INSTANCE.toBalance(accountBalance));
 	}
 
+	@Transactional
 	@PostMapping("/reading")
 	public ValidationStatus reading(@RequestBody ReadingRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
@@ -207,6 +213,7 @@ public class MobileController {
 		return ValidationStatus.OK;
 	}
 
+	@Transactional
 	@PostMapping("/query")
 	public ItemQueryResult query(@RequestBody ItemQueryRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
@@ -232,6 +239,7 @@ public class MobileController {
 				+ AppUtil.TIME_ONLY_FORMATTER.format(System.currentTimeMillis());
 	}
 
+	@Transactional
 	@PostMapping("/set-card")
 	public ResponseEntity<AccountEntity> addCard(@RequestBody AddCardRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
@@ -258,6 +266,7 @@ public class MobileController {
 		return ResponseEntity.ok(account);
 	}
 
+	@Transactional
 	@PostMapping("/get-user")
 	public String getUser(@RequestBody GetUserRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))

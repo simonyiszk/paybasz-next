@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query'
-import { useAppContext } from '@/components/AppContext.tsx'
+import { useAppContext } from '@/hooks/useAppContext'
 import { userList } from '@/lib/api.ts'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { UserList, UserListItem } from '@/lib/model.ts'

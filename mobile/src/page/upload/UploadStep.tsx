@@ -1,11 +1,11 @@
-import { useAppContext } from '@/components/AppContext.tsx'
+import { useAppContext } from '@/hooks/useAppContext'
 import { useEffect, useState } from 'react'
 import { PaymentStatus } from '@/lib/model.ts'
 import { upload } from '@/lib/api.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { BalanceCheck } from '@/page/common/BalanceCheck.tsx'
-import { sha256 } from '@/lib/utils.ts'
+import { cn, sha256 } from '@/lib/utils.ts'
 
 export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => void; card: string; amount: number; message: string }) => {
   const { gatewayCode, gatewayName } = useAppContext()
@@ -19,12 +19,16 @@ export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => 
       .then((cardHash) => upload({ gatewayName, details: message, card: cardHash, gatewayCode, amount }))
       .then(setStatus)
       .catch(() => setError('A feltöltés sikertelen!'))
-  }, [card, amount, message, retries])
+  }, [card, amount, message, retries, gatewayName, gatewayCode])
 
   if (error)
     return (
       <>
-        <h1 className="font-bold text-2xl pb-2 text-center">{error}</h1>
+        <h1 className="font-bold text-2xl pb-2 text-center text-destructive">{error}</h1>
+
+        <Button variant="secondary" className="w-full mb-2" onClick={onReset}>
+          Új feltöltés
+        </Button>
         <Button
           className="w-full"
           onClick={() => {
@@ -50,10 +54,12 @@ export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => 
 
   return (
     <>
-      <h1 className="font-bold text-2xl pb-2 text-center">{getMessageFromStatus(status)}</h1>
+      <h1 className={cn('font-bold text-2xl pb-2 text-center', status !== 'ACCEPTED' && 'text-destructive')}>
+        {getMessageFromStatus(status)}
+      </h1>
       <BalanceCheck card={card} loading={balanceCheckLoading} setLoading={setBalanceCheckLoading} />
 
-      <Button className="w-full" onClick={onReset}>
+      <Button variant="secondary" className="w-full" onClick={onReset}>
         Új feltöltés
       </Button>
     </>

@@ -10,7 +10,7 @@ export default function CheckAnimation({ children }: { children?: React.ReactNod
       <Lottie
         animationData={checkAnimation}
         loop={false}
-        onComplete={() => setTimeout(() => setShowAnimation(false), 250)}
+        onComplete={() => setShowAnimation(false)}
         style={{ width: '80%', maxHeight: '100%' }}
       />
     </div>

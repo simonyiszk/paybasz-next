@@ -1,5 +1,5 @@
 import { UserData, UserListItem } from '@/lib/model.ts'
-import { useAppContext } from '@/components/AppContext.tsx'
+import { useAppContext } from '@/hooks/useAppContext'
 import { useEffect, useState } from 'react'
 import { setCard } from '@/lib/api.ts'
 import { Button } from '@/components/ui/button.tsx'
@@ -26,9 +26,13 @@ export const ConnectStep = ({ onReset, card, user }: { onReset: () => void; card
   if (error)
     return (
       <>
-        <h1 className="font-bold text-2xl pb-4 text-center">{error}</h1>
+        <h1 className="font-bold text-2xl pb-4 text-center text-destructive">{error}</h1>
+
+        <Button variant="secondary" className="w-full mb-2" onClick={onReset}>
+          Új hozzárendelés
+        </Button>
         <Button
-          className="w-full"
+          className="w-full mt-2"
           onClick={() => {
             setError(undefined)
             setPairingResult(undefined)
@@ -52,8 +56,9 @@ export const ConnectStep = ({ onReset, card, user }: { onReset: () => void; card
 
   return (
     <>
+      <h1 className="font-bold text-2xl pb-4 text-center">Sikeres hozzárendelés!</h1>
       <Alert className="mb-4">
-        <AlertTitle className="text-center text-primary text-xl">{pairingResult.name}</AlertTitle>
+        <AlertTitle className="text-primary text-xl">{pairingResult.name}</AlertTitle>
         <AlertDescription className="font-bold text-lg flex flex-col gap-2 mt-4">
           <span>Azonosító: {pairingResult.id}</span>
           <span>Email: {pairingResult.email}</span>
@@ -61,7 +66,7 @@ export const ConnectStep = ({ onReset, card, user }: { onReset: () => void; card
           {pairingResult.maxLoan > 0 && <span>Hitelkeret: {pairingResult?.maxLoan} JMF</span>}
         </AlertDescription>
       </Alert>
-      <Button className="w-full" onClick={onReset}>
+      <Button variant="secondary" className="w-full" onClick={onReset}>
         Új hozzárendelés
       </Button>
     </>
