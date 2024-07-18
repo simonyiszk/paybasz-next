@@ -1,20 +1,19 @@
 package hu.schbme.paybasz.station.service;
 
-import hu.schbme.paybasz.station.dto.AccountCreateDto;
-import hu.schbme.paybasz.station.dto.ItemCreateDto;
-import hu.schbme.paybasz.station.dto.ItemQueryResult;
-import hu.schbme.paybasz.station.dto.PaymentStatus;
+import hu.schbme.paybasz.station.dto.*;
 import hu.schbme.paybasz.station.model.AccountEntity;
 import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.model.TransactionEntity;
 import hu.schbme.paybasz.station.repo.AccountRepository;
 import hu.schbme.paybasz.station.repo.ItemRepository;
 import hu.schbme.paybasz.station.repo.TransactionRepository;
+import hu.schbme.paybasz.station.util.Pair;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +26,7 @@ import static hu.schbme.paybasz.station.service.GatewayService.WEB_TERMINAL_NAME
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
+	private final TransactionRepository transactionRepository;
 
 	private final TransactionRepository transactions;
 	private final AccountRepository accounts;
@@ -75,6 +75,79 @@ public class TransactionService {
 	}
 
 	@Transactional()
+	public PaymentStatus checkout(String card, Cart cart, String gateway) {
+		Optional<AccountEntity> possibleAccount = this.accounts.findByCard(card);
+		if (possibleAccount.isEmpty()) {
+			logger.failure("Sikertelen fizetés: <color>kártya nem található</color> " + "(terminál: " + gateway + ")");
+			return PaymentStatus.VALIDATION_ERROR;
+		}
+
+		var accountEntity = possibleAccount.get();
+		if (!accountEntity.isAllowed()) {
+			logger.failure("Sikertelen fizetés: <badge>" + accountEntity.getName()
+					+ "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
+			return PaymentStatus.CARD_REJECTED;
+		}
+
+		// Believe me, I tried to do it without loops, but it's uglier than this
+		final List<Pair<ItemEntity, CartItem>> itemPairs = new ArrayList<>();
+		for (var cartItem : cart.getItems()) {
+			var possibleItem = items.findById(cartItem.getId());
+			if (possibleItem.isEmpty()) {
+				logger.failure("Sikertelen fizetés: <color>termék nem található</color> " + "(terminál: " + gateway + ")");
+				return PaymentStatus.VALIDATION_ERROR;
+			}
+
+			var item = possibleItem.get();
+			if (item.getQuantity() < cartItem.getQuantity()) {
+				logger.failure("Sikertelen fizetés: <color>termékből nincs elég raktáron</color> " + "(terminál: " + gateway + ")");
+				return PaymentStatus.VALIDATION_ERROR;
+			}
+
+			item.setQuantity(item.getQuantity() - cartItem.getQuantity());
+			itemPairs.add(new Pair<>(item, cartItem));
+		}
+
+		int amount = getTotalAmount(itemPairs, cart.getCustomItems());
+		if (accountEntity.getBalance() - amount < accountEntity.getMinimumBalance()) {
+			logger.failure("Sikertelen fizetés: <color>" + accountEntity.getName() + ", nincs elég fedezet</color>"
+					+ "(terminál: " + gateway + ")");
+			return PaymentStatus.NOT_ENOUGH_CASH;
+		}
+
+		var normalItemTransactions = itemPairs.stream()
+				.map(pair -> new TransactionEntity(null, System.currentTimeMillis(), card, accountEntity.getId(),
+						accountEntity.getName(), accountEntity.getName() + " payed " + pair.getFirst().getPrice() * pair.getSecond().getQuantity(),
+						pair.getFirst().getPrice() * pair.getSecond().getQuantity(), pair.getFirst().getName(), gateway, "SYSTEM", true));
+		var customItemTransactions = cart.getCustomItems().stream().map(item -> new TransactionEntity(null, System.currentTimeMillis(), card, accountEntity.getId(),
+				accountEntity.getName(), accountEntity.getName() + " payed " + item.getPrice() * item.getQuantity(),
+				item.getPrice() * item.getQuantity(), item.getName(), gateway, "SYSTEM", true));
+		var transactions = Stream.concat(normalItemTransactions, customItemTransactions).toList();
+
+		accountEntity.setBalance(accountEntity.getBalance() - amount);
+		accounts.save(accountEntity);
+		items.saveAll(itemPairs.stream().map(Pair::getFirst).toList());
+		transactionRepository.saveAll(transactions);
+		logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + amount + " JMF</color>" + "(terminál: " + gateway + ")");
+
+		return PaymentStatus.ACCEPTED;
+	}
+
+	private int getTotalAmount(List<Pair<ItemEntity, CartItem>> itemPairs, List<CustomCartItem> customItems) {
+		int normalItemSum = itemPairs
+				.stream()
+				.mapToInt(pair -> pair.getFirst().getPrice() * pair.getSecond().getQuantity())
+				.sum();
+
+		int customItemSum = customItems
+				.stream()
+				.mapToInt(item -> item.getQuantity() * item.getPrice())
+				.sum();
+
+		return normalItemSum + customItemSum;
+	}
+
+	@Transactional()
 	public PaymentStatus decreaseItemCountAndBuy(String card, String gateway, Integer itemId) {
 		Optional<AccountEntity> possibleAccount = this.accounts.findByCard(card);
 		if (possibleAccount.isEmpty()) {
@@ -113,6 +186,7 @@ public class TransactionService {
 		accounts.save(accountEntity);
 		items.save(itemEntity);
 		transactions.save(transaction);
+		logger.success("<badge>" + accountEntity.getName() + "</badge> sikeres fizetés: <color>" + itemEntity.getPrice() + " JMF</color>" + "(terminál: " + gateway + ")");
 
 		return PaymentStatus.ACCEPTED;
 	}
@@ -212,7 +286,7 @@ public class TransactionService {
 
 	@Transactional(readOnly = false)
 	public void createAccount(String name, String email, String phone, String card, int amount, int minAmount,
-			boolean allowed) {
+							  boolean allowed) {
 		card = card.toUpperCase();
 		log.info("New user was created with card: {}", card);
 		logger.note("<badge>" + name + "</badge> regisztrálva");
@@ -384,13 +458,13 @@ public class TransactionService {
 		return "id;name;email;phone;card;balance;minimumBalance;allowedToPay;processed;comment"
 				+ System.lineSeparator()
 				+ accounts.findAllByOrderById().stream()
-						.map(it -> Stream.of("" + it.getId(), it.getName(), it.getEmail(), it.getPhone(), it.getCard(),
+				.map(it -> Stream.of("" + it.getId(), it.getName(), it.getEmail(), it.getPhone(), it.getCard(),
 								"" + it.getBalance(), "" + it.getMinimumBalance(), "" + it.isAllowed(),
 								"" + it.isProcessed(),
 								it.getComment())
-								.map(attr -> attr.replace(";", "\\;"))
-								.collect(Collectors.joining(";")))
-						.collect(Collectors.joining(System.lineSeparator()));
+						.map(attr -> attr.replace(";", "\\;"))
+						.collect(Collectors.joining(";")))
+				.collect(Collectors.joining(System.lineSeparator()));
 	}
 
 	@Transactional(readOnly = true)
@@ -398,12 +472,12 @@ public class TransactionService {
 		return "id;timestamp;time;sender;receiver;amount;card;description;message;senderId;paymentOrUpload"
 				+ System.lineSeparator()
 				+ transactions.findAllByOrderById().stream()
-						.map(it -> Stream.of("" + it.getId(), "" + it.getTime(), it.formattedTime(), it.getCardHolder(),
+				.map(it -> Stream.of("" + it.getId(), "" + it.getTime(), it.formattedTime(), it.getCardHolder(),
 								it.getReceiver(), "" + it.getAmount(), it.getCardId(), it.getPaymentDescription(),
 								it.getMessage(), "" + it.getAmount(), "" + it.isRegular())
-								.map(attr -> attr.replace(";", "\\;"))
-								.collect(Collectors.joining(";")))
-						.collect(Collectors.joining(System.lineSeparator()));
+						.map(attr -> attr.replace(";", "\\;"))
+						.collect(Collectors.joining(";")))
+				.collect(Collectors.joining(System.lineSeparator()));
 	}
 
 	@Transactional(readOnly = true)
@@ -411,13 +485,13 @@ public class TransactionService {
 		return "id;name;quantity;code;abbreviation;price;active"
 				+ System.lineSeparator()
 				+ items.findAllByOrderById().stream()
-						.map(it -> Stream
-								.of("" + it.getId(), it.getName(), "" + it.getQuantity(), it.getCode(),
-										it.getAbbreviation(),
-										"" + it.getPrice(), "" + it.isActive())
-								.map(attr -> attr.replace(";", "\\;"))
-								.collect(Collectors.joining(";")))
-						.collect(Collectors.joining(System.lineSeparator()));
+				.map(it -> Stream
+						.of("" + it.getId(), it.getName(), "" + it.getQuantity(), it.getCode(),
+								it.getAbbreviation(),
+								"" + it.getPrice(), "" + it.isActive())
+						.map(attr -> attr.replace(";", "\\;"))
+						.collect(Collectors.joining(";")))
+				.collect(Collectors.joining(System.lineSeparator()));
 	}
 
 	@Transactional(readOnly = true)

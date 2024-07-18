@@ -17,7 +17,7 @@ export const PayStep = ({ onReset, card, amount, message }: { onReset: () => voi
 
   useEffect(() => {
     sha256(card)
-      .then((cardHash) => pay({ gateway: gatewayName, details: message, card: cardHash, gatewayCode, amount }))
+      .then((cardHash) => pay({ gatewayName, details: message, card: cardHash, gatewayCode, amount }))
       .then(setStatus)
       .catch(() => setError('A fizetés sikertelen!'))
   }, [card, amount, message, retries, gatewayName, gatewayCode])
@@ -27,6 +27,7 @@ export const PayStep = ({ onReset, card, amount, message }: { onReset: () => voi
       <>
         <h1 className="font-bold text-2xl pb-2 text-center">{error}</h1>
         <Button
+          className="w-full"
           onClick={() => {
             setError(undefined)
             setStatus(undefined)
@@ -51,7 +52,9 @@ export const PayStep = ({ onReset, card, amount, message }: { onReset: () => voi
     <>
       <h1 className="font-bold text-2xl pb-2 text-center">{getMessageFromStatus(status)}</h1>
       <BalanceCheck card={card} loading={balanceCheckLoading} setLoading={setBalanceCheckLoading} />
-      <Button onClick={onReset}>Új tranzakció</Button>
+      <Button className="w-full" onClick={onReset}>
+        Új tranzakció
+      </Button>
     </>
   )
   if (status == 'ACCEPTED') {
@@ -73,6 +76,6 @@ const getMessageFromStatus = (status: PaymentStatus) => {
     case 'INTERNAL_ERROR':
       return 'Váratlan hiba.'
     default:
-      return 'Nincs jogosultságod feltöltéshez!'
+      return 'Nincs jogosultságod tranzakciók végrehajtásához!'
   }
 }

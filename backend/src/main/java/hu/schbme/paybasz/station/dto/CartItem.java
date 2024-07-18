@@ -1,17 +1,21 @@
 package hu.schbme.paybasz.station.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ItemView {
+@AllArgsConstructor
+public class CartItem {
+
+	@NotNull
 	private Integer id;
-	private String name;
+
+	@Positive
+	@NotNull
 	private Integer quantity;
-	private String code;
-	private String abbreviation;
-	private Integer price;
+
 }

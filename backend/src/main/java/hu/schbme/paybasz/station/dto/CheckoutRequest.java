@@ -1,5 +1,8 @@
 package hu.schbme.paybasz.station.dto;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,10 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class PaymentRequest extends AuthorizedApiRequest {
+public class CheckoutRequest extends AuthorizedApiRequest {
 
+	@NotBlank
 	private String card;
-	private Integer amount;
-	private String details;
+
+	@NotNull
+	@Valid
+	private Cart cart;
 
 }

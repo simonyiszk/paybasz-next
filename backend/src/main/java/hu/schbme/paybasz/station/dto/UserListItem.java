@@ -4,14 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemView {
-	private Integer id;
+public class UserListItem {
+
 	private String name;
-	private Integer quantity;
-	private String code;
-	private String abbreviation;
-	private Integer price;
+	private String email;
+	private boolean hasCardAssigned;
+	private Integer id;
+
 }

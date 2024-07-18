@@ -16,7 +16,7 @@ export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => 
 
   useEffect(() => {
     sha256(card)
-      .then((cardHash) => upload({ gateway: gatewayName, details: message, card: cardHash, gatewayCode, amount }))
+      .then((cardHash) => upload({ gatewayName, details: message, card: cardHash, gatewayCode, amount }))
       .then(setStatus)
       .catch(() => setError('A feltöltés sikertelen!'))
   }, [card, amount, message, retries])
@@ -26,6 +26,7 @@ export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => 
       <>
         <h1 className="font-bold text-2xl pb-2 text-center">{error}</h1>
         <Button
+          className="w-full"
           onClick={() => {
             setError(undefined)
             setStatus(undefined)
@@ -52,7 +53,9 @@ export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => 
       <h1 className="font-bold text-2xl pb-2 text-center">{getMessageFromStatus(status)}</h1>
       <BalanceCheck card={card} loading={balanceCheckLoading} setLoading={setBalanceCheckLoading} />
 
-      <Button onClick={onReset}>Új feltöltés</Button>
+      <Button className="w-full" onClick={onReset}>
+        Új feltöltés
+      </Button>
     </>
   )
 }
