@@ -8,6 +8,12 @@ export const UploadPage = () => {
   const [message, setMessage] = useState<string>()
   const [card, setCard] = useState<string>()
 
+  const onReset = () => {
+    setAmount(undefined)
+    setMessage(undefined)
+    setCard(undefined)
+  }
+
   let currentStep
   if (!amount || !message) {
     currentStep = (
@@ -20,20 +26,9 @@ export const UploadPage = () => {
       />
     )
   } else if (!card) {
-    currentStep = <ScanCardStep setCard={setCard} />
+    currentStep = <ScanCardStep message="Feltöltés" amount={amount} setCard={setCard} onAbort={onReset} />
   } else {
-    currentStep = (
-      <UploadStep
-        amount={amount}
-        message={message}
-        card={card}
-        onReset={() => {
-          setAmount(undefined)
-          setMessage(undefined)
-          setCard(undefined)
-        }}
-      />
-    )
+    currentStep = <UploadStep amount={amount} message={message} card={card} onReset={onReset} />
   }
 
   return <div className="flex items-center flex-col gap-4">{currentStep}</div>

@@ -26,6 +26,9 @@ export const PayStep = ({ onReset, card, amount, message }: { onReset: () => voi
     return (
       <>
         <h1 className="font-bold text-2xl pb-2 text-center">{error}</h1>
+        <Button variant="secondary" className="w-full" onClick={onReset}>
+          Új tranzakció
+        </Button>
         <Button
           className="w-full"
           onClick={() => {
@@ -52,7 +55,7 @@ export const PayStep = ({ onReset, card, amount, message }: { onReset: () => voi
     <>
       <h1 className="font-bold text-2xl pb-2 text-center">{getMessageFromStatus(status)}</h1>
       <BalanceCheck card={card} loading={balanceCheckLoading} setLoading={setBalanceCheckLoading} />
-      <Button className="w-full" onClick={onReset}>
+      <Button variant="secondary" className="w-full" onClick={onReset}>
         Új tranzakció
       </Button>
     </>

@@ -27,6 +27,10 @@ export const ConnectStep = ({ onReset, card, user }: { onReset: () => void; card
     return (
       <>
         <h1 className="font-bold text-2xl pb-4 text-center">{error}</h1>
+
+        <Button variant="secondary" className="w-full" onClick={onReset}>
+          Új hozzárendelés
+        </Button>
         <Button
           className="w-full"
           onClick={() => {
@@ -62,7 +66,7 @@ export const ConnectStep = ({ onReset, card, user }: { onReset: () => void; card
           {pairingResult.maxLoan > 0 && <span>Hitelkeret: {pairingResult?.maxLoan} JMF</span>}
         </AlertDescription>
       </Alert>
-      <Button className="w-full" onClick={onReset}>
+      <Button variant="secondary" className="w-full" onClick={onReset}>
         Új hozzárendelés
       </Button>
     </>
