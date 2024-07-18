@@ -1,4 +1,4 @@
-import { useAppContext } from '@/components/AppContext.tsx'
+import { useAppContext } from '@/hooks/useAppContext'
 import { useEffect, useState } from 'react'
 import { PaymentStatus } from '@/lib/model.ts'
 import { payCart } from '@/lib/api.ts'

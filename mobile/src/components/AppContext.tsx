@@ -1,20 +1,10 @@
-import { createContext, FC, PropsWithChildren, useContext, useEffect } from 'react'
+import { FC, PropsWithChildren, useEffect } from 'react'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { app } from '@/lib/api.ts'
 import { NoPermissionBanner } from '@/components/NoPermissionBanner.tsx'
-import { Item } from '@/lib/model.ts'
 import { useQuery, useQueryClient } from 'react-query'
+import { AppContext } from '@/hooks/useAppContext'
 
-const AppContext = createContext<AppData>({} as AppData)
-
-export type AppData = {
-  uploader: boolean
-  gatewayName: string
-  gatewayCode: string
-  items: Item[]
-}
-
-export const useAppContext = (): AppData => useContext(AppContext)
 export const AppContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [, gatewayName, gatewayCode] = window.location.pathname.split('/')
   const appQuery = useQuery(['app', gatewayName, gatewayCode], () => app({ gatewayName, gatewayCode }), {
@@ -41,7 +31,7 @@ export const AppContextProvider: FC<PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     const interval = setInterval(() => queryClient.invalidateQueries('app'), 10000)
     return () => clearInterval(interval)
-  }, [])
+  }, [queryClient])
 
   if (appQuery.isLoading) {
     return (

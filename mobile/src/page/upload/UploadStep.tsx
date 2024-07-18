@@ -1,4 +1,4 @@
-import { useAppContext } from '@/components/AppContext.tsx'
+import { useAppContext } from '@/hooks/useAppContext'
 import { useEffect, useState } from 'react'
 import { PaymentStatus } from '@/lib/model.ts'
 import { upload } from '@/lib/api.ts'
@@ -19,7 +19,7 @@ export const UploadStep = ({ onReset, card, amount, message }: { onReset: () => 
       .then((cardHash) => upload({ gatewayName, details: message, card: cardHash, gatewayCode, amount }))
       .then(setStatus)
       .catch(() => setError('A feltöltés sikertelen!'))
-  }, [card, amount, message, retries])
+  }, [card, amount, message, retries, gatewayName, gatewayCode])
 
   if (error)
     return (

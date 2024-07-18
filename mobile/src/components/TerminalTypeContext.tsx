@@ -1,12 +1,9 @@
-import { createContext, FC, PropsWithChildren, useContext, useMemo, useState } from 'react'
+import { FC, PropsWithChildren, useMemo, useState } from 'react'
 import { TerminalType, terminalTypes } from '@/lib/model.ts'
 import { TerminalTypeKey } from '@/lib/constants.ts'
 import { TerminalSelectorPage } from '@/page/TerminalSelectorPage.tsx'
 import { setPersistentState } from '@/lib/utils.ts'
-
-export type TerminalTypeState = [TerminalType, (state?: TerminalType) => void]
-export const TerminalTypeContext = createContext<TerminalTypeState>(['Other', () => {}])
-export const useTerminalType = () => useContext(TerminalTypeContext)
+import { TerminalTypeContext, TerminalTypeState } from '@/hooks/useTerminalType.ts'
 
 const getPersistentTerminalType = () => {
   const storedTerminalType = localStorage.getItem(TerminalTypeKey) as TerminalType

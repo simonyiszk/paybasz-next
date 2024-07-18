@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { sha256 } from '@/lib/utils.ts'
 import * as api from '@/lib/api.ts'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
-import { useAppContext } from '@/components/AppContext.tsx'
+import { useAppContext } from '@/hooks/useAppContext'
 import { BalanceResponse } from '@/lib/model.ts'
 
 export const BalanceCheck = ({
@@ -35,7 +35,7 @@ export const BalanceCheck = ({
         setError('Sikertelen leolvasás')
         setLoading(false)
       })
-  }, [card, gatewayCode, gatewayName])
+  }, [card, gatewayCode, gatewayName, setLoading])
 
   if (!card) return null
 

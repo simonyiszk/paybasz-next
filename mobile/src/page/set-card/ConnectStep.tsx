@@ -1,5 +1,5 @@
 import { UserData, UserListItem } from '@/lib/model.ts'
-import { useAppContext } from '@/components/AppContext.tsx'
+import { useAppContext } from '@/hooks/useAppContext'
 import { useEffect, useState } from 'react'
 import { setCard } from '@/lib/api.ts'
 import { Button } from '@/components/ui/button.tsx'

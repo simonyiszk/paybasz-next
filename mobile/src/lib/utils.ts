@@ -1,7 +1,7 @@
 import { statusEnum } from '@/lib/model.ts'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { DependencyList, useEffect } from 'react'
+import { DependencyList, useCallback, useEffect } from 'react'
 import { filter } from 'fuzzy'
 
 export function cn(...inputs: ClassValue[]) {
@@ -49,11 +49,12 @@ export const scanNFC = (setStatus: React.Dispatch<React.SetStateAction<statusEnu
   })
 
 export const useNFCScanner = (onScan: (event: NDEFReadingEvent) => void, deps: DependencyList) => {
+  const callback = useCallback(onScan, deps) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const ndef = new NDEFReader()
-    ndef.scan().then(() => ndef.addEventListener('reading', onScan as EventListenerOrEventListenerObject))
-    return ndef.removeEventListener('reading', onScan as EventListenerOrEventListenerObject)
-  }, deps)
+    ndef.scan().then(() => ndef.addEventListener('reading', callback as EventListenerOrEventListenerObject))
+    return ndef.removeEventListener('reading', callback as EventListenerOrEventListenerObject)
+  }, [...deps, callback]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 export async function sha256(message: string) {
