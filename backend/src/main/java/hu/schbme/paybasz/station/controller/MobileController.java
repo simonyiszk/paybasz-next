@@ -195,11 +195,7 @@ public class MobileController {
 				+ "</badge> egyenlege leolvasva: <color>" + accountBalance.getBalance() + " JMF</color> (terminál: "
 				+ request.getGatewayName() + ")");
 
-		var response = BalanceResponse.builder()
-				.balance(accountBalance.getBalance())
-				.maxLoan(accountBalance.getMaxLoan())
-				.build();
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(AccountMapper.INSTANCE.toBalance(accountBalance));
 	}
 
 	@Transactional
