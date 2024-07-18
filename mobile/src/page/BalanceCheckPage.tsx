@@ -21,15 +21,15 @@ export const BalanceCheckPage = () => {
 
       <BalanceCheck card={card} loading={loading} setLoading={setLoading} />
       {card && !loading && (
-        <Button variant="destructive" className="w-full">
-          <span
-            onClick={() => {
-              setCard(undefined)
-              setLoading(false)
-            }}
-          >
-            Vissza
-          </span>
+        <Button
+          variant="secondary"
+          className="w-full"
+          onClick={() => {
+            setCard(undefined)
+            setLoading(false)
+          }}
+        >
+          Vissza
         </Button>
       )}
     </div>
