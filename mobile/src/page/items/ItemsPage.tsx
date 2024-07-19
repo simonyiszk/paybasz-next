@@ -13,18 +13,15 @@ import {
   removeItem
 } from '@/page/items/cart.ts'
 import { Item } from '@/lib/model.ts'
-import { CartEditStep } from '@/page/items/CartEditStep.tsx'
 
 export const ItemsPage = () => {
   const [cart, setCart] = useState(EmptyCart)
   const [itemSelectionFinished, setItemSelectionFinished] = useState(false)
-  const [cartEditFinished, setCartEditFinished] = useState(false)
   const [card, setCard] = useState<string>()
 
   const reset = () => {
     setCart(EmptyCart)
     setItemSelectionFinished(false)
-    setCartEditFinished(false)
     setCard(undefined)
   }
 
@@ -56,26 +53,13 @@ export const ItemsPage = () => {
         onCustomItemRemoved={onCustomItemRemoved}
       />
     )
-  } else if (!cartEditFinished) {
-    currentStep = (
-      <CartEditStep
-        cart={cart}
-        onFinished={() => setCartEditFinished(true)}
-        onBack={() => setItemSelectionFinished(false)}
-        clearCart={reset}
-        onItemAdded={onItemAdded}
-        onItemRemoved={onItemRemoved}
-        onCustomItemAdded={onCustomItemAdded}
-        onCustomItemRemoved={onCustomItemRemoved}
-      />
-    )
   } else if (!card) {
     currentStep = (
       <ScanCardStep
         setCard={setCard}
         amount={getCartTotal(cart)}
         message={`${getCartTotalCount(cart)} tétel vásárlása`}
-        onAbort={() => setCartEditFinished(false)}
+        onAbort={() => setItemSelectionFinished(false)}
       />
     )
   } else {
