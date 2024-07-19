@@ -69,7 +69,6 @@ export const ItemsPage = () => {
         card={card}
         onReset={reset}
         onBackToCart={() => {
-          setCartEditFinished(false)
           setCard(undefined)
         }}
       />
