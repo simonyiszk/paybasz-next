@@ -31,7 +31,7 @@ public class AccountService {
 		card = card.toUpperCase();
 		log.info("New user was created with card: {}", card);
 		logger.note("<badge>" + name + "</badge> regisztrálva");
-		accounts.save(new AccountEntity(null, name, card, phone, email, amount, minAmount, allowed, true, ""));
+		accounts.save(new AccountEntity(null, name, card, phone, email, amount, minAmount, allowed, ""));
 	}
 
 	@Transactional(readOnly = true)
@@ -69,14 +69,6 @@ public class AccountService {
 	public void setAccountAllowed(Integer accountId, boolean allow) {
 		accounts.findById(accountId).ifPresent(accountEntity -> {
 			accountEntity.setAllowed(allow);
-			accounts.save(accountEntity);
-		});
-	}
-
-	@Transactional(readOnly = false)
-	public void setAccountProcessed(Integer accountId, boolean processed) {
-		accounts.findById(accountId).ifPresent(accountEntity -> {
-			accountEntity.setProcessed(processed);
 			accounts.save(accountEntity);
 		});
 	}
@@ -124,13 +116,11 @@ public class AccountService {
 
 	@Transactional(readOnly = true)
 	public String exportAccounts() {
-		return "id;name;email;phone;card;balance;minimumBalance;allowedToPay;processed;comment"
+		return "id;name;email;phone;card;balance;minimumBalance;allowedToPay;comment"
 				+ System.lineSeparator()
 				+ accounts.findAllByOrderById().stream()
 				.map(it -> Stream.of("" + it.getId(), it.getName(), it.getEmail(), it.getPhone(), it.getCard(),
-								"" + it.getBalance(), "" + it.getMinimumBalance(), "" + it.isAllowed(),
-								"" + it.isProcessed(),
-								it.getComment())
+								"" + it.getBalance(), "" + it.getMinimumBalance(), "" + it.isAllowed(), it.getComment())
 						.map(attr -> attr.replace(";", "\\;"))
 						.collect(Collectors.joining(";")))
 				.collect(Collectors.joining(System.lineSeparator()));

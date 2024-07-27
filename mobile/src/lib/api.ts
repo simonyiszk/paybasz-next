@@ -35,8 +35,6 @@ export const setCard = (data: CardData): Promise<Response> =>
     data
   })
 
-export const freeBeer = (data: PaymentRequest): Promise<PaymentStatus> => post({ url: getUrl('free-beer'), data })
-
 export const balance = (data: BalanceRequest): Promise<BalanceResponse | null> =>
   post({
     url: getUrl('balance'),

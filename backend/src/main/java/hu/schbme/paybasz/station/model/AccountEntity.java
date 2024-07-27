@@ -39,9 +39,6 @@ public class AccountEntity {
 	private boolean allowed;
 
 	@Column(nullable = false)
-	private boolean processed;
-
-	@Column(nullable = false)
 	private String comment;
 
 	@Transient

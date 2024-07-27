@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta content="IE=edge" http-equiv="X-UA-Compatible">
   <meta content="en" http-equiv="Content-Language">
-  <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
   <title>PayBasz</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no"
-        name="viewport"/>
+        name="viewport" />
   <link href="favicon.ico" rel="icon">
 
   <meta content="no" name="msapplication-tap-highlight">
@@ -96,7 +96,7 @@
                                                                     type="hidden">
                               <button class="mb-2 mr-2 btn btn-danger" title="Letilt"
                                       type="submit"><span
-                                  class="material-icons fix-material-icons small-icons">block</span>
+                                class="material-icons fix-material-icons small-icons">block</span>
                               </button>
                             </form>
                             <form method="post" style="display: inline"
@@ -106,41 +106,21 @@
                                                                         type="hidden">
                               <button class="mb-2 mr-2 btn btn-success" title="Engedélyez"
                                       type="submit"><span
-                                  class="material-icons fix-material-icons small-icons">check_circle_outline</span>
-                              </button>
-                            </form>
-                            <form method="post" style="display: inline"
-                                  th:action="@{/admin/set-processed}"
-                                  th:unless="${acc.isProcessed()}"><input name="id"
-                                                                          th:value="${acc.getId()}"
-                                                                          type="hidden">
-                              <button class="mb-2 mr-2 btn btn-light"
-                                      title="Ingyen sör felhasználva" type="submit">
-                                <span class="material-icons fix-material-icons small-icons">close</span>
-                              </button>
-                            </form>
-                            <form method="post" style="display: inline"
-                                  th:action="@{/admin/unset-processed}"
-                                  th:if="${acc.isProcessed()}"><input name="id"
-                                                                      th:value="${acc.getId()}"
-                                                                      type="hidden">
-                              <button class="mb-2 mr-2 btn btn-dark" title="Ingyen sör"
-                                      type="submit"><span
-                                  class="material-icons fix-material-icons small-icons">sports_bar</span>
+                                class="material-icons fix-material-icons small-icons">check_circle_outline</span>
                               </button>
                             </form>
                             <a class="mb-2 mr-2 btn btn-info"
                                th:href="|@{/admin/modify-account/}${acc.getId()}|"
                                title="Módosítás"><span
-                                class="material-icons fix-material-icons small-icons">create</span></a>
+                              class="material-icons fix-material-icons small-icons">create</span></a>
                             <a class="mb-2 mr-2 btn btn-alternate"
                                th:href="|@{/admin/upload-money/}${acc.getId()}|"
                                title="Egyenleg feltöltése"><span
-                                class="material-icons fix-material-icons small-icons">publish</span></a>
+                              class="material-icons fix-material-icons small-icons">publish</span></a>
                             <a class="mb-2 mr-2 btn btn-warning"
                                th:href="|@{/admin/manual-transaction/}${acc.getId()}|"
                                title="Fizetés"><span
-                                class="material-icons fix-material-icons small-icons">payment</span></a>
+                              class="material-icons fix-material-icons small-icons">payment</span></a>
                           </td>
                         </tr>
                         </tbody>
@@ -155,7 +135,6 @@
       </div>
     </div>
   </div>
-</div>
 </div>
 <div class="app-drawer-overlay d-none animated fadeIn"></div>
 <object th:replace="~{layout :: scripts}"></object>

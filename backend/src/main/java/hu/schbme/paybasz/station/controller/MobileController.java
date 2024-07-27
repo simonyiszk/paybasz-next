@@ -126,24 +126,6 @@ public class MobileController {
 	}
 
 	@Transactional
-	@PostMapping("/free-beer")
-	public PaymentStatus freeBeer(@RequestBody PaymentRequest request) {
-		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
-			return PaymentStatus.UNAUTHORIZED_TERMINAL;
-		gateways.updateLastUsed(request.getGatewayName());
-
-		try {
-			return transactionService.getBeer(request.getCard().toUpperCase(),
-					request.getDetails() == null ? "" : request.getDetails(),
-					request.getGatewayName());
-		} catch (Exception e) {
-			log.error("Error during proceeding free beer", e);
-			logger.failure("Sikertelen ingyen sör: belső szerver hiba");
-			return PaymentStatus.INTERNAL_ERROR;
-		}
-	}
-
-	@Transactional
 	@PostMapping("/pay")
 	public PaymentStatus pay(@RequestBody PaymentRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))

@@ -165,28 +165,6 @@ public class AccountsController {
 		return "redirect:/admin/accounts";
 	}
 
-	@PostMapping("/set-processed")
-	public String setProcessedAccount(@RequestParam Integer id) {
-		Optional<AccountEntity> account = accountService.getAccount(id);
-		account.ifPresent(acc -> {
-			accountService.setAccountProcessed(id, true);
-			logger.success("<color>" + acc.getName() + "</color> könyvelve");
-			log.info("User status set processed for {}", acc.getName());
-		});
-		return "redirect:/admin/accounts";
-	}
-
-	@PostMapping("/unset-processed")
-	public String unsetProcessedAccount(@RequestParam Integer id) {
-		Optional<AccountEntity> account = accountService.getAccount(id);
-		account.ifPresent(acc -> {
-			accountService.setAccountProcessed(id, false);
-			logger.failure("<color>" + acc.getName() + "</color> könyvelési státusza: nincs könyvelve");
-			log.info("User processed status unset for {}", acc.getName());
-		});
-		return "redirect:/admin/accounts";
-	}
-
 	@GetMapping("/assign-to-account/{card}")
 	public String uploadMoneyDone(Model model, @PathVariable String card) {
 		model.addAttribute("card", card);
