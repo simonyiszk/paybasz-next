@@ -3,6 +3,7 @@ package hu.schbme.paybasz.station.controller;
 import hu.schbme.paybasz.station.dto.AccountCreateDto;
 import hu.schbme.paybasz.station.dto.PaymentStatus;
 import hu.schbme.paybasz.station.model.AccountEntity;
+import hu.schbme.paybasz.station.service.AccountService;
 import hu.schbme.paybasz.station.service.LoggingService;
 import hu.schbme.paybasz.station.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -22,18 +23,19 @@ public class AccountsController {
 
 	public static final String DUPLICATE_CARD_ERROR = "DUPLICATE_CARD";
 
-	private final TransactionService system;
+	private final AccountService accountService;
 	private final LoggingService logger;
+	private final TransactionService transactionService;
 
 	@GetMapping("/accounts")
 	public String accounts(Model model) {
-		model.addAttribute("accounts", system.getAllAccounts());
+		model.addAttribute("accounts", accountService.getAllAccounts());
 		return "accounts";
 	}
 
 	@GetMapping("/manual-transaction/{accountId}")
 	public String manualTransaction(@PathVariable Integer accountId, Model model) {
-		Optional<AccountEntity> account = system.getAccount(accountId);
+		Optional<AccountEntity> account = accountService.getAccount(accountId);
 		account.ifPresentOrElse(acc -> model.addAttribute("balance", acc.getBalance())
 						.addAttribute("loan", Math.abs(acc.getMinimumBalance()))
 						.addAttribute("name", acc.getName())
@@ -52,7 +54,7 @@ public class AccountsController {
 		if (money == null || money < 0)
 			return "redirect:/admin/manual-transaction/" + id;
 
-		PaymentStatus result = system.createTransactionToSystem(id, money, message);
+		PaymentStatus result = transactionService.createTransactionToSystem(id, money, message);
 		if (result == PaymentStatus.ACCEPTED)
 			return "redirect:/admin/manual-transaction-done?money=" + money;
 		return "redirect:/admin/manual-transaction/" + id + "?failed=" + result.name();
@@ -66,7 +68,7 @@ public class AccountsController {
 
 	@GetMapping("/upload-money/{accountId}")
 	public String uploadMoney(@PathVariable Integer accountId, Model model) {
-		Optional<AccountEntity> account = system.getAccount(accountId);
+		Optional<AccountEntity> account = accountService.getAccount(accountId);
 		account.ifPresentOrElse(
 				acc -> model.addAttribute("name", acc.getName()).addAttribute("id", acc.getId()),
 				() -> model.addAttribute("name", "Nem található").addAttribute("id", -1));
@@ -78,7 +80,7 @@ public class AccountsController {
 		if (money == null || money < 0)
 			return "redirect:/admin/upload-money/" + id;
 
-		if (system.addMoneyToAccount(id, money, message))
+		if (transactionService.addMoneyToAccount(id, money, message))
 			return "redirect:/admin/upload-money-done?money=" + money;
 		return "redirect:/admin/upload-money/" + id + "?failed=";
 	}
@@ -101,7 +103,7 @@ public class AccountsController {
 	@PostMapping("/create-account")
 	public String createAccount(Model model, AccountCreateDto acc) {
 		acc.setCard(acc.getCard().trim().toUpperCase());
-		if (system.createAccount(acc)) {
+		if (accountService.createAccount(acc)) {
 			return "redirect:/admin/accounts";
 		} else {
 			model.addAttribute("acc", acc);
@@ -113,7 +115,7 @@ public class AccountsController {
 
 	@GetMapping("/modify-account/{accountId}")
 	public String modifyAccount(@PathVariable Integer accountId, Model model, @RequestParam(defaultValue = "") String card) {
-		Optional<AccountEntity> account = system.getAccount(accountId);
+		Optional<AccountEntity> account = accountService.getAccount(accountId);
 		model.addAttribute("createMode", false);
 		account.map(it -> {
 			if (!card.isBlank())
@@ -131,8 +133,8 @@ public class AccountsController {
 			return "redirect:/admin/accounts";
 
 		acc.setCard(acc.getCard().trim().toUpperCase());
-		Optional<AccountEntity> account = system.getAccount(acc.getId());
-		if (account.isPresent() && !system.modifyAccount(acc)) {
+		Optional<AccountEntity> account = accountService.getAccount(acc.getId());
+		if (account.isPresent() && !accountService.modifyAccount(acc)) {
 			model.addAttribute("createMode", false);
 			model.addAttribute("acc", account.get());
 			model.addAttribute("error", DUPLICATE_CARD_ERROR);
@@ -143,9 +145,9 @@ public class AccountsController {
 
 	@PostMapping("/allow")
 	public String allowAccount(@RequestParam Integer id) {
-		Optional<AccountEntity> account = system.getAccount(id);
+		Optional<AccountEntity> account = accountService.getAccount(id);
 		account.ifPresent(acc -> {
-			system.setAccountAllowed(id, true);
+			accountService.setAccountAllowed(id, true);
 			logger.action("<color>" + acc.getName() + "</color> tiltása feloldva");
 			log.info("User purchases allowed for {}", acc.getName());
 		});
@@ -154,9 +156,9 @@ public class AccountsController {
 
 	@PostMapping("/disallow")
 	public String disallowAccount(@RequestParam Integer id) {
-		Optional<AccountEntity> account = system.getAccount(id);
+		Optional<AccountEntity> account = accountService.getAccount(id);
 		account.ifPresent(acc -> {
-			system.setAccountAllowed(id, false);
+			accountService.setAccountAllowed(id, false);
 			logger.failure("<color>" + acc.getName() + "</color> letiltva");
 			log.info("User purchases disallowed for {}", acc.getName());
 		});
@@ -165,9 +167,9 @@ public class AccountsController {
 
 	@PostMapping("/set-processed")
 	public String setProcessedAccount(@RequestParam Integer id) {
-		Optional<AccountEntity> account = system.getAccount(id);
+		Optional<AccountEntity> account = accountService.getAccount(id);
 		account.ifPresent(acc -> {
-			system.setAccountProcessed(id, true);
+			accountService.setAccountProcessed(id, true);
 			logger.success("<color>" + acc.getName() + "</color> könyvelve");
 			log.info("User status set processed for {}", acc.getName());
 		});
@@ -176,9 +178,9 @@ public class AccountsController {
 
 	@PostMapping("/unset-processed")
 	public String unsetProcessedAccount(@RequestParam Integer id) {
-		Optional<AccountEntity> account = system.getAccount(id);
+		Optional<AccountEntity> account = accountService.getAccount(id);
 		account.ifPresent(acc -> {
-			system.setAccountProcessed(id, false);
+			accountService.setAccountProcessed(id, false);
 			logger.failure("<color>" + acc.getName() + "</color> könyvelési státusza: nincs könyvelve");
 			log.info("User processed status unset for {}", acc.getName());
 		});
@@ -188,7 +190,7 @@ public class AccountsController {
 	@GetMapping("/assign-to-account/{card}")
 	public String uploadMoneyDone(Model model, @PathVariable String card) {
 		model.addAttribute("card", card);
-		model.addAttribute("accounts", system.getAllAccounts());
+		model.addAttribute("accounts", accountService.getAllAccounts());
 		return "assign-to-account";
 	}
 

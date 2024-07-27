@@ -1,5 +1,7 @@
 package hu.schbme.paybasz.station.config;
 
+import hu.schbme.paybasz.station.service.AccountService;
+import hu.schbme.paybasz.station.service.ItemService;
 import hu.schbme.paybasz.station.service.LoggingService;
 import hu.schbme.paybasz.station.service.TransactionService;
 import jakarta.annotation.PostConstruct;
@@ -23,8 +25,10 @@ import java.nio.file.Path;
 @RequiredArgsConstructor
 public class AutoExportService implements CommandLineRunner {
 
-	private final TransactionService system;
+	private final TransactionService transactionService;
 	private final LoggingService logger;
+	private final AccountService accountService;
+	private final ItemService itemService;
 
 	@Value("${server.port}")
 	private int port;
@@ -66,10 +70,10 @@ public class AutoExportService implements CommandLineRunner {
 		saves.mkdir();
 		try {
 			var filePattern = "saves/autosave-%s-%s.csv";
-			Files.writeString(Path.of(String.format(filePattern, tag, "accounts")), system.exportAccounts());
-			Files.writeString(Path.of(String.format(filePattern, tag, "transactions")), system.exportTransactions());
+			Files.writeString(Path.of(String.format(filePattern, tag, "accounts")), accountService.exportAccounts());
+			Files.writeString(Path.of(String.format(filePattern, tag, "transactions")), transactionService.exportTransactions());
 			Files.writeString(Path.of(String.format(filePattern, tag, "logs")), logger.exportLogs());
-			Files.writeString(Path.of(String.format(filePattern, tag, "items")), system.exportItems());
+			Files.writeString(Path.of(String.format(filePattern, tag, "items")), itemService.exportItems());
 			log.info("Auto ({}) log saved to '{}' folder", tag, saves.getAbsolutePath());
 		} catch (IOException e) {
 			log.error("Exception happened during {} auto-save", tag, e);

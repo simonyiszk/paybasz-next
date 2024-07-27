@@ -1,6 +1,8 @@
 package hu.schbme.paybasz.station.controller;
 
 import hu.schbme.paybasz.station.config.AppUtil;
+import hu.schbme.paybasz.station.service.AccountService;
+import hu.schbme.paybasz.station.service.ItemService;
 import hu.schbme.paybasz.station.service.LoggingService;
 import hu.schbme.paybasz.station.service.TransactionService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,32 +30,34 @@ public class AdminController {
 
 	public static final String DUPLICATE_CARD_ERROR = "DUPLICATE_CARD";
 	public static String UPLOAD_DIRECTORY = "import";
-	private final TransactionService system;
+	private final TransactionService transactionService;
 	private final LoggingService logger;
+	private final AccountService accountService;
+	private final ItemService itemService;
 
 	@RequestMapping("/")
 	public String index(Model model) {
-		model.addAttribute("userCount", system.getUserCount());
-		model.addAttribute("txCount", system.getTransactionCount());
-		model.addAttribute("sumOfIncome", formatNumber(system.getSumOfIncome()));
+		model.addAttribute("userCount", accountService.getUserCount());
+		model.addAttribute("txCount", transactionService.getTransactionCount());
+		model.addAttribute("sumOfIncome", formatNumber(transactionService.getSumOfIncome()));
 
 		model.addAttribute("logs", logger.getEntries());
 
-		model.addAttribute("sumOfLoans", formatNumber(system.getSumOfLoans()));
-		model.addAttribute("sumOfBalances", formatNumber(system.getSumOfBalances()));
-		model.addAttribute("sumOfPayIns", formatNumber(system.getSumOfPayIns()));
+		model.addAttribute("sumOfLoans", formatNumber(accountService.getSumOfLoans()));
+		model.addAttribute("sumOfBalances", formatNumber(accountService.getSumOfBalances()));
+		model.addAttribute("sumOfPayIns", formatNumber(transactionService.getSumOfPayIns()));
 		return "analytics";
 	}
 
 	@GetMapping("/transactions")
 	public String transactions(Model model) {
-		model.addAttribute("transactions", system.getAllTransactions());
+		model.addAttribute("transactions", transactionService.getAllTransactions());
 		return "transactions";
 	}
 
 	@GetMapping("/transactions/{gateway}")
 	public String transactions(Model model, @PathVariable String gateway) {
-		model.addAttribute("transactions", system.getTransactionsByGateway(gateway));
+		model.addAttribute("transactions", transactionService.getTransactionsByGateway(gateway));
 		model.addAttribute("gateway", gateway);
 		return "transactions";
 	}
@@ -70,7 +74,7 @@ public class AdminController {
 		response.setHeader("Content-Disposition", "attachment; filename=\"paybasz-accounts-"
 				+ AppUtil.DATE_TIME_FILE_FORMATTER.format(System.currentTimeMillis()) + ".csv\"");
 
-		String csvExport = system.exportAccounts();
+		String csvExport = accountService.exportAccounts();
 		logger.action("Felhasználók kiexportálva");
 		return csvExport;
 	}
@@ -82,7 +86,7 @@ public class AdminController {
 		response.setHeader("Content-Disposition", "attachment; filename=\"paybasz-transactions-"
 				+ AppUtil.DATE_TIME_FILE_FORMATTER.format(System.currentTimeMillis()) + ".csv\"");
 
-		String csvExport = system.exportTransactions();
+		String csvExport = transactionService.exportTransactions();
 		logger.action("Tranzakciók kiexportálva");
 		return csvExport;
 	}
@@ -106,7 +110,7 @@ public class AdminController {
 		response.setHeader("Content-Disposition", "attachment; filename=\"paybasz-items-"
 				+ AppUtil.DATE_TIME_FILE_FORMATTER.format(System.currentTimeMillis()) + ".csv\"");
 
-		String csvExport = system.exportItems();
+		String csvExport = itemService.exportItems();
 		logger.action("Termék lista kiexportálva");
 		return csvExport;
 	}
@@ -126,7 +130,7 @@ public class AdminController {
 			try (final var lines = Files.lines(file)) {
 				lines.map(it -> it.split(";"))
 						// format: name; email; mobile; amount
-						.forEach(it -> system.createAccount(it[0].trim(), it[1].trim(), it[2].trim(), "", Integer.parseInt(it[3].trim()), 0, true));
+						.forEach(it -> accountService.createAccount(it[0].trim(), it[1].trim(), it[2].trim(), "", Integer.parseInt(it[3].trim()), 0, true));
 			}
 			logger.action("Felhasználói adatok importálva");
 			model.addAttribute("msg", "Adatok importálva");
