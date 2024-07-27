@@ -1,9 +1,11 @@
 package hu.schbme.paybasz.station.controller;
 
 import hu.schbme.paybasz.station.config.AppUtil;
+import hu.schbme.paybasz.station.config.MobileConfig;
 import hu.schbme.paybasz.station.dto.*;
 import hu.schbme.paybasz.station.error.UnauthorizedGateway;
 import hu.schbme.paybasz.station.mapper.AccountMapper;
+import hu.schbme.paybasz.station.mapper.ConfigMapper;
 import hu.schbme.paybasz.station.mapper.ItemMapper;
 import hu.schbme.paybasz.station.model.AccountEntity;
 import hu.schbme.paybasz.station.repo.AccountRepository;
@@ -37,6 +39,7 @@ public class MobileController {
 	private final GatewayService gateways;
 	private final LoggingService logger;
 	private final AccountRepository accounts;
+	private final MobileConfig mobileConfig;
 
 	@Transactional
 	@PostMapping("/app")
@@ -54,6 +57,7 @@ public class MobileController {
 			final var response = AppResponse.builder()
 					.isUploader(isUploader)
 					.items(items)
+					.mobileConfig(ConfigMapper.INSTANCE.toView(mobileConfig))
 					.build();
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {

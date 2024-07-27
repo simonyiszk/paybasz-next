@@ -10,6 +10,9 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class AppResponse {
+
 	final boolean isUploader;
 	final List<ItemView> items;
+	final MobileConfigView mobileConfig;
+
 }
