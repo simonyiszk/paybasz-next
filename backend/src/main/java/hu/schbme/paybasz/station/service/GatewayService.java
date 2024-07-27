@@ -21,7 +21,6 @@ import java.util.Optional;
 
 import static hu.schbme.paybasz.station.model.GatewayEntity.*;
 
-@SuppressWarnings({"DefaultAnnotationParam", "SpellCheckingInspection"})
 @Slf4j
 @Service
 @RequiredArgsConstructor
