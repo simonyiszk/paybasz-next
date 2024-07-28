@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface ItemTokenRepository extends JpaRepository<ItemTokenEntity, Integer> {
 
-	@Query("select i from ItemTokenEntity t where t.userId = ?1 and t.itemId = ?2")
+	@Query("select t from ItemTokenEntity t where t.userId = ?1 and t.itemId = ?2")
 	Optional<ItemTokenEntity> findItemToken(Integer userId, Integer itemId);
 
 	@Modifying
@@ -25,9 +25,9 @@ public interface ItemTokenRepository extends JpaRepository<ItemTokenEntity, Inte
 	@Query("delete from ItemTokenEntity t where t.userId = ?1 and t.itemId = ?2")
 	int deleteItemToken(Integer userId, Integer itemId);
 
-	@Query("select new hu.schbme.paybasz.station.dto.ItemTokenView(t.itemId, i.name, a.name, t.count) " +
+	@Query("select new hu.schbme.paybasz.station.dto.ItemTokenView(t.id, i.id, i.name, a.id, a.name, t.count) " +
 			"from ItemTokenEntity t " +
-			"inner join ItemEntity i on t.itemId == t.id " +
-			"inner join AccountEntity a on t.userId == a.id ")
+			"inner join ItemEntity i on t.itemId = i.id " +
+			"inner join AccountEntity a on t.userId = a.id ")
 	List<ItemTokenView> getAllItemTokenViews();
 }

@@ -1,6 +1,8 @@
 package hu.schbme.paybasz.station.service;
 
+import hu.schbme.paybasz.station.dto.ItemTokenDto;
 import hu.schbme.paybasz.station.dto.ItemTokenView;
+import hu.schbme.paybasz.station.mapper.ItemTokenMapper;
 import hu.schbme.paybasz.station.model.AccountEntity;
 import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.model.ItemTokenEntity;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -18,6 +21,8 @@ import java.util.List;
 public class ItemTokenService {
 
 	private final ItemTokenRepository itemTokenRepository;
+	private final AccountService accountService;
+	private final ItemService itemService;
 
 	@Transactional
 	public boolean giftItemToken(AccountEntity user, ItemEntity item, int count) {
@@ -59,6 +64,27 @@ public class ItemTokenService {
 	}
 
 	@Transactional
+	public void setItemToken(ItemTokenDto tokenDto) {
+		if (tokenDto.getUserId() == null || tokenDto.getItemId() == null)
+			return;
+
+		var user = accountService.getAccount(tokenDto.getUserId());
+		if (user.isEmpty())
+			return;
+
+		var item = itemService.getItem(tokenDto.getItemId());
+		if (item.isEmpty())
+			return;
+
+		if (tokenDto.getId() == null) {
+			setItemToken(user.get(), item.get(), tokenDto.getCount());
+			return;
+		}
+
+		itemTokenRepository.save(ItemTokenMapper.INSTANCE.toEntity(tokenDto));
+	}
+
+	@Transactional
 	public boolean deleteItemToken(AccountEntity user, ItemEntity item) {
 		var tokenExists = itemTokenRepository.findItemToken(user.getId(), item.getId()).isPresent();
 		if (!tokenExists) {
@@ -95,8 +121,17 @@ public class ItemTokenService {
 	}
 
 	@Transactional
-	List<ItemTokenView> getAllItemTokenViews() {
+	public List<ItemTokenView> getAllItemTokenViews() {
 		return itemTokenRepository.getAllItemTokenViews();
 	}
 
+	@Transactional
+	public Optional<ItemTokenEntity> getToken(Integer tokenId) {
+		return itemTokenRepository.findById(tokenId);
+	}
+
+	@Transactional
+	public void deleteItemToken(Integer tokenId) {
+		itemTokenRepository.deleteById(tokenId);
+	}
 }
