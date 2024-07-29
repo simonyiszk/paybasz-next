@@ -1,5 +1,7 @@
 package hu.schbme.paybasz.station.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "accounts")
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonPropertyOrder({"id", "name", "email", "phone", "card", "balance", "minimumBalance", "allowed", "comment"})
 public class AccountEntity {
 
 	@Id
@@ -42,11 +45,13 @@ public class AccountEntity {
 	private String comment;
 
 	@Transient
+	@JsonIgnore
 	public int getMaxLoan() {
 		return -minimumBalance;
 	}
 
 	@Transient
+	@JsonIgnore
 	public String getFormattedCard() {
 		return card.length() < 9 ? card : card.substring(0, 9);
 	}

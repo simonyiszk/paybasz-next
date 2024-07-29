@@ -1,5 +1,7 @@
 package hu.schbme.paybasz.station.service;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import hu.schbme.paybasz.station.config.ImportConfig;
 import hu.schbme.paybasz.station.dto.Cart;
 import hu.schbme.paybasz.station.dto.CartItem;
 import hu.schbme.paybasz.station.dto.CustomCartItem;
@@ -16,10 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static hu.schbme.paybasz.station.service.GatewayService.WEB_TERMINAL_NAME;
@@ -34,6 +37,7 @@ public class TransactionService {
 	private final GatewayService gateways;
 	private final ItemRepository items;
 	private final LoggingService logger;
+	private final CsvMapper csvMapper;
 
 	@Transactional(readOnly = false)
 	public PaymentStatus proceedPayment(String card, int amount, String message, String gateway) {
@@ -290,16 +294,13 @@ public class TransactionService {
 	}
 
 	@Transactional(readOnly = true)
-	public String exportTransactions() {
-		return "id;timestamp;time;sender;receiver;amount;card;description;message;senderId;paymentOrUpload"
-				+ System.lineSeparator()
-				+ transactions.findAllByOrderById().stream()
-				.map(it -> Stream.of("" + it.getId(), "" + it.getTime(), it.formattedTime(), it.getCardHolder(),
-								it.getReceiver(), "" + it.getAmount(), it.getCardId(), it.getPaymentDescription(),
-								it.getMessage(), "" + it.getAmount(), "" + it.isRegular())
-						.map(attr -> attr.replace(";", "\\;"))
-						.collect(Collectors.joining(";")))
-				.collect(Collectors.joining(System.lineSeparator()));
+	public String exportTransactions() throws IOException {
+		var writer = new StringWriter();
+		ImportConfig.getCsvWriter(csvMapper, TransactionEntity.class)
+				.writeValues(writer)
+				.writeAll(transactions.findAllByOrderById())
+				.close();
+		return writer.toString();
 	}
 
 	private int getTotalAmount(List<Pair<ItemEntity, CartItem>> itemPairs, List<CustomCartItem> customItems) {

@@ -1,5 +1,6 @@
 package hu.schbme.paybasz.station.model;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +13,7 @@ import static hu.schbme.paybasz.station.config.AppUtil.DATE_TIME_FORMATTER;
 @Table(name = "transactions")
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonPropertyOrder({"id", "time", "formattedTime", "cardHolder", "receiver", "amount", "cardId", "paymentDescription", "message", "regular"})
 public class TransactionEntity {
 
 	@Id

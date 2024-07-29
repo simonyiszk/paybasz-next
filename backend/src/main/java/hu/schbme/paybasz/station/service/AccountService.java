@@ -1,6 +1,9 @@
 package hu.schbme.paybasz.station.service;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import hu.schbme.paybasz.station.config.ImportConfig;
 import hu.schbme.paybasz.station.dto.AccountCreateDto;
+import hu.schbme.paybasz.station.dto.AccountImportDto;
 import hu.schbme.paybasz.station.model.AccountEntity;
 import hu.schbme.paybasz.station.repo.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,10 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 @Slf4j
 @Service
@@ -20,18 +24,16 @@ public class AccountService {
 
 	private final AccountRepository accounts;
 	private final LoggingService logger;
+	private final CsvMapper csvMapper;
 
 	public Optional<AccountEntity> getAccountByCard(String card) {
 		return accounts.findByCard(card);
 	}
 
 	@Transactional(readOnly = false)
-	public void createAccount(String name, String email, String phone, String card, int amount, int minAmount,
-							  boolean allowed) {
-		card = card.toUpperCase();
-		log.info("New user was created with card: {}", card);
-		logger.note("<badge>" + name + "</badge> regisztrálva");
-		accounts.save(new AccountEntity(null, name, card, phone, email, amount, minAmount, allowed, ""));
+	public void createAccount(AccountImportDto dto) {
+		logger.note("<badge>" + dto.getName() + "</badge> regisztrálva");
+		accounts.save(new AccountEntity(null, dto.getName(), "", dto.getMobile(), dto.getEmail(), dto.getAmount(), 0, true, ""));
 	}
 
 	@Transactional(readOnly = true)
@@ -115,15 +117,13 @@ public class AccountService {
 	}
 
 	@Transactional(readOnly = true)
-	public String exportAccounts() {
-		return "id;name;email;phone;card;balance;minimumBalance;allowedToPay;comment"
-				+ System.lineSeparator()
-				+ accounts.findAllByOrderById().stream()
-				.map(it -> Stream.of("" + it.getId(), it.getName(), it.getEmail(), it.getPhone(), it.getCard(),
-								"" + it.getBalance(), "" + it.getMinimumBalance(), "" + it.isAllowed(), it.getComment())
-						.map(attr -> attr.replace(";", "\\;"))
-						.collect(Collectors.joining(";")))
-				.collect(Collectors.joining(System.lineSeparator()));
+	public String exportAccounts() throws IOException {
+		var writer = new StringWriter();
+		ImportConfig.getCsvWriter(csvMapper, AccountEntity.class)
+				.writeValues(writer)
+				.writeAll(accounts.findAllByOrderById())
+				.close();
+		return writer.toString();
 	}
 
 }

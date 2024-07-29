@@ -1,6 +1,9 @@
 package hu.schbme.paybasz.station.controller;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import hu.schbme.paybasz.station.config.AppUtil;
+import hu.schbme.paybasz.station.config.ImportConfig;
+import hu.schbme.paybasz.station.dto.AccountImportDto;
 import hu.schbme.paybasz.station.service.AccountService;
 import hu.schbme.paybasz.station.service.ItemService;
 import hu.schbme.paybasz.station.service.LoggingService;
@@ -13,9 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import static hu.schbme.paybasz.station.config.AppUtil.formatNumber;
 
@@ -31,6 +32,7 @@ public class AdminController {
 	private final LoggingService logger;
 	private final AccountService accountService;
 	private final ItemService itemService;
+	private final CsvMapper csvMapper;
 
 	@RequestMapping("/")
 	public String index(Model model) {
@@ -66,7 +68,7 @@ public class AdminController {
 
 	@GetMapping("/export/accounts")
 	@ResponseBody
-	public String exportAccounts(HttpServletResponse response) {
+	public String exportAccounts(HttpServletResponse response) throws IOException {
 		response.setContentType("text/csv");
 		response.setHeader("Content-Disposition", "attachment; filename=\"paybasz-accounts-"
 				+ AppUtil.DATE_TIME_FILE_FORMATTER.format(System.currentTimeMillis()) + ".csv\"");
@@ -78,7 +80,7 @@ public class AdminController {
 
 	@GetMapping("/export/transactions")
 	@ResponseBody
-	public String exportTransactions(HttpServletResponse response) {
+	public String exportTransactions(HttpServletResponse response) throws IOException {
 		response.setContentType("text/csv");
 		response.setHeader("Content-Disposition", "attachment; filename=\"paybasz-transactions-"
 				+ AppUtil.DATE_TIME_FILE_FORMATTER.format(System.currentTimeMillis()) + ".csv\"");
@@ -90,7 +92,7 @@ public class AdminController {
 
 	@GetMapping("/export/logs")
 	@ResponseBody
-	public String exportLogs(HttpServletResponse response) {
+	public String exportLogs(HttpServletResponse response) throws IOException {
 		response.setContentType("text/csv");
 		response.setHeader("Content-Disposition", "attachment; filename=\"paybasz-logs-"
 				+ AppUtil.DATE_TIME_FILE_FORMATTER.format(System.currentTimeMillis()) + ".csv\"");
@@ -114,12 +116,9 @@ public class AdminController {
 
 	@PostMapping("/import")
 	public String importAccount(Model model, @RequestParam("csv") MultipartFile csv) throws IOException {
-		try (final var reader = new BufferedReader(new InputStreamReader(csv.getInputStream()))) {
-			reader.lines()
-					.map(it -> it.split(";"))
-					// format: name; email; mobile; amount
-					.forEach(it -> accountService.createAccount(it[0].trim(), it[1].trim(), it[2].trim(), "", Integer.parseInt(it[3].trim()), 0, true));
-		}
+		ImportConfig.getCsvReader(csvMapper, AccountImportDto.class)
+				.<AccountImportDto>readValues(csv.getInputStream()).readAll()
+				.forEach(accountService::createAccount);
 		logger.action("Felhasználói adatok importálva");
 		model.addAttribute("msg", "Adatok importálva");
 
