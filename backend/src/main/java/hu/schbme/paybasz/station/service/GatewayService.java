@@ -77,7 +77,7 @@ public class GatewayService {
 		final var gateway = gateways.findByName(name);
 		if (gateway.isEmpty() || token.isEmpty() || !TYPE_UPLOADER.equals(gateway.get().getType())) {
 			log.warn("Unauthorized gateway '{}' with token '{}'", name, token);
-			logger.failure("Nem jogoult terminál: <color>" + name + "</color>");
+			logger.failure("Nem jogosult terminál: <color>" + name + "</color>");
 			return false;
 		}
 		return gateway.get().getToken().equals(token);
