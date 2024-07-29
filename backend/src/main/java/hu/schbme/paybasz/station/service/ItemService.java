@@ -1,6 +1,9 @@
 package hu.schbme.paybasz.station.service;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import hu.schbme.paybasz.station.config.ImportConfig;
 import hu.schbme.paybasz.station.dto.ItemCreateDto;
+import hu.schbme.paybasz.station.dto.ItemImportDto;
 import hu.schbme.paybasz.station.dto.ItemQueryResult;
 import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.repo.ItemRepository;
@@ -9,10 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -21,12 +24,13 @@ public class ItemService {
 
 	private final LoggingService logger;
 	private final ItemRepository items;
+	private final CsvMapper csvMapper;
 
 	@Transactional(readOnly = false)
-	public void createItem(String name, int quantity, String code, String abbreviation, int price, boolean active) {
-		log.info("New item was created: {} ({}) {} JMF", name, quantity, price);
-		logger.note("<badge>" + name + "</badge> termék hozzáadva");
-		items.save(new ItemEntity(null, name, quantity, code, abbreviation, price, active));
+	public void createItem(ItemImportDto dto) {
+		log.info("New item was created: {} ({}) {} JMF", dto.getName(), dto.getAmount(), dto.getPrice());
+		logger.note("<badge>" + dto.getName() + "</badge> termék hozzáadva");
+		items.save(new ItemEntity(null, dto.getName(), dto.getAmount(), dto.getName(), dto.getAbbreviation(), dto.getPrice(), false));
 	}
 
 	@Transactional(readOnly = false)
@@ -38,17 +42,13 @@ public class ItemService {
 	}
 
 	@Transactional(readOnly = true)
-	public String exportItems() {
-		return "id;name;quantity;code;abbreviation;price;active"
-				+ System.lineSeparator()
-				+ items.findAllByOrderById().stream()
-				.map(it -> Stream
-						.of("" + it.getId(), it.getName(), "" + it.getQuantity(), it.getCode(),
-								it.getAbbreviation(),
-								"" + it.getPrice(), "" + it.isActive())
-						.map(attr -> attr.replace(";", "\\;"))
-						.collect(Collectors.joining(";")))
-				.collect(Collectors.joining(System.lineSeparator()));
+	public String exportItems() throws IOException {
+		var writer = new StringWriter();
+		ImportConfig.getCsvWriter(csvMapper, ItemEntity.class)
+				.writeValues(writer)
+				.writeAll(items.findAllByOrderById())
+				.close();
+		return writer.toString();
 	}
 
 	@Transactional(readOnly = true)

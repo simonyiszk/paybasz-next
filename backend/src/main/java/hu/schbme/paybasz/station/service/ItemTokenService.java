@@ -1,6 +1,9 @@
 package hu.schbme.paybasz.station.service;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import hu.schbme.paybasz.station.config.ImportConfig;
 import hu.schbme.paybasz.station.dto.ItemTokenDto;
+import hu.schbme.paybasz.station.dto.ItemTokenImportDto;
 import hu.schbme.paybasz.station.dto.ItemTokenView;
 import hu.schbme.paybasz.station.mapper.ItemTokenMapper;
 import hu.schbme.paybasz.station.model.AccountEntity;
@@ -12,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +28,7 @@ public class ItemTokenService {
 	private final ItemTokenRepository itemTokenRepository;
 	private final AccountService accountService;
 	private final ItemService itemService;
+	private final CsvMapper csvMapper;
 
 	@Transactional
 	public boolean giftItemToken(AccountEntity user, ItemEntity item, int count) {
@@ -85,6 +91,11 @@ public class ItemTokenService {
 	}
 
 	@Transactional
+	public void setItemToken(ItemTokenImportDto tokenDto) {
+		setItemToken(new ItemTokenDto(null, tokenDto.getItemId(), tokenDto.getUserId(), tokenDto.getAmount()));
+	}
+
+	@Transactional
 	public boolean deleteItemToken(AccountEntity user, ItemEntity item) {
 		var tokenExists = itemTokenRepository.findItemToken(user.getId(), item.getId()).isPresent();
 		if (!tokenExists) {
@@ -133,5 +144,15 @@ public class ItemTokenService {
 	@Transactional
 	public void deleteItemToken(Integer tokenId) {
 		itemTokenRepository.deleteById(tokenId);
+	}
+
+	public String exportTokens() throws IOException {
+		var writer = new StringWriter();
+		ImportConfig.getCsvWriter(csvMapper, ItemTokenEntity.class)
+				.writeValues(writer)
+				.writeAll(itemTokenRepository.findAll())
+				.close();
+		return writer.toString();
+
 	}
 }

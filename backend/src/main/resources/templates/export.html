@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta content="IE=edge" http-equiv="X-UA-Compatible">
   <meta content="en" http-equiv="Content-Language">
-  <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
   <title>paybasz</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no"
-        name="viewport"/>
+        name="viewport" />
   <link href="favicon.ico" rel="icon">
 
   <meta content="no" name="msapplication-tap-highlight">
@@ -85,7 +85,51 @@
                           </div>
                         </div>
                       </div>
-
+                      <div class="col-md-12 col-lg-6 col-xl-4">
+                        <div class="card-shadow-primary card-border mb-3 card">
+                          <div class="dropdown-menu-header">
+                            <div class="dropdown-menu-header-inner bg-love-kiss">
+                              <div class="menu-header-content">
+                                <div>
+                                  <h5 class="menu-header-title">FELHASZNÁLÓK</h5>
+                                  <h6 class="menu-header-subtitle">importálása</h6>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="p-3">
+                            <ul class="rm-list-borders list-group list-group-flush">
+                              <li class="list-group-item">
+                                <div class="widget-content p-0">
+                                  <div class="widget-content-wrapper">
+                                    <b><span th:if="${accountImportMsg != null}"
+                                             th:text="${accountImportMsg}"></span></b>
+                                    <form enctype="multipart/form-data"
+                                          method="post"
+                                          th:action="@{/admin/import/accounts}">
+                                      <div class="widget-content-left">
+                                        <div class="form-group">
+                                          <input accept="text/csv"
+                                                 class="form-control-file"
+                                                 name="csv" type="file">
+                                        </div>
+                                        <span>format: name; email; mobile; amount</span>
+                                      </div>
+                                      <div class="widget-content-right">
+                                        <div class="font-size-xlg text-muted">
+                                          <button class="btn btn-secondaryary"
+                                                  type="submit">IMPORT
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </form>
+                                  </div>
+                                </div>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
                       <div class="col-md-12 col-lg-6 col-xl-4">
                         <div class="card-shadow-primary card-border mb-3 card">
                           <div class="dropdown-menu-header">
@@ -163,6 +207,135 @@
                       <div class="col-md-12 col-lg-6 col-xl-4">
                         <div class="card-shadow-primary card-border mb-3 card">
                           <div class="dropdown-menu-header">
+                            <div class="dropdown-menu-header-inner bg-malibu-beach">
+                              <div class="menu-header-content">
+                                <div>
+                                  <h5 class="menu-header-title">TERMÉKEK</h5>
+                                  <h6 class="menu-header-subtitle">importálása</h6>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="p-3">
+                            <ul class="rm-list-borders list-group list-group-flush">
+                              <li class="list-group-item">
+                                <div class="widget-content p-0">
+                                  <div class="widget-content-wrapper">
+                                    <b><span th:if="${itemImportMessage != null}"
+                                             th:text="${itemImportMessage}"></span></b>
+                                    <form enctype="multipart/form-data"
+                                          method="post"
+                                          th:action="@{/admin/import/items}">
+                                      <div class="widget-content-left">
+                                        <div class="form-group">
+                                          <input accept="text/csv"
+                                                 class="form-control-file"
+                                                 name="csv" type="file">
+                                        </div>
+                                        <span>format: name; amount; price; abbreviation - aliasok kereséshez</span>
+                                      </div>
+                                      <div class="widget-content-right">
+                                        <div class="font-size-xlg text-muted">
+                                          <button class="btn btn-secondaryary"
+                                                  type="submit">IMPORT
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </form>
+                                  </div>
+                                </div>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-12 col-lg-6 col-xl-4">
+                        <div class="card-shadow-primary card-border mb-3 card">
+                          <div class="dropdown-menu-header">
+                            <div class="dropdown-menu-header-inner bg-malibu-beach">
+                              <div class="menu-header-content">
+                                <div>
+                                  <h5 class="menu-header-title">TOKENEK</h5>
+                                  <h6 class="menu-header-subtitle">exportálása</h6>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="p-3">
+                            <h6 class="text-muted text-uppercase font-size-md opacity-5 font-weight-normal">
+                              FORMÁTUMOK</h6>
+                            <ul class="rm-list-borders list-group list-group-flush">
+                              <li class="list-group-item">
+                                <div class="widget-content p-0">
+                                  <div class="widget-content-wrapper">
+                                    <div class="widget-content-left">
+                                      <div class="widget-subheading">CSV</div>
+                                    </div>
+                                    <div class="widget-content-right">
+                                      <div class="font-size-xlg text-muted">
+                                        <a class="btn btn-secondary"
+                                           target="_blank"
+                                           th:href="@{/admin/export/tokens}">EXPORT</a>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-12 col-lg-6 col-xl-4">
+                        <div class="card-shadow-primary card-border mb-3 card">
+                          <div class="dropdown-menu-header">
+                            <div class="dropdown-menu-header-inner bg-malibu-beach">
+                              <div class="menu-header-content">
+                                <div>
+                                  <h5 class="menu-header-title">TOKENEK</h5>
+                                  <h6 class="menu-header-subtitle">importálása</h6>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="p-3">
+                            <ul class="rm-list-borders list-group list-group-flush">
+                              <li class="list-group-item">
+                                <div class="widget-content p-0">
+                                  <div class="widget-content-wrapper">
+                                    <b><span th:if="${tokenImportMessage != null}"
+                                             th:text="${tokenImportMessage}"></span></b>
+                                    <form enctype="multipart/form-data"
+                                          method="post"
+                                          th:action="@{/admin/import/tokens}">
+                                      <div class="widget-content-left">
+                                        <div class="form-group">
+                                          <input accept="text/csv"
+                                                 class="form-control-file"
+                                                 name="csv" type="file">
+                                        </div>
+                                        <span>format: userId; itemId; amount</span>
+                                      </div>
+                                      <div class="widget-content-right">
+                                        <div class="font-size-xlg text-muted">
+                                          <button class="btn btn-secondaryary"
+                                                  type="submit">IMPORT
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </form>
+                                  </div>
+                                </div>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-12 col-lg-6 col-xl-4">
+                        <div class="card-shadow-primary card-border mb-3 card">
+                          <div class="dropdown-menu-header">
                             <div class="dropdown-menu-header-inner bg-night-sky">
                               <div class="menu-header-content">
                                 <div>
@@ -196,53 +369,6 @@
                           </div>
                         </div>
                       </div>
-
-                      <div class="col-md-12 col-lg-6 col-xl-4">
-                        <div class="card-shadow-primary card-border mb-3 card">
-                          <div class="dropdown-menu-header">
-                            <div class="dropdown-menu-header-inner bg-love-kiss">
-                              <div class="menu-header-content">
-                                <div>
-                                  <h5 class="menu-header-title">FELHASZNÁLÓK</h5>
-                                  <h6 class="menu-header-subtitle">importálása</h6>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="p-3">
-                            <ul class="rm-list-borders list-group list-group-flush">
-                              <li class="list-group-item">
-                                <div class="widget-content p-0">
-                                  <div class="widget-content-wrapper">
-                                    <b><span th:if="${msg != null}"
-                                             th:text="${msg}"></span></b>
-                                    <form enctype="multipart/form-data"
-                                          method="post"
-                                          th:action="@{/admin/import}">
-                                      <div class="widget-content-left">
-                                        <div class="form-group">
-                                          <input accept="text/csv"
-                                                 class="form-control-file"
-                                                 name="csv" type="file">
-                                        </div>
-                                        <span>format: name; email; mobile; amount</span>
-                                      </div>
-                                      <div class="widget-content-right">
-                                        <div class="font-size-xlg text-muted">
-                                          <button class="btn btn-secondaryary"
-                                                  type="submit">IMPORT
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </form>
-                                  </div>
-                                </div>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-
                     </div>
                   </div>
                 </div>

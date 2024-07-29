@@ -4,14 +4,14 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import hu.schbme.paybasz.station.config.AppUtil;
 import hu.schbme.paybasz.station.config.ImportConfig;
 import hu.schbme.paybasz.station.dto.AccountImportDto;
-import hu.schbme.paybasz.station.service.AccountService;
-import hu.schbme.paybasz.station.service.ItemService;
-import hu.schbme.paybasz.station.service.LoggingService;
-import hu.schbme.paybasz.station.service.TransactionService;
+import hu.schbme.paybasz.station.dto.ItemImportDto;
+import hu.schbme.paybasz.station.dto.ItemTokenImportDto;
+import hu.schbme.paybasz.station.service.*;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +33,7 @@ public class AdminController {
 	private final AccountService accountService;
 	private final ItemService itemService;
 	private final CsvMapper csvMapper;
+	private final ItemTokenService itemTokenService;
 
 	@RequestMapping("/")
 	public String index(Model model) {
@@ -78,6 +79,18 @@ public class AdminController {
 		return csvExport;
 	}
 
+	@Transactional
+	@PostMapping("/import/accounts")
+	public String importAccount(Model model, @RequestParam("csv") MultipartFile csv) throws IOException {
+		ImportConfig.getCsvReader(csvMapper, AccountImportDto.class)
+				.<AccountImportDto>readValues(csv.getInputStream()).readAll()
+				.forEach(accountService::createAccount);
+		logger.action("Felhasználói adatok importálva");
+		model.addAttribute("accountImportMsg", "Adatok importálva");
+
+		return "export";
+	}
+
 	@GetMapping("/export/transactions")
 	@ResponseBody
 	public String exportTransactions(HttpServletResponse response) throws IOException {
@@ -104,7 +117,7 @@ public class AdminController {
 
 	@GetMapping("/export/items")
 	@ResponseBody
-	public String exportItems(HttpServletResponse response) {
+	public String exportItems(HttpServletResponse response) throws IOException {
 		response.setContentType("text/csv");
 		response.setHeader("Content-Disposition", "attachment; filename=\"paybasz-items-"
 				+ AppUtil.DATE_TIME_FILE_FORMATTER.format(System.currentTimeMillis()) + ".csv\"");
@@ -114,13 +127,39 @@ public class AdminController {
 		return csvExport;
 	}
 
-	@PostMapping("/import")
-	public String importAccount(Model model, @RequestParam("csv") MultipartFile csv) throws IOException {
-		ImportConfig.getCsvReader(csvMapper, AccountImportDto.class)
-				.<AccountImportDto>readValues(csv.getInputStream()).readAll()
-				.forEach(accountService::createAccount);
+	@Transactional
+	@PostMapping("/import/items")
+	public String importItems(Model model, @RequestParam("csv") MultipartFile csv) throws IOException {
+		ImportConfig.getCsvReader(csvMapper, ItemImportDto.class)
+				.<ItemImportDto>readValues(csv.getInputStream()).readAll()
+				.forEach(itemService::createItem);
 		logger.action("Felhasználói adatok importálva");
-		model.addAttribute("msg", "Adatok importálva");
+		model.addAttribute("accountImportMsg", "Adatok importálva");
+
+		return "export";
+	}
+
+
+	@GetMapping("/export/tokens")
+	@ResponseBody
+	public String exportTokens(HttpServletResponse response) throws IOException {
+		response.setContentType("text/csv");
+		response.setHeader("Content-Disposition", "attachment; filename=\"paybasz-tokens-"
+				+ AppUtil.DATE_TIME_FILE_FORMATTER.format(System.currentTimeMillis()) + ".csv\"");
+
+		String csvExport = itemTokenService.exportTokens();
+		logger.action("Tokenek kiexportálva");
+		return csvExport;
+	}
+
+	@Transactional
+	@PostMapping("/import/tokens")
+	public String importTokens(Model model, @RequestParam("csv") MultipartFile csv) throws IOException {
+		ImportConfig.getCsvReader(csvMapper, ItemTokenImportDto.class)
+				.<ItemTokenImportDto>readValues(csv.getInputStream()).readAll()
+				.forEach(itemTokenService::setItemToken);
+		logger.action("Felhasználói adatok importálva");
+		model.addAttribute("accountImportMsg", "Adatok importálva");
 
 		return "export";
 	}
