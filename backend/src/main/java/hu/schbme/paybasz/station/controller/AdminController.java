@@ -13,11 +13,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.io.InputStreamReader;
 
 import static hu.schbme.paybasz.station.config.AppUtil.formatNumber;
 
@@ -29,7 +27,6 @@ import static hu.schbme.paybasz.station.config.AppUtil.formatNumber;
 public class AdminController {
 
 	public static final String DUPLICATE_CARD_ERROR = "DUPLICATE_CARD";
-	public static String UPLOAD_DIRECTORY = "import";
 	private final TransactionService transactionService;
 	private final LoggingService logger;
 	private final AccountService accountService;
@@ -117,24 +114,15 @@ public class AdminController {
 
 	@PostMapping("/import")
 	public String importAccount(Model model, @RequestParam("csv") MultipartFile csv) throws IOException {
-		(new File(UPLOAD_DIRECTORY)).mkdir();
-		Path path = Path.of(UPLOAD_DIRECTORY + "/" + csv.getOriginalFilename());
-		if (Files.exists(path)) {
-			model.addAttribute("msg", "Ezzel a névvel már létezik fájl");
-			return "export";
+		try (final var reader = new BufferedReader(new InputStreamReader(csv.getInputStream()))) {
+			reader.lines()
+					.map(it -> it.split(";"))
+					// format: name; email; mobile; amount
+					.forEach(it -> accountService.createAccount(it[0].trim(), it[1].trim(), it[2].trim(), "", Integer.parseInt(it[3].trim()), 0, true));
 		}
-		Path file = Files.createFile(path);
-		Files.copy(csv.getInputStream(), file, StandardCopyOption.REPLACE_EXISTING);
+		logger.action("Felhasználói adatok importálva");
+		model.addAttribute("msg", "Adatok importálva");
 
-		if (Files.exists(file)) {
-			try (final var lines = Files.lines(file)) {
-				lines.map(it -> it.split(";"))
-						// format: name; email; mobile; amount
-						.forEach(it -> accountService.createAccount(it[0].trim(), it[1].trim(), it[2].trim(), "", Integer.parseInt(it[3].trim()), 0, true));
-			}
-			logger.action("Felhasználói adatok importálva");
-			model.addAttribute("msg", "Adatok importálva");
-		}
 		return "export";
 	}
 }
