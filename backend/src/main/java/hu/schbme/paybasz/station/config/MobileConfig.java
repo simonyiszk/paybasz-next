@@ -12,6 +12,7 @@ public class MobileConfig {
 	private boolean showUploadTab = true;
 	private boolean showPayTab = true;
 	private boolean showBalanceTab = true;
+	private boolean showSetCardTab = true;
 	private boolean showCartTab = true;
 	private boolean showTokenTab = true;
 

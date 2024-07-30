@@ -26,7 +26,6 @@ import java.util.stream.StreamSupport;
 
 import static hu.schbme.paybasz.station.PaybaszApplication.VERSION;
 
-@SuppressWarnings("SpellCheckingInspection")
 @Slf4j
 @RestController
 @RequestMapping("/api")

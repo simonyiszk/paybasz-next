@@ -88,6 +88,16 @@ export type AppRequest = ApiRequest
 export type AppResponse = {
   uploader: boolean
   items: Item[]
+  mobileConfig: MobileConfig
+}
+
+export type MobileConfig = {
+  showUploadTab: boolean
+  showPayTab: boolean
+  showBalanceTab: boolean
+  showSetCardTab: boolean
+  showCartTab: boolean
+  showTokenTab: boolean
 }
 
 export type UserListItem = {

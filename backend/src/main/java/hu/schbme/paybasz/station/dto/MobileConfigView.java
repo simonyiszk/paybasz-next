@@ -12,6 +12,7 @@ public class MobileConfigView {
 	private boolean showUploadTab;
 	private boolean showPayTab;
 	private boolean showBalanceTab;
+	private boolean showSetCardTab;
 	private boolean showCartTab;
 	private boolean showTokenTab;
 

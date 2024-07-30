@@ -22,7 +22,8 @@ export const AppContextProvider: FC<PropsWithChildren> = ({ children }) => {
         gatewayCode,
         gatewayName,
         items,
-        uploader: data.uploader
+        uploader: data.uploader,
+        config: data.mobileConfig
       }
     }
   })
