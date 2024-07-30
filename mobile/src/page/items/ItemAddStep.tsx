@@ -45,7 +45,7 @@ export const ItemAddStep = ({
       return
     }
 
-    const newItems = fuzzySearch({ needle, haystack: items, getText: (item) => item.name })
+    const newItems = fuzzySearch({ needle, haystack: items, getText: (item) => item.name + ' ' + item.abbreviation })
     const newCustomItems = fuzzySearch({ needle, haystack: cart.customEntries, getText: (item) => item.name })
     setItemSuggestions(newItems)
     setCustomItemSuggestions(newCustomItems)
