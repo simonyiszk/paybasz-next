@@ -17,7 +17,7 @@ export const TokensPage = () => {
   if (!item) {
     currentStep = <ItemSearchStep setItem={setItem} />
   } else if (!card) {
-    currentStep = <ScanCardStep setCard={setCard} message={`${item.name} termék token beváltása`} onAbort={() => setItem(undefined)} />
+    currentStep = <ScanCardStep setCard={setCard} message={`${item.name} token beváltása`} onAbort={() => setItem(undefined)} />
   } else {
     currentStep = <ClaimTokenStep item={item} card={card} onReset={reset} />
   }
