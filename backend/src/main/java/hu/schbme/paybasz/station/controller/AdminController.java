@@ -134,7 +134,7 @@ public class AdminController {
 				.<ItemImportDto>readValues(csv.getInputStream()).readAll()
 				.forEach(itemService::createItem);
 		logger.action("Felhasználói adatok importálva");
-		model.addAttribute("accountImportMsg", "Adatok importálva");
+		model.addAttribute("itemImportMsg", "Adatok importálva");
 
 		return "export";
 	}
@@ -159,7 +159,7 @@ public class AdminController {
 				.<ItemTokenImportDto>readValues(csv.getInputStream()).readAll()
 				.forEach(itemTokenService::setItemToken);
 		logger.action("Felhasználói adatok importálva");
-		model.addAttribute("accountImportMsg", "Adatok importálva");
+		model.addAttribute("tokenImportMsg", "Adatok importálva");
 
 		return "export";
 	}
