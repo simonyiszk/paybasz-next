@@ -8,6 +8,7 @@ import hu.schbme.paybasz.station.mapper.AccountMapper;
 import hu.schbme.paybasz.station.mapper.ConfigMapper;
 import hu.schbme.paybasz.station.mapper.ItemMapper;
 import hu.schbme.paybasz.station.model.AccountEntity;
+import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.repo.AccountRepository;
 import hu.schbme.paybasz.station.service.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +41,7 @@ public class MobileController {
 	private final AccountService accountService;
 	private final ItemService itemService;
 	private final TransactionService transactionService;
+	private final ItemTokenService itemTokenService;
 
 	@Transactional
 	@PostMapping("/app")
@@ -159,9 +161,6 @@ public class MobileController {
 		}
 	}
 
-	/**
-	 * NOTE: Do not use for transaction purposes. Might be effected by dirty read.
-	 */
 	@Transactional
 	@PostMapping("/balance")
 	public ResponseEntity<BalanceResponse> balance(@RequestBody BalanceRequest request) {
@@ -197,6 +196,37 @@ public class MobileController {
 		gateways.appendReading(request.getGatewayName(), request.getCard().toUpperCase());
 		gateways.updateLastUsed(request.getGatewayName());
 		return ValidationStatus.OK;
+	}
+
+	@Transactional
+	@PostMapping("/claim-token")
+	public PaymentStatus claimToken(@Valid @RequestBody ClaimTokenRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
+			return PaymentStatus.UNAUTHORIZED_TERMINAL;
+		gateways.updateLastUsed(request.getGatewayName());
+
+		Optional<AccountEntity> account = accountService.getAccountByCard(request.getCard().toUpperCase());
+		if (account.isEmpty()) {
+			logger.action("<color>Ismeretlen kártya került leolvasásra.</color> (terminál: " + request.getGatewayName() + ")");
+			return PaymentStatus.VALIDATION_ERROR;
+		}
+
+		Optional<ItemEntity> item = itemService.getItem(request.getItemId());
+		if (item.isEmpty()) {
+			logger.action("<color>Nem létező termék token</color> (terminál: " + request.getGatewayName() + ")");
+			return PaymentStatus.VALIDATION_ERROR;
+		}
+
+		try {
+			boolean hasClaimedToken = itemTokenService.claimItemToken(account.get(), item.get(), 1);
+			if (hasClaimedToken) {
+				return PaymentStatus.ACCEPTED;
+			}
+			return PaymentStatus.NOT_ENOUGH_CASH;
+		} catch (Exception e) {
+			logger.failure("Sikertelen token beváltása " + request.getItemId());
+			return PaymentStatus.INTERNAL_ERROR;
+		}
 	}
 
 	@Transactional
