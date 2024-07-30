@@ -67,6 +67,11 @@ export type BalanceRequest = ApiRequest & {
   card: string
 }
 
+export type ClaimTokenRequest = ApiRequest & {
+  card: string
+  itemId: number
+}
+
 export type BalanceResponse = {
   username: string
   email: string

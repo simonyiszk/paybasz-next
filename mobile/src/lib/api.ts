@@ -6,6 +6,7 @@ import {
   BalanceResponse,
   CardData,
   CartCheckoutRequest,
+  ClaimTokenRequest,
   ItemPurchaseRequest,
   PaymentRequest,
   PaymentStatus,
@@ -25,6 +26,12 @@ export const app = (data: AppRequest): Promise<AppResponse | null> =>
       if (res.status !== 200) return null
       return res.json()
     },
+    data
+  })
+
+export const claimToken = (data: ClaimTokenRequest): Promise<PaymentStatus> =>
+  post({
+    url: getUrl('claim-token'),
     data
   })
 
