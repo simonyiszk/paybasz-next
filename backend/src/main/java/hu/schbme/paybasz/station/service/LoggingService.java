@@ -1,18 +1,28 @@
 package hu.schbme.paybasz.station.service;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import hu.schbme.paybasz.station.config.ImportConfig;
 import hu.schbme.paybasz.station.dto.LogSeverity;
 import hu.schbme.paybasz.station.dto.LoggingEntry;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class LoggingService {
 
-	List<LoggingEntry> entries = Collections.synchronizedList(new LinkedList<>());
+	@Getter
+	private final List<LoggingEntry> entries = Collections.synchronizedList(new LinkedList<>());
+	private final ImportConfig.CsvMapperProvider csvMapperProvider;
+
+	public LoggingService(ImportConfig.CsvMapperProvider csvMapperProvider) {
+		this.csvMapperProvider = csvMapperProvider;
+	}
 
 	public void note(String message) {
 		entries.add(new LoggingEntry(System.currentTimeMillis(), LogSeverity.NOTE, message));
@@ -42,18 +52,13 @@ public class LoggingService {
 		entries.add(new LoggingEntry(System.currentTimeMillis(), LogSeverity.SERVER_WARNING, message));
 	}
 
-	public List<LoggingEntry> getEntries() {
-		return entries;
-	}
-
-	public String exportLogs() {
-		return "timestamp;time;severity;message"
-				+ System.lineSeparator()
-				+ entries.stream()
-				.map(it -> String.join(";", "" + it.getTimestamp(),
-						it.getFormattedDate().replace("&nbsp;", " "), it.getSeverity().name(),
-						it.getMarkdownMessage()))
-				.collect(Collectors.joining(System.lineSeparator()));
+	public String exportLogs() throws IOException {
+		var writer = new StringWriter();
+		ImportConfig.getCsvWriter(csvMapperProvider.getCsvMapper(), LoggingEntry.class)
+				.writeValues(writer)
+				.writeAll(entries)
+				.close();
+		return writer.toString().replace("&nbsp;", " ");
 	}
 
 }

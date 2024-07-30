@@ -1,15 +1,16 @@
 package hu.schbme.paybasz.station.controller;
 
 import hu.schbme.paybasz.station.config.AppUtil;
+import hu.schbme.paybasz.station.config.MobileConfig;
 import hu.schbme.paybasz.station.dto.*;
 import hu.schbme.paybasz.station.error.UnauthorizedGateway;
 import hu.schbme.paybasz.station.mapper.AccountMapper;
+import hu.schbme.paybasz.station.mapper.ConfigMapper;
 import hu.schbme.paybasz.station.mapper.ItemMapper;
 import hu.schbme.paybasz.station.model.AccountEntity;
+import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.repo.AccountRepository;
-import hu.schbme.paybasz.station.service.GatewayService;
-import hu.schbme.paybasz.station.service.LoggingService;
-import hu.schbme.paybasz.station.service.TransactionService;
+import hu.schbme.paybasz.station.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,6 @@ import java.util.stream.StreamSupport;
 
 import static hu.schbme.paybasz.station.PaybaszApplication.VERSION;
 
-@SuppressWarnings("SpellCheckingInspection")
 @Slf4j
 @RestController
 @RequestMapping("/api")
@@ -33,10 +33,14 @@ import static hu.schbme.paybasz.station.PaybaszApplication.VERSION;
 @RequiredArgsConstructor
 public class MobileController {
 
-	private final TransactionService system;
 	private final GatewayService gateways;
 	private final LoggingService logger;
 	private final AccountRepository accounts;
+	private final MobileConfig mobileConfig;
+	private final AccountService accountService;
+	private final ItemService itemService;
+	private final TransactionService transactionService;
+	private final ItemTokenService itemTokenService;
 
 	@Transactional
 	@PostMapping("/app")
@@ -47,13 +51,14 @@ public class MobileController {
 		}
 
 		try {
-			final var items = system.getAllActiveItems()
+			final var items = itemService.getAllActiveItems()
 					.stream()
 					.map(ItemMapper.INSTANCE::toView)
 					.toList();
 			final var response = AppResponse.builder()
 					.isUploader(isUploader)
 					.items(items)
+					.mobileConfig(ConfigMapper.INSTANCE.toView(mobileConfig))
 					.build();
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
@@ -71,7 +76,7 @@ public class MobileController {
 		}
 
 		try {
-			return system.checkout(request.getCard().toUpperCase(), request.getCart(), request.getGatewayName());
+			return transactionService.checkout(request.getCard().toUpperCase(), request.getCart(), request.getGatewayName());
 		} catch (Exception e) {
 			log.error("Error creating app response", e);
 			logger.failure("Sikertelen tranzakció: belső szerver hiba");
@@ -87,7 +92,7 @@ public class MobileController {
 		}
 
 		try {
-			var accounts = system.getAllAccounts();
+			var accounts = accountService.getAllAccounts();
 			var userList = StreamSupport
 					.stream(accounts.spliterator(), false)
 					.map(AccountMapper.INSTANCE::toListItem)
@@ -111,30 +116,12 @@ public class MobileController {
 			return PaymentStatus.INTERNAL_ERROR;
 
 		try {
-			return system.addMoneyToCard(request.getCard().toUpperCase(), request.getAmount(),
+			return transactionService.addMoneyToCard(request.getCard().toUpperCase(), request.getAmount(),
 					request.getDetails() == null ? "" : request.getDetails(),
 					request.getGatewayName());
 		} catch (Exception e) {
 			log.error("Error during proceeding payment", e);
 			logger.failure("Sikertelen fizetés: belső szerver hiba");
-			return PaymentStatus.INTERNAL_ERROR;
-		}
-	}
-
-	@Transactional
-	@PostMapping("/free-beer")
-	public PaymentStatus freeBeer(@RequestBody PaymentRequest request) {
-		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
-			return PaymentStatus.UNAUTHORIZED_TERMINAL;
-		gateways.updateLastUsed(request.getGatewayName());
-
-		try {
-			return system.getBeer(request.getCard().toUpperCase(),
-					request.getDetails() == null ? "" : request.getDetails(),
-					request.getGatewayName());
-		} catch (Exception e) {
-			log.error("Error during proceeding free beer", e);
-			logger.failure("Sikertelen ingyen sör: belső szerver hiba");
 			return PaymentStatus.INTERNAL_ERROR;
 		}
 	}
@@ -149,7 +136,7 @@ public class MobileController {
 			return PaymentStatus.INTERNAL_ERROR;
 
 		try {
-			return system.proceedPayment(request.getCard().toUpperCase(), request.getAmount(),
+			return transactionService.proceedPayment(request.getCard().toUpperCase(), request.getAmount(),
 					request.getDetails() == null ? "" : request.getDetails(),
 					request.getGatewayName());
 		} catch (Exception e) {
@@ -166,16 +153,13 @@ public class MobileController {
 			return PaymentStatus.UNAUTHORIZED_TERMINAL;
 		gateways.updateLastUsed(request.getGatewayName());
 		try {
-			return system.decreaseItemCountAndBuy(request.getCard().toUpperCase(), request.getGatewayName(), request.getId());
+			return transactionService.decreaseItemCountAndBuy(request.getCard().toUpperCase(), request.getGatewayName(), request.getId());
 		} catch (Exception e) {
 			logger.failure("Sikertelen termék vásárlása: " + request.getId());
 			return PaymentStatus.INTERNAL_ERROR;
 		}
 	}
 
-	/**
-	 * NOTE: Do not use for transaction purposes. Might be effected by dirty read.
-	 */
 	@Transactional
 	@PostMapping("/balance")
 	public ResponseEntity<BalanceResponse> balance(@RequestBody BalanceRequest request) {
@@ -184,7 +168,7 @@ public class MobileController {
 
 		gateways.updateLastUsed(request.getGatewayName());
 		log.info("New balance from gateway '{}' card hash: '{}'", request.getGatewayName(), request.getCard().toUpperCase());
-		Optional<AccountEntity> account = system.getAccountByCard(request.getCard().toUpperCase());
+		Optional<AccountEntity> account = accountService.getAccountByCard(request.getCard().toUpperCase());
 		if (account.isEmpty()) {
 			logger.action("<color>Ismeretlen kártya került leolvasásra.</color> (terminál: " + request.getGatewayName() + ")");
 			return ResponseEntity.notFound().build();
@@ -214,6 +198,37 @@ public class MobileController {
 	}
 
 	@Transactional
+	@PostMapping("/claim-token")
+	public PaymentStatus claimToken(@Valid @RequestBody ClaimTokenRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
+			return PaymentStatus.UNAUTHORIZED_TERMINAL;
+		gateways.updateLastUsed(request.getGatewayName());
+
+		Optional<AccountEntity> account = accountService.getAccountByCard(request.getCard().toUpperCase());
+		if (account.isEmpty()) {
+			logger.action("<color>Ismeretlen kártya került leolvasásra.</color> (terminál: " + request.getGatewayName() + ")");
+			return PaymentStatus.VALIDATION_ERROR;
+		}
+
+		Optional<ItemEntity> item = itemService.getItem(request.getItemId());
+		if (item.isEmpty()) {
+			logger.action("<color>Nem létező termék token</color> (terminál: " + request.getGatewayName() + ")");
+			return PaymentStatus.VALIDATION_ERROR;
+		}
+
+		try {
+			boolean hasClaimedToken = itemTokenService.claimItemToken(account.get(), item.get(), 1);
+			if (hasClaimedToken) {
+				return PaymentStatus.ACCEPTED;
+			}
+			return PaymentStatus.NOT_ENOUGH_CASH;
+		} catch (Exception e) {
+			logger.failure("Sikertelen token beváltása " + request.getItemId());
+			return PaymentStatus.INTERNAL_ERROR;
+		}
+	}
+
+	@Transactional
 	@PostMapping("/query")
 	public ItemQueryResult query(@RequestBody ItemQueryRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
@@ -221,7 +236,7 @@ public class MobileController {
 		gateways.updateLastUsed(request.getGatewayName());
 
 		try {
-			return system.resolveItemQuery(request.getQuery());
+			return itemService.resolveItemQuery(request.getQuery());
 		} catch (Exception e) {
 			logger.failure("Sikertelen termék lekérdezés: " + request.getQuery());
 			return new ItemQueryResult(false, "invalid query", 0);

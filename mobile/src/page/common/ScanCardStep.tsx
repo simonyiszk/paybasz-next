@@ -12,6 +12,7 @@ export const ScanCardStep = ({
   message?: string
   onAbort?: () => void
 }) => {
+  console.log(setCard)
   useNFCScanner((event) => {
     setCard(event.serialNumber)
   }, [])

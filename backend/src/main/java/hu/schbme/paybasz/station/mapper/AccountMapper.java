@@ -1,7 +1,6 @@
 package hu.schbme.paybasz.station.mapper;
 
-import hu.schbme.paybasz.station.dto.BalanceResponse;
-import hu.schbme.paybasz.station.dto.UserListItem;
+import hu.schbme.paybasz.station.dto.*;
 import hu.schbme.paybasz.station.model.AccountEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -22,4 +21,7 @@ public interface AccountMapper {
 
 	@Mapping(source = "name", target = "username")
 	BalanceResponse toBalance(AccountEntity entity);
+
+	IdSelectEntry toIdSelectEntry(AccountEntity entity);
+
 }

@@ -2,6 +2,7 @@ package hu.schbme.paybasz.station.controller;
 
 import hu.schbme.paybasz.station.dto.ItemCreateDto;
 import hu.schbme.paybasz.station.model.ItemEntity;
+import hu.schbme.paybasz.station.service.ItemService;
 import hu.schbme.paybasz.station.service.LoggingService;
 import hu.schbme.paybasz.station.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +21,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemsController {
 
-	private final TransactionService system;
+	private final TransactionService transactionService;
 	private final LoggingService logger;
+	private final ItemService itemService;
 
 	@GetMapping("/items")
 	public String items(Model model) {
-		final var items = system.getAllItems();
+		final var items = itemService.getAllItems();
 		model.addAttribute("items", items);
 		model.addAttribute("invalid", items.stream()
 				.filter(ItemEntity::isActive)
@@ -48,13 +50,13 @@ public class ItemsController {
 	@PostMapping("/create-item")
 	public String createItem(ItemCreateDto itemDto) {
 		itemDto.setAbbreviation(itemDto.getAbbreviation().trim());
-		system.createItem(itemDto);
+		itemService.createItem(itemDto);
 		return "redirect:/admin/items";
 	}
 
 	@GetMapping("/modify-item/{itemId}")
 	public String modifyItem(@PathVariable Integer itemId, Model model) {
-		Optional<ItemEntity> item = system.getItem(itemId);
+		Optional<ItemEntity> item = itemService.getItem(itemId);
 		model.addAttribute("createMode", false);
 		item.ifPresentOrElse(
 				acc -> model.addAttribute("item", acc),
@@ -68,18 +70,18 @@ public class ItemsController {
 			return "redirect:/admin/items";
 
 		itemDto.setAbbreviation(itemDto.getAbbreviation().trim());
-		Optional<ItemEntity> item = system.getItem(itemDto.getId());
+		Optional<ItemEntity> item = itemService.getItem(itemDto.getId());
 		if (item.isPresent()) {
-			system.modifyItem(itemDto);
+			itemService.modifyItem(itemDto);
 		}
 		return "redirect:/admin/items";
 	}
 
 	@PostMapping("/items/activate")
 	public String activateItem(@RequestParam Integer id) {
-		Optional<ItemEntity> item = system.getItem(id);
+		Optional<ItemEntity> item = itemService.getItem(id);
 		item.ifPresent(it -> {
-			system.setItemActive(id, true);
+			itemService.setItemActive(id, true);
 			logger.action("<color>" + it.getName() + "</color> termék rendelhető");
 			log.info("Item purchase activated for {} ({})", it.getName(), it.getQuantity());
 		});
@@ -88,9 +90,9 @@ public class ItemsController {
 
 	@PostMapping("/items/deactivate")
 	public String deactivateItem(@RequestParam Integer id) {
-		Optional<ItemEntity> item = system.getItem(id);
+		Optional<ItemEntity> item = itemService.getItem(id);
 		item.ifPresent(it -> {
-			system.setItemActive(id, false);
+			itemService.setItemActive(id, false);
 			logger.failure("<color>" + it.getName() + "</color> termék nem redelhető");
 			log.info("Item purchase deactivated for {} ({})", it.getName(), it.getQuantity());
 		});

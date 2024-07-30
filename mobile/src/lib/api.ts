@@ -6,6 +6,7 @@ import {
   BalanceResponse,
   CardData,
   CartCheckoutRequest,
+  ClaimTokenRequest,
   ItemPurchaseRequest,
   PaymentRequest,
   PaymentStatus,
@@ -28,14 +29,18 @@ export const app = (data: AppRequest): Promise<AppResponse | null> =>
     data
   })
 
+export const claimToken = (data: ClaimTokenRequest): Promise<PaymentStatus> =>
+  post({
+    url: getUrl('claim-token'),
+    data
+  })
+
 export const setCard = (data: CardData): Promise<Response> =>
   post({
     url: getUrl('set-card'),
     deserialize: async (res) => res,
     data
   })
-
-export const freeBeer = (data: PaymentRequest): Promise<PaymentStatus> => post({ url: getUrl('free-beer'), data })
 
 export const balance = (data: BalanceRequest): Promise<BalanceResponse | null> =>
   post({
