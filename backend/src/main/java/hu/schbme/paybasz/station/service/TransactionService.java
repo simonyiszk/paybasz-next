@@ -37,7 +37,7 @@ public class TransactionService {
 	private final GatewayService gateways;
 	private final ItemRepository items;
 	private final LoggingService logger;
-	private final CsvMapper csvMapper;
+	private final ImportConfig.CsvMapperProvider csvMapperProvider;
 
 	@Transactional(readOnly = false)
 	public PaymentStatus proceedPayment(String card, int amount, String message, String gateway) {
@@ -273,7 +273,7 @@ public class TransactionService {
 	@Transactional(readOnly = true)
 	public String exportTransactions() throws IOException {
 		var writer = new StringWriter();
-		ImportConfig.getCsvWriter(csvMapper, TransactionEntity.class)
+		ImportConfig.getCsvWriter(csvMapperProvider.getCsvMapper(), TransactionEntity.class)
 				.writeValues(writer)
 				.writeAll(transactions.findAllByOrderById())
 				.close();

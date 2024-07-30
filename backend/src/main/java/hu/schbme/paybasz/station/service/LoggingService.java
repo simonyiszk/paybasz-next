@@ -18,10 +18,10 @@ public class LoggingService {
 
 	@Getter
 	private final List<LoggingEntry> entries = Collections.synchronizedList(new LinkedList<>());
-	private final CsvMapper csvMapper;
+	private final ImportConfig.CsvMapperProvider csvMapperProvider;
 
-	public LoggingService(CsvMapper csvMapper) {
-		this.csvMapper = csvMapper;
+	public LoggingService(ImportConfig.CsvMapperProvider csvMapperProvider) {
+		this.csvMapperProvider = csvMapperProvider;
 	}
 
 	public void note(String message) {
@@ -54,7 +54,7 @@ public class LoggingService {
 
 	public String exportLogs() throws IOException {
 		var writer = new StringWriter();
-		ImportConfig.getCsvWriter(csvMapper, LoggingEntry.class)
+		ImportConfig.getCsvWriter(csvMapperProvider.getCsvMapper(), LoggingEntry.class)
 				.writeValues(writer)
 				.writeAll(entries)
 				.close();

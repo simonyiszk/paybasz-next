@@ -24,7 +24,7 @@ public class ItemService {
 
 	private final LoggingService logger;
 	private final ItemRepository items;
-	private final CsvMapper csvMapper;
+	private final ImportConfig.CsvMapperProvider csvMapperProvider;
 
 	@Transactional(readOnly = false)
 	public void createItem(ItemImportDto dto) {
@@ -44,7 +44,7 @@ public class ItemService {
 	@Transactional(readOnly = true)
 	public String exportItems() throws IOException {
 		var writer = new StringWriter();
-		ImportConfig.getCsvWriter(csvMapper, ItemEntity.class)
+		ImportConfig.getCsvWriter(csvMapperProvider.getCsvMapper(), ItemEntity.class)
 				.writeValues(writer)
 				.writeAll(items.findAllByOrderById())
 				.close();

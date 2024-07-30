@@ -28,7 +28,7 @@ public class ItemTokenService {
 	private final ItemTokenRepository itemTokenRepository;
 	private final AccountService accountService;
 	private final ItemService itemService;
-	private final CsvMapper csvMapper;
+	private final ImportConfig.CsvMapperProvider csvMapperProvider;
 
 	@Transactional
 	public boolean giftItemToken(AccountEntity user, ItemEntity item, int count) {
@@ -148,7 +148,7 @@ public class ItemTokenService {
 
 	public String exportTokens() throws IOException {
 		var writer = new StringWriter();
-		ImportConfig.getCsvWriter(csvMapper, ItemTokenEntity.class)
+		ImportConfig.getCsvWriter(csvMapperProvider.getCsvMapper(), ItemTokenEntity.class)
 				.writeValues(writer)
 				.writeAll(itemTokenRepository.findAll())
 				.close();

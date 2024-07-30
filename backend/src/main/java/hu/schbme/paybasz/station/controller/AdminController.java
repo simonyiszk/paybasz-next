@@ -32,7 +32,7 @@ public class AdminController {
 	private final LoggingService logger;
 	private final AccountService accountService;
 	private final ItemService itemService;
-	private final CsvMapper csvMapper;
+	private final ImportConfig.CsvMapperProvider csvMapperProvider;
 	private final ItemTokenService itemTokenService;
 
 	@RequestMapping("/")
@@ -82,7 +82,7 @@ public class AdminController {
 	@Transactional
 	@PostMapping("/import/accounts")
 	public String importAccount(Model model, @RequestParam("csv") MultipartFile csv) throws IOException {
-		ImportConfig.getCsvReader(csvMapper, AccountImportDto.class)
+		ImportConfig.getCsvReader(csvMapperProvider.getCsvMapper(), AccountImportDto.class)
 				.<AccountImportDto>readValues(csv.getInputStream()).readAll()
 				.forEach(accountService::createAccount);
 		logger.action("Felhasználói adatok importálva");
@@ -130,7 +130,7 @@ public class AdminController {
 	@Transactional
 	@PostMapping("/import/items")
 	public String importItems(Model model, @RequestParam("csv") MultipartFile csv) throws IOException {
-		ImportConfig.getCsvReader(csvMapper, ItemImportDto.class)
+		ImportConfig.getCsvReader(csvMapperProvider.getCsvMapper(), ItemImportDto.class)
 				.<ItemImportDto>readValues(csv.getInputStream()).readAll()
 				.forEach(itemService::createItem);
 		logger.action("Felhasználói adatok importálva");
@@ -155,7 +155,7 @@ public class AdminController {
 	@Transactional
 	@PostMapping("/import/tokens")
 	public String importTokens(Model model, @RequestParam("csv") MultipartFile csv) throws IOException {
-		ImportConfig.getCsvReader(csvMapper, ItemTokenImportDto.class)
+		ImportConfig.getCsvReader(csvMapperProvider.getCsvMapper(), ItemTokenImportDto.class)
 				.<ItemTokenImportDto>readValues(csv.getInputStream()).readAll()
 				.forEach(itemTokenService::setItemToken);
 		logger.action("Felhasználói adatok importálva");

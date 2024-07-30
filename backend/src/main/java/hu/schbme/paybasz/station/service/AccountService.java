@@ -24,7 +24,7 @@ public class AccountService {
 
 	private final AccountRepository accounts;
 	private final LoggingService logger;
-	private final CsvMapper csvMapper;
+	private final ImportConfig.CsvMapperProvider csvMapperProvider;
 
 	public Optional<AccountEntity> getAccountByCard(String card) {
 		return accounts.findByCard(card);
@@ -119,7 +119,7 @@ public class AccountService {
 	@Transactional(readOnly = true)
 	public String exportAccounts() throws IOException {
 		var writer = new StringWriter();
-		ImportConfig.getCsvWriter(csvMapper, AccountEntity.class)
+		ImportConfig.getCsvWriter(csvMapperProvider.getCsvMapper(), AccountEntity.class)
 				.writeValues(writer)
 				.writeAll(accounts.findAllByOrderById())
 				.close();
