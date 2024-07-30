@@ -42,18 +42,11 @@ public class TransactionService {
 	@Transactional(readOnly = false)
 	public PaymentStatus proceedPayment(String card, int amount, String message, String gateway) {
 		Optional<AccountEntity> possibleAccount = this.accounts.findByCard(card);
-		if (possibleAccount.isEmpty()) {
-			logger.failure("Sikertelen fizetés: <color>kártya nem található</color> " + "(terminál: " + gateway + ")");
-			return PaymentStatus.VALIDATION_ERROR;
+		var result = checkAccount(possibleAccount, gateway);
+		if (result.isPresent()) {
+			return result.get();
 		}
-
 		var accountEntity = possibleAccount.get();
-		if (!accountEntity.isAllowed()) {
-			logger.failure("Sikertelen fizetés: <badge>" + accountEntity.getName()
-					+ "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
-			return PaymentStatus.CARD_REJECTED;
-		}
-
 		if (accountEntity.getBalance() - amount < accountEntity.getMinimumBalance()) {
 			logger.failure("Sikertelen fizetés: <color>" + accountEntity.getName() + ", nincs elég fedezet</color>"
 					+ "(terminál: " + gateway + ")");
@@ -61,7 +54,7 @@ public class TransactionService {
 		}
 
 		var transaction = new TransactionEntity(null, System.currentTimeMillis(), card, accountEntity.getId(),
-				accountEntity.getName(), accountEntity.getName() + " payed " + amount + " with message: " + message,
+				accountEntity.getName(), accountEntity.getName() + " paid " + amount + " with message: " + message,
 				amount, message, gateway, "SYSTEM", true);
 		accountEntity.setBalance(accountEntity.getBalance() - amount);
 		accounts.save(accountEntity);
@@ -77,18 +70,11 @@ public class TransactionService {
 	@Transactional()
 	public PaymentStatus checkout(String card, Cart cart, String gateway) {
 		Optional<AccountEntity> possibleAccount = this.accounts.findByCard(card);
-		if (possibleAccount.isEmpty()) {
-			logger.failure("Sikertelen fizetés: <color>kártya nem található</color> " + "(terminál: " + gateway + ")");
-			return PaymentStatus.VALIDATION_ERROR;
+		var result = checkAccount(possibleAccount, gateway);
+		if (result.isPresent()) {
+			return result.get();
 		}
-
 		var accountEntity = possibleAccount.get();
-		if (!accountEntity.isAllowed()) {
-			logger.failure("Sikertelen fizetés: <badge>" + accountEntity.getName()
-					+ "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
-			return PaymentStatus.CARD_REJECTED;
-		}
-
 		// Believe me, I tried to do it without loops, but it's uglier than this
 		final List<Pair<ItemEntity, CartItem>> itemPairs = new ArrayList<>();
 		for (var cartItem : cart.getItems()) {
@@ -117,10 +103,10 @@ public class TransactionService {
 
 		var normalItemTransactions = itemPairs.stream()
 				.map(pair -> new TransactionEntity(null, System.currentTimeMillis(), card, accountEntity.getId(),
-						accountEntity.getName(), accountEntity.getName() + " payed " + pair.getFirst().getPrice() * pair.getSecond().getQuantity(),
+						accountEntity.getName(), accountEntity.getName() + " paid " + pair.getFirst().getPrice() * pair.getSecond().getQuantity(),
 						pair.getFirst().getPrice() * pair.getSecond().getQuantity(), pair.getFirst().getName(), gateway, "SYSTEM", true));
 		var customItemTransactions = cart.getCustomItems().stream().map(item -> new TransactionEntity(null, System.currentTimeMillis(), card, accountEntity.getId(),
-				accountEntity.getName(), accountEntity.getName() + " payed " + item.getPrice() * item.getQuantity(),
+				accountEntity.getName(), accountEntity.getName() + " paid " + item.getPrice() * item.getQuantity(),
 				item.getPrice() * item.getQuantity(), item.getName(), gateway, "SYSTEM", true));
 		var transactionEntities = Stream.concat(normalItemTransactions, customItemTransactions).toList();
 
@@ -136,9 +122,9 @@ public class TransactionService {
 	@Transactional()
 	public PaymentStatus decreaseItemCountAndBuy(String card, String gateway, Integer itemId) {
 		Optional<AccountEntity> possibleAccount = this.accounts.findByCard(card);
-		if (possibleAccount.isEmpty()) {
-			logger.failure("Sikertelen fizetés: <color>kártya nem található</color> " + "(terminál: " + gateway + ")");
-			return PaymentStatus.VALIDATION_ERROR;
+		var result = checkAccount(possibleAccount, gateway);
+		if (result.isPresent()) {
+			return result.get();
 		}
 
 		Optional<ItemEntity> possibleItem = this.items.findById(itemId);
@@ -164,7 +150,7 @@ public class TransactionService {
 		}
 
 		var transaction = new TransactionEntity(null, System.currentTimeMillis(), card, accountEntity.getId(),
-				accountEntity.getName(), accountEntity.getName() + " payed " + itemEntity.getPrice(),
+				accountEntity.getName(), accountEntity.getName() + " paid " + itemEntity.getPrice(),
 				itemEntity.getPrice(), itemEntity.getName(), gateway, "SYSTEM", true);
 
 		accountEntity.setBalance(accountEntity.getBalance() - itemEntity.getPrice());
@@ -180,14 +166,13 @@ public class TransactionService {
 	@Transactional(readOnly = false)
 	public boolean addMoneyToAccount(Integer accountId, int amount, String message) {
 		Optional<AccountEntity> possibleAccount = this.accounts.findById(accountId);
-		if (possibleAccount.isEmpty()) {
-			logger.failure("Sikertelen egyenleg feltöltés: <color>felhasználó nem található</color>");
+		var result = checkAccount(possibleAccount, null);
+		if (result.isPresent()) {
 			return false;
 		}
-
 		var accountEntity = possibleAccount.get();
 		var transaction = new TransactionEntity(null, System.currentTimeMillis(), "NO-CARD-USED", -1,
-				"SYSTEM", "SYSTEM payed " + amount + " with message: " + message,
+				"SYSTEM", "SYSTEM paid " + amount + " with message: " + message,
 				amount, message, WEB_TERMINAL_NAME, accountEntity.getName(), false);
 
 		gateways.uploadInGateway(WEB_TERMINAL_NAME, amount);
@@ -203,18 +188,11 @@ public class TransactionService {
 	@Transactional(readOnly = false)
 	public PaymentStatus addMoneyToCard(String card, int amount, String message, String gateway) {
 		Optional<AccountEntity> possibleAccount = this.accounts.findByCard(card);
-		if (possibleAccount.isEmpty()) {
-			logger.failure("Sikertelen feltöltés: <color>kártya nem található</color>" + "(terminál: " + gateway + ")");
-			return PaymentStatus.VALIDATION_ERROR;
+		var result = checkAccount(possibleAccount, gateway);
+		if (result.isPresent()) {
+			return result.get();
 		}
-
 		var accountEntity = possibleAccount.get();
-		if (!accountEntity.isAllowed()) {
-			logger.failure("Sikertelen feltöltés: <badge>" + accountEntity.getName()
-					+ "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
-			return PaymentStatus.CARD_REJECTED;
-		}
-
 		if (amount > 50000) {
 			logger.failure("Sikertelen feltöltés: <color>" + accountEntity.getName() + ", túl magas összeg</color>"
 					+ "(terminál: " + gateway + ")");
@@ -268,11 +246,10 @@ public class TransactionService {
 	@Transactional(readOnly = false)
 	public PaymentStatus createTransactionToSystem(Integer accountId, Integer amount, String message) {
 		Optional<AccountEntity> possibleAccount = this.accounts.findById(accountId);
-		if (possibleAccount.isEmpty()) {
-			logger.failure("Sikertelen fizetés: <color>felhasználó nem található</color>");
-			return PaymentStatus.VALIDATION_ERROR;
+		var result = checkAccount(possibleAccount, WEB_TERMINAL_NAME);
+		if (result.isPresent()) {
+			return result.get();
 		}
-
 		var accountEntity = possibleAccount.get();
 		if (accountEntity.getBalance() - amount < accountEntity.getMinimumBalance()) {
 			logger.failure("Sikertelen fizetés: <color>" + accountEntity.getName() + ", nincs elég fedezet</color>");
@@ -280,7 +257,7 @@ public class TransactionService {
 		}
 
 		var transaction = new TransactionEntity(null, System.currentTimeMillis(), "NO-CARD-USED", accountEntity.getId(),
-				accountEntity.getName(), accountEntity.getName() + " payed " + amount + " with message: WEBTERM",
+				accountEntity.getName(), accountEntity.getName() + " paid " + amount + " with message: WEBTERM",
 				amount, message, WEB_TERMINAL_NAME, "SYSTEM", true);
 
 		accountEntity.setBalance(accountEntity.getBalance() - amount);
@@ -302,6 +279,22 @@ public class TransactionService {
 				.close();
 		return writer.toString();
 	}
+
+	Optional<PaymentStatus> checkAccount(Optional<AccountEntity> possibleAccount, String gateway) {
+		if (possibleAccount.isEmpty()) {
+			logger.failure("Sikertelen Tranzakció: <color>kártya nem található</color> " + "(terminál: " + gateway + ")");
+			return Optional.of(PaymentStatus.VALIDATION_ERROR);
+		}
+
+		var accountEntity = possibleAccount.get();
+		if (!accountEntity.isAllowed()) {
+			logger.failure("Sikertelen tranzakció: <badge>" + accountEntity.getName()
+					+ "</badge>  <color>le van tiltva</color>" + "(terminál: " + gateway + ")");
+			return Optional.of(PaymentStatus.CARD_REJECTED);
+		}
+		return Optional.empty();
+	}
+
 
 	private int getTotalAmount(List<Pair<ItemEntity, CartItem>> itemPairs, List<CustomCartItem> customItems) {
 		int normalItemSum = itemPairs

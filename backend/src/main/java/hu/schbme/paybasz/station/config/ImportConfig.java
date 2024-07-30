@@ -7,6 +7,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import hu.schbme.paybasz.station.serialize.CsvBooleanOneZeroDeserializer;
 import hu.schbme.paybasz.station.serialize.CsvBooleanOneZeroSerializer;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,11 @@ public class ImportConfig {
 				.withColumnSeparator(';')
 				.withHeader();
 		return mapper.writer(schema);
+	}
+
+	@PostConstruct
+	public void testxd() {
+
 	}
 
 	@Bean
