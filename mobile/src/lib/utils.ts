@@ -1,4 +1,3 @@
-import { statusEnum } from '@/lib/model.ts'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { DependencyList, useCallback, useEffect } from 'react'
@@ -36,16 +35,6 @@ export const post = async <T, R>({
       return deserialize(res)
     }
     return (asJson ? res.json() : res.text()) as Promise<R>
-  })
-
-export const scanNFC = (setStatus: React.Dispatch<React.SetStateAction<statusEnum>>) =>
-  new Promise<NDEFReadingEvent>((resolve, reject) => {
-    setStatus(statusEnum.WAITING_FOR_CARD)
-    const ndef = new NDEFReader()
-    ndef.scan().then(() => {
-      ndef.addEventListener('reading', (e) => resolve(e as NDEFReadingEvent), { once: true })
-      ndef.addEventListener('readingerror', reject, { once: true })
-    })
   })
 
 export const useNFCScanner = (onScan: (event: NDEFReadingEvent) => void, deps: DependencyList) => {
