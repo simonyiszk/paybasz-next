@@ -39,6 +39,7 @@ export const ItemSearchStep = ({ setItem }: { setItem: (item: Item) => void }) =
 
   return (
     <>
+      <h1 className="font-bold text-2xl pb-2 text-center">Token beváltása</h1>
       <Form {...form}>
         <form
           onChange={form.handleSubmit((data) => {
