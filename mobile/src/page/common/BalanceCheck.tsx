@@ -6,6 +6,7 @@ import * as api from '@/lib/api.ts'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { useAppContext } from '@/hooks/useAppContext'
 import { BalanceResponse } from '@/lib/model.ts'
+import { RotatedForCustomer } from '@/components/RotatedForCustomer.tsx'
 
 export const BalanceCheck = ({
   card,
@@ -61,17 +62,19 @@ const BalanceReadResult = ({ card, balance, error }: { card: string; balance?: B
     )
 
   return (
-    <Alert className="w-[auto]">
-      <CircleDollarSign className="px-1" />
-      <AlertTitle>{balance?.username}</AlertTitle>
-      <AlertDescription className="font-bold text-lg flex flex-col">
-        <span className="font-normal text-sm pb-2">{balance?.email}</span>
-        <span>Kártya: {card.substring(0, 10)}...</span>
-        <span>
-          Egyenleg: <span className={balance!.balance > 0 ? 'text-primary' : 'text-destructive'}>{balance!.balance} JMF</span>
-        </span>
-        {balance!.maxLoan > 0 && <span>Hitelkeret: {balance?.maxLoan} JMF</span>}
-      </AlertDescription>
-    </Alert>
+    <RotatedForCustomer>
+      <Alert className="w-[auto]">
+        <CircleDollarSign className="px-1" />
+        <AlertTitle>{balance?.username}</AlertTitle>
+        <AlertDescription className="font-bold text-lg flex flex-col">
+          <span className="font-normal text-sm pb-2">{balance?.email}</span>
+          <span>Kártya: {card.substring(0, 10)}...</span>
+          <span>
+            Egyenleg: <span className={balance!.balance > 0 ? 'text-primary' : 'text-destructive'}>{balance!.balance} JMF</span>
+          </span>
+          {balance!.maxLoan > 0 && <span>Hitelkeret: {balance?.maxLoan} JMF</span>}
+        </AlertDescription>
+      </Alert>
+    </RotatedForCustomer>
   )
 }

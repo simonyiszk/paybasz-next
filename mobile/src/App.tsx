@@ -5,6 +5,7 @@ import { ArrowUpFromLine, CircleDollarSign, CircleHelp, Gem, Link, ShoppingBaske
 import { ThemeSwitcher } from '@/components/ThemeSwitcher.tsx'
 import { lazy, ReactNode, Suspense } from 'react'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
+import { EnableRotatedForCustomerToggle } from '@/components/EnableRotatedForCustomerToggle.tsx'
 
 const SetCardPage = lazy(() => import('@/page/set-card/SetCardPage.tsx'))
 const UploadPage = lazy(() => import('@/page/upload/UploadPage.tsx'))
@@ -40,6 +41,7 @@ export const App = () => {
         <div className="flex flex-col w-full items-center mb-2 gap-4 sm:gap-8 m-auto relative">
           <Logo />
           <ThemeSwitcher />
+          <EnableRotatedForCustomerToggle />
         </div>
         {showBalanceTab && <AppTab tab="balance" child={<BalanceCheckPage />} />}
         {showSetCardTab && <AppTab tab="assign" child={<SetCardPage />} />}
