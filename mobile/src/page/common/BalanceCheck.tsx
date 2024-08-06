@@ -62,8 +62,8 @@ const BalanceReadResult = ({ card, balance, error }: { card: string; balance?: B
     )
 
   return (
-    <RotatedForCustomer>
-      <Alert className="w-[auto]">
+    <RotatedForCustomer className="w-full">
+      <Alert>
         <CircleDollarSign className="px-1" />
         <AlertTitle>{balance?.username}</AlertTitle>
         <AlertDescription className="font-bold text-lg flex flex-col">

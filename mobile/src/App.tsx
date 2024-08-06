@@ -38,7 +38,7 @@ export const App = () => {
       className="max-w-2xl m-auto h-[100dvh] flex flex-col items-center relative"
     >
       <main className="flex-1 w-full overflow-y-auto overflow-x-visible relative scrollbar-thin pt-4 px-4">
-        <div className="flex flex-col w-full items-center mb-2 gap-4 sm:gap-8 m-auto relative">
+        <div className="flex flex-col w-full items-center mb-8 gap-4 sm:gap-8 m-auto relative">
           <Logo />
           <ThemeSwitcher />
           <EnableRotatedForCustomerToggle />
