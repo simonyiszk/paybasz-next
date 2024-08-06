@@ -4,7 +4,7 @@ import { Item } from '@/lib/model.ts'
 import { ItemSearchStep } from '@/page/tokens/ItemSearchStep.tsx'
 import { ClaimTokenStep } from '@/page/tokens/ClaimTokenStep.tsx'
 
-export const TokensPage = () => {
+const TokensPage = () => {
   const [item, setItem] = useState<Item>()
   const [card, setCard] = useState<string>()
 
@@ -24,3 +24,5 @@ export const TokensPage = () => {
 
   return <div className="flex-1 h-full relative">{currentStep}</div>
 }
+
+export default TokensPage

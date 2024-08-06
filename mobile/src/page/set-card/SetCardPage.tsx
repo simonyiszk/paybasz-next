@@ -4,7 +4,7 @@ import { ScanCardStep } from '@/page/common/ScanCardStep.tsx'
 import { ConnectStep } from '@/page/set-card/ConnectStep.tsx'
 import { UserListItem } from '@/lib/model.ts'
 
-export const SetCardPage = () => {
+const SetCardPage = () => {
   const [user, setUser] = useState<UserListItem>()
   const [card, setCard] = useState<string>()
   const reset = () => {
@@ -22,3 +22,5 @@ export const SetCardPage = () => {
 
   return <div className="flex-1 h-full relative">{currentStep}</div>
 }
+
+export default SetCardPage

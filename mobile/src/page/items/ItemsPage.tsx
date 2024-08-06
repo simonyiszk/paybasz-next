@@ -15,7 +15,7 @@ import {
 import { Item } from '@/lib/model.ts'
 import { CartEditStep } from '@/page/items/CartEditStep.tsx'
 
-export const ItemsPage = () => {
+const ItemsPage = () => {
   const [cart, setCart] = useState(EmptyCart)
   const [itemSelectionFinished, setItemSelectionFinished] = useState(false)
   const [cartEditFinished, setCartEditFinished] = useState(false)
@@ -94,3 +94,5 @@ export const ItemsPage = () => {
 
   return <div className="flex-1 h-full relative">{currentStep}</div>
 }
+
+export default ItemsPage

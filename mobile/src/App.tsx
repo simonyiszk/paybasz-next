@@ -1,16 +1,31 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx'
 import { Logo } from '@/components/Logo.tsx'
-import { BalanceCheckPage } from '@/page/BalanceCheckPage.tsx'
-import { SetCardPage } from '@/page/set-card/SetCardPage.tsx'
-import { UploadPage } from '@/page/upload/UploadPage.tsx'
 import { useAppContext } from '@/hooks/useAppContext'
-import { PayPage } from '@/page/pay/PayPage.tsx'
-import { ItemsPage } from './page/items/ItemsPage'
 import { ArrowUpFromLine, CircleDollarSign, CircleHelp, Gem, Link, ShoppingBasket } from 'lucide-react'
-import { TokensPage } from '@/page/tokens/TokensPage.tsx'
 import { ThemeSwitcher } from '@/components/ThemeSwitcher.tsx'
+import { lazy, ReactNode, Suspense } from 'react'
+import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
+
+const SetCardPage = lazy(() => import('@/page/set-card/SetCardPage.tsx'))
+const UploadPage = lazy(() => import('@/page/upload/UploadPage.tsx'))
+const PayPage = lazy(() => import('@/page/pay/PayPage.tsx'))
+const ItemsPage = lazy(() => import('@/page/items/ItemsPage.tsx'))
+const BalanceCheckPage = lazy(() => import('@/page/BalanceCheckPage.tsx'))
+const TokensPage = lazy(() => import('@/page/tokens/TokensPage.tsx'))
 
 const TabKey = 'selectedTab'
+
+const AppTab = ({ child, tab }: { child: ReactNode; tab: string }) => (
+  <TabsContent value={tab}>
+    <Suspense fallback={<LoadingIndicator />}>{child}</Suspense>
+  </TabsContent>
+)
+
+const AppTabTrigger = ({ child, tab }: { child: ReactNode; tab: string }) => (
+  <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base flex-1" value={tab}>
+    {child}
+  </TabsTrigger>
+)
 
 export const App = () => {
   const { uploader, items, config } = useAppContext()
@@ -26,69 +41,21 @@ export const App = () => {
           <Logo />
           <ThemeSwitcher />
         </div>
-        {showBalanceTab && (
-          <TabsContent value="balance">
-            <BalanceCheckPage />
-          </TabsContent>
-        )}
-        {showSetCardTab && (
-          <TabsContent value="assign">
-            <SetCardPage />
-          </TabsContent>
-        )}
-        {showPayTab && (
-          <TabsContent value="pay">
-            <PayPage />
-          </TabsContent>
-        )}
-        {showCartTab && items.length > 0 && (
-          <TabsContent value="items">
-            <ItemsPage />
-          </TabsContent>
-        )}
-        {showUploadTab && uploader && (
-          <TabsContent value="upload">
-            <UploadPage />
-          </TabsContent>
-        )}
-        {showTokenTab && items.length > 0 && (
-          <TabsContent value="tokens">
-            <TokensPage />
-          </TabsContent>
-        )}
+        {showBalanceTab && <AppTab tab="balance" child={<BalanceCheckPage />} />}
+        {showSetCardTab && <AppTab tab="assign" child={<SetCardPage />} />}
+        {showPayTab && <AppTab tab="pay" child={<PayPage />} />}
+        {showUploadTab && uploader && <AppTab tab="upload" child={<UploadPage />} />}
+        {showCartTab && items.length > 0 && <AppTab tab="items" child={<ItemsPage />} />}
+        {showTokenTab && items.length > 0 && <AppTab tab="tokens" child={<TokensPage />} />}
       </main>
       <div className="w-full px-4 pb-4 pt-2">
         <TabsList className="flex justify-between p-0 ">
-          {showBalanceTab && (
-            <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base flex-1" value="balance">
-              <CircleHelp />
-            </TabsTrigger>
-          )}
-          {showSetCardTab && (
-            <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base flex-1" value="assign">
-              <Link />
-            </TabsTrigger>
-          )}
-          {showPayTab && (
-            <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base flex-1" value="pay">
-              <CircleDollarSign />
-            </TabsTrigger>
-          )}
-          {showUploadTab && uploader && (
-            <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base flex-1" value="upload">
-              <ArrowUpFromLine />
-            </TabsTrigger>
-          )}
-          {showCartTab && items.length > 0 && (
-            <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base flex-1" value="items">
-              <ShoppingBasket />
-            </TabsTrigger>
-          )}
-          {showTokenTab && items.length > 0 && (
-            <TabsTrigger className="py-4 px-2 text-[.6rem] sm:text-base flex-1" value="tokens">
-              <Gem />
-            </TabsTrigger>
-          )}
+          {showBalanceTab && <AppTabTrigger tab="balance" child={<CircleHelp />} />}
+          {showSetCardTab && <AppTabTrigger tab="assign" child={<Link />} />}
+          {showPayTab && <AppTabTrigger tab="pay" child={<CircleDollarSign />} />}
+          {showUploadTab && uploader && <AppTabTrigger tab="upload" child={<ArrowUpFromLine />} />}
+          {showCartTab && items.length > 0 && <AppTabTrigger tab="items" child={<ShoppingBasket />} />}
+          {showTokenTab && items.length > 0 && <AppTabTrigger tab="tokens" child={<Gem />} />}
         </TabsList>
       </div>
     </Tabs>

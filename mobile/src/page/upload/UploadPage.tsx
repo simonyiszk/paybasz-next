@@ -3,7 +3,7 @@ import { ScanCardStep } from '@/page/common/ScanCardStep.tsx'
 import { EnterAmountAndMessageStep } from '@/page/common/EnterAmountAndMessageStep.tsx'
 import { UploadStep } from '@/page/upload/UploadStep.tsx'
 
-export const UploadPage = () => {
+const UploadPage = () => {
   const [amount, setAmount] = useState<number>()
   const [message, setMessage] = useState<string>()
   const [card, setCard] = useState<string>()
@@ -33,3 +33,5 @@ export const UploadPage = () => {
 
   return <div className="flex items-center flex-col gap-4">{currentStep}</div>
 }
+
+export default UploadPage
