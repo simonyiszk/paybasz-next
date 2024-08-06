@@ -3,7 +3,7 @@ import { Logo } from '@/components/Logo.tsx'
 import { useAppContext } from '@/hooks/useAppContext'
 import { ArrowUpFromLine, CircleDollarSign, CircleHelp, Gem, Link, ShoppingBasket } from 'lucide-react'
 import { ThemeSwitcher } from '@/components/ThemeSwitcher.tsx'
-import { lazy, ReactNode, Suspense } from 'react'
+import { lazy, ReactNode, Suspense, useState } from 'react'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { EnableRotatedForCustomerToggle } from '@/components/EnableRotatedForCustomerToggle.tsx'
 
@@ -28,14 +28,28 @@ const AppTabTrigger = ({ child, tab }: { child: ReactNode; tab: string }) => (
   </TabsTrigger>
 )
 
+const TabIcons: { [key: string]: ReactNode } = {
+  balance: <CircleHelp />,
+  assign: <Link />,
+  pay: <CircleDollarSign />,
+  upload: <ArrowUpFromLine />,
+  items: <ShoppingBasket />,
+  tokens: <Gem />
+}
+
 export const App = () => {
+  const [currentTab, setCurrentTab] = useState(localStorage.getItem(TabKey) || 'balance')
   const { uploader, items, config } = useAppContext()
   const { showBalanceTab, showCartTab, showPayTab, showSetCardTab, showTokenTab, showUploadTab } = config
+  const currentTabIcon = TabIcons[currentTab] as ReactNode | undefined
   return (
     <Tabs
-      onValueChange={(tab) => localStorage.setItem(TabKey, tab)}
-      defaultValue={localStorage.getItem(TabKey) || 'balance'}
-      className="max-w-2xl m-auto h-[100dvh] flex flex-col items-center relative"
+      onValueChange={(tab) => {
+        localStorage.setItem(TabKey, tab)
+        setCurrentTab(tab)
+      }}
+      defaultValue={currentTab}
+      className="max-w-2xl m-auto h-[100dvh] flex flex-col items-center relative overflow-hidden"
     >
       <main className="flex-1 w-full overflow-y-auto overflow-x-visible relative scrollbar-thin pt-4 px-4">
         <div className="flex flex-col w-full items-center mb-8 gap-4 sm:gap-8 m-auto relative">
@@ -52,14 +66,22 @@ export const App = () => {
       </main>
       <div className="w-full px-4 pb-4 pt-2">
         <TabsList className="flex justify-between p-0 ">
-          {showBalanceTab && <AppTabTrigger tab="balance" child={<CircleHelp />} />}
-          {showSetCardTab && <AppTabTrigger tab="assign" child={<Link />} />}
-          {showPayTab && <AppTabTrigger tab="pay" child={<CircleDollarSign />} />}
-          {showUploadTab && uploader && <AppTabTrigger tab="upload" child={<ArrowUpFromLine />} />}
-          {showCartTab && items.length > 0 && <AppTabTrigger tab="items" child={<ShoppingBasket />} />}
-          {showTokenTab && items.length > 0 && <AppTabTrigger tab="tokens" child={<Gem />} />}
+          {showBalanceTab && <AppTabTrigger tab="balance" child={TabIcons['balance']} />}
+          {showSetCardTab && <AppTabTrigger tab="assign" child={TabIcons['assign']} />}
+          {showPayTab && <AppTabTrigger tab="pay" child={TabIcons['pay']} />}
+          {showUploadTab && uploader && <AppTabTrigger tab="upload" child={TabIcons['upload']} />}
+          {showCartTab && items.length > 0 && <AppTabTrigger tab="items" child={TabIcons['items']} />}
+          {showTokenTab && items.length > 0 && <AppTabTrigger tab="tokens" child={TabIcons['tokens']} />}
         </TabsList>
       </div>
+      {currentTabIcon && (
+        <div
+          aria-hidden={true}
+          className="absolute overflow-hidden translate-x-0 -z-10 opacity-[2.25%] dark:opacity-[0.75%] scale-[20] bottom-[25%] right-[25%]"
+        >
+          {currentTabIcon}
+        </div>
+      )}
     </Tabs>
   )
 }
