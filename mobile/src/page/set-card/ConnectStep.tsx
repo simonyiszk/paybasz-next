@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { setCard } from '@/lib/api.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
-import { sha256 } from '@/lib/utils.ts'
+import { sha256Hex } from '@/lib/utils.ts'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 export const ConnectStep = ({ onReset, card, user }: { onReset: () => void; card: string; user: UserListItem }) => {
@@ -14,7 +14,7 @@ export const ConnectStep = ({ onReset, card, user }: { onReset: () => void; card
   const [pairingResult, setPairingResult] = useState<UserData>()
 
   useEffect(() => {
-    sha256(card)
+    sha256Hex(card)
       .then((cardHash) => setCard({ gatewayName, card: cardHash, gatewayCode, userId: user.id }))
       .then(async (data) => {
         if (data.status === 200) setPairingResult(await data.json())

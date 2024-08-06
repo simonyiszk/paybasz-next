@@ -2,7 +2,7 @@ import { Item, PaymentStatus } from '@/lib/model.ts'
 import { useAppContext } from '@/hooks/useAppContext.ts'
 import { useEffect, useState } from 'react'
 import { useQueryClient } from 'react-query'
-import { cn, sha256 } from '@/lib/utils.ts'
+import { cn, sha256Hex } from '@/lib/utils.ts'
 import { claimToken } from '@/lib/api.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
@@ -16,7 +16,7 @@ export const ClaimTokenStep = ({ item, card, onReset }: { item: Item; card: stri
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    sha256(card)
+    sha256Hex(card)
       .then((cardHash) => claimToken({ gatewayName, gatewayCode, card: cardHash, itemId: item.id }))
       .then((data) => {
         setStatus(data)

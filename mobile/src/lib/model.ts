@@ -73,10 +73,12 @@ export type ClaimTokenRequest = ApiRequest & {
 }
 
 export type BalanceResponse = {
+  userId: string
   username: string
   email: string
   balance: number
   maxLoan: number
+  color: string
 }
 
 export type Item = {
@@ -86,6 +88,7 @@ export type Item = {
   code: string
   abbreviation: string
   price: number
+  color: string
 }
 
 export type AppRequest = ApiRequest
@@ -110,6 +113,7 @@ export type UserListItem = {
   name: string
   email: string
   hasCardAssigned: boolean
+  color: string
 }
 
 export enum statusEnum {

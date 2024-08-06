@@ -46,7 +46,7 @@ export const useNFCScanner = (onScan: (event: NDEFReadingEvent) => void, deps: D
   }, [...deps, callback]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
-export async function sha256(message: string) {
+export async function sha256Hex(message: string) {
   const msgBuffer = new TextEncoder().encode(message)
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
@@ -54,6 +54,14 @@ export async function sha256(message: string) {
 
   return hashHex.toUpperCase()
 }
+
+export const addHashedColor = async <T>(data: T[], selector: (item: T) => string): Promise<T[]> =>
+  Promise.all(
+    data.map(async (item) => ({
+      ...item,
+      color: '#' + (await sha256Hex(selector(item))).substring(0, 6)
+    }))
+  )
 
 const replaceSpecialChars = (text: string) => text.normalize('NFKD').replace(/\W/g, '')
 

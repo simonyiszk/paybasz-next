@@ -5,7 +5,7 @@ import { pay } from '@/lib/api.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { BalanceCheck } from '@/page/common/BalanceCheck.tsx'
-import { cn, sha256 } from '@/lib/utils.ts'
+import { cn, sha256Hex } from '@/lib/utils.ts'
 import CheckAnimation from '@/components/CheckAnimation'
 
 export const PayStep = ({ onReset, card, amount, message }: { onReset: () => void; card: string; amount: number; message: string }) => {
@@ -16,7 +16,7 @@ export const PayStep = ({ onReset, card, amount, message }: { onReset: () => voi
   const [balanceCheckLoading, setBalanceCheckLoading] = useState(false)
 
   useEffect(() => {
-    sha256(card)
+    sha256Hex(card)
       .then((cardHash) => pay({ gatewayName, details: message, card: cardHash, gatewayCode, amount }))
       .then(setStatus)
       .catch(() => setError('A fizetés sikertelen!'))

@@ -5,7 +5,7 @@ import { payCart } from '@/lib/api.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { BalanceCheck } from '@/page/common/BalanceCheck.tsx'
-import { cn, sha256 } from '@/lib/utils.ts'
+import { cn, sha256Hex } from '@/lib/utils.ts'
 import CheckAnimation from '@/components/CheckAnimation'
 import { useQueryClient } from 'react-query'
 import { Cart } from '@/page/items/cart.ts'
@@ -28,7 +28,7 @@ export const CartPayStep = ({
   const [balanceCheckLoading, setBalanceCheckLoading] = useState(false)
   const queryClient = useQueryClient()
   useEffect(() => {
-    sha256(card)
+    sha256Hex(card)
       .then((cardHash) =>
         payCart({
           gatewayName,
