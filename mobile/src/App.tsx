@@ -8,6 +8,7 @@ import { PayPage } from '@/page/pay/PayPage.tsx'
 import { ItemsPage } from './page/items/ItemsPage'
 import { ArrowUpFromLine, CircleDollarSign, CircleHelp, Gem, Link, ShoppingBasket } from 'lucide-react'
 import { TokensPage } from '@/page/tokens/TokensPage.tsx'
+import { ThemeSwitcher } from '@/components/ThemeSwitcher.tsx'
 
 const TabKey = 'selectedTab'
 
@@ -21,8 +22,9 @@ export const App = () => {
       className="max-w-2xl m-auto h-[100dvh] flex flex-col items-center relative"
     >
       <main className="flex-1 w-full overflow-y-auto overflow-x-visible relative scrollbar-thin pt-4 px-4">
-        <div className="flex flex-col w-full items-center mb-2 gap-4 sm:gap-8 m-auto">
+        <div className="flex flex-col w-full items-center mb-2 gap-4 sm:gap-8 m-auto relative">
           <Logo />
+          <ThemeSwitcher />
         </div>
         {showBalanceTab && (
           <TabsContent value="balance">
