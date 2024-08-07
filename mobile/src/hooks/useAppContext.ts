@@ -4,6 +4,8 @@ import { Item, MobileConfig } from '@/lib/model.ts'
 export const AppContext = createContext<AppData>({} as AppData)
 export type AppData = {
   uploader: boolean
+  canReassignCards: boolean
+  canTransferFunds: boolean
   gatewayName: string
   gatewayCode: string
   items: Item[]

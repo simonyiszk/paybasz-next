@@ -13,11 +13,6 @@ export type PaymentRequest = ApiRequest & {
   details: string
 }
 
-export type ItemPurchaseRequest = ApiRequest & {
-  id: number
-  card: string
-}
-
 export type CartItem = {
   id: number
   quantity: number
@@ -73,7 +68,6 @@ export type ClaimTokenRequest = ApiRequest & {
 }
 
 export type BalanceResponse = {
-  userId: string
   username: string
   email: string
   balance: number
@@ -95,6 +89,8 @@ export type AppRequest = ApiRequest
 
 export type AppResponse = {
   uploader: boolean
+  canReassignCards: boolean
+  canTransferFunds: boolean
   items: Item[]
   mobileConfig: MobileConfig
 }
@@ -106,6 +102,7 @@ export type MobileConfig = {
   showSetCardTab: boolean
   showCartTab: boolean
   showTokenTab: boolean
+  showTransferTab: boolean
 }
 
 export type UserListItem = {

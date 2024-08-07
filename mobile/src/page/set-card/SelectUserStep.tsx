@@ -44,6 +44,7 @@ export const SelectUserStep = ({ setUser }: { setUser: (userId: UserListItem) =>
 const userNameSchema = z.object({ name: z.string().optional() })
 
 const SelectUser = ({ users, setUser }: { users: UserList; setUser: (userId: UserListItem) => void }) => {
+  const { canReassignCards } = useAppContext()
   const form = useForm<z.infer<typeof userNameSchema>>({
     resolver: zodResolver(userNameSchema),
     defaultValues: { name: '' }
@@ -54,14 +55,18 @@ const SelectUser = ({ users, setUser }: { users: UserList; setUser: (userId: Use
   const [selectedUser, setSelectedUser] = useState<UserListItem>()
 
   useEffect(() => {
+    let haystack = users
+    if (!canReassignCards) {
+      haystack = users.filter((user) => !user.hasCardAssigned)
+    }
     if (!needle) {
-      setSuggestions(users)
+      setSuggestions(haystack)
       return
     }
 
-    const newSuggestions = fuzzySearch({ needle, haystack: users, getText: (user) => user.name + user.email })
+    const newSuggestions = fuzzySearch({ needle, haystack, getText: (user) => user.name + user.email })
     setSuggestions(newSuggestions)
-  }, [users, needle])
+  }, [users, needle, canReassignCards])
 
   return (
     <>

@@ -7,7 +7,6 @@ import {
   CardData,
   CartCheckoutRequest,
   ClaimTokenRequest,
-  ItemPurchaseRequest,
   PaymentRequest,
   PaymentStatus,
   ReadingRequest,
@@ -65,10 +64,9 @@ export const userList = (data: ApiRequest): Promise<UserList> =>
 
 export const pay = (data: PaymentRequest): Promise<PaymentStatus> => post({ url: getUrl('pay'), data })
 
-export const payItem = (data: ItemPurchaseRequest): Promise<PaymentStatus> => post({ url: getUrl('buy-item'), data })
-
 export const payCart = (data: CartCheckoutRequest): Promise<PaymentStatus> => post({ url: getUrl('checkout'), data })
 
-export const reading = (data: ReadingRequest) => parseValidationStatus(post({ url: getUrl('reading'), data }))
+// returns true if the card is assigned
+export const cardCheck = (data: ReadingRequest) => parseValidationStatus(post({ url: getUrl('card-check'), data }))
 
 export const upload = (data: PaymentRequest): Promise<PaymentStatus> => post({ url: getUrl('upload'), data })
