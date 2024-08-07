@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx'
 import { Logo } from '@/components/Logo.tsx'
 import { useAppContext } from '@/hooks/useAppContext'
-import { ArrowUpFromLine, CircleDollarSign, CircleHelp, Gem, Link, ShoppingBasket } from 'lucide-react'
+import { ArrowLeftRight, ArrowUpFromLine, CircleDollarSign, CircleHelp, Gem, Link, ShoppingBasket } from 'lucide-react'
 import { ThemeSwitcher } from '@/components/ThemeSwitcher.tsx'
 import { lazy, ReactNode, Suspense, useState } from 'react'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
@@ -10,6 +10,7 @@ import { EnableRotatedForCustomerToggle } from '@/components/EnableRotatedForCus
 const SetCardPage = lazy(() => import('@/page/set-card/SetCardPage.tsx'))
 const UploadPage = lazy(() => import('@/page/upload/UploadPage.tsx'))
 const PayPage = lazy(() => import('@/page/pay/PayPage.tsx'))
+const TransferPage = lazy(() => import('@/page/transfer/TransferPage.tsx'))
 const ItemsPage = lazy(() => import('@/page/items/ItemsPage.tsx'))
 const BalanceCheckPage = lazy(() => import('@/page/BalanceCheckPage.tsx'))
 const TokensPage = lazy(() => import('@/page/tokens/TokensPage.tsx'))
@@ -34,13 +35,14 @@ const TabIcons: { [key: string]: ReactNode } = {
   pay: <CircleDollarSign />,
   upload: <ArrowUpFromLine />,
   items: <ShoppingBasket />,
-  tokens: <Gem />
+  tokens: <Gem />,
+  transfer: <ArrowLeftRight />
 }
 
 export const App = () => {
   const [currentTab, setCurrentTab] = useState(localStorage.getItem(TabKey) || 'balance')
   const { uploader, items, config } = useAppContext()
-  const { showBalanceTab, showCartTab, showPayTab, showSetCardTab, showTokenTab, showUploadTab } = config
+  const { showBalanceTab, showCartTab, showPayTab, showSetCardTab, showTokenTab, showUploadTab, showTransferTab } = config
   const currentTabIcon = TabIcons[currentTab] as ReactNode | undefined
   return (
     <Tabs
@@ -60,6 +62,7 @@ export const App = () => {
         {showBalanceTab && <AppTab tab="balance" child={<BalanceCheckPage />} />}
         {showSetCardTab && <AppTab tab="assign" child={<SetCardPage />} />}
         {showPayTab && <AppTab tab="pay" child={<PayPage />} />}
+        {showTransferTab && <AppTab tab="transfer" child={<TransferPage />} />}
         {showUploadTab && uploader && <AppTab tab="upload" child={<UploadPage />} />}
         {showCartTab && items.length > 0 && <AppTab tab="items" child={<ItemsPage />} />}
         {showTokenTab && items.length > 0 && <AppTab tab="tokens" child={<TokensPage />} />}
@@ -69,6 +72,7 @@ export const App = () => {
           {showBalanceTab && <AppTabTrigger tab="balance" child={TabIcons['balance']} />}
           {showSetCardTab && <AppTabTrigger tab="assign" child={TabIcons['assign']} />}
           {showPayTab && <AppTabTrigger tab="pay" child={TabIcons['pay']} />}
+          {showTransferTab && <AppTabTrigger tab="transfer" child={TabIcons['transfer']} />}
           {showUploadTab && uploader && <AppTabTrigger tab="upload" child={TabIcons['upload']} />}
           {showCartTab && items.length > 0 && <AppTabTrigger tab="items" child={TabIcons['items']} />}
           {showTokenTab && items.length > 0 && <AppTabTrigger tab="tokens" child={TabIcons['tokens']} />}

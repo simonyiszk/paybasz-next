@@ -26,7 +26,7 @@ export const ScanCardStep = ({
         </RotatedForCustomer>
         <h1 className="font-bold text-2xl pb-8 text-center">Érints kártyát az eszközhöz...</h1>
         {onAbort && (
-          <Button variant="destructive" onClick={onAbort}>
+          <Button variant="secondary" onClick={onAbort}>
             Vissza
           </Button>
         )}

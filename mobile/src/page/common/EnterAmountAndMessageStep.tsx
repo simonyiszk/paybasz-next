@@ -19,7 +19,7 @@ export const EnterAmountAndMessageStep = ({
   messagePlaceholder
 }: {
   messagePlaceholder: string
-  title: string
+  title?: string
   messageKey: string
   setAmount: (amount: number) => void
   setMessage: (message: string) => void
@@ -33,7 +33,7 @@ export const EnterAmountAndMessageStep = ({
 
   return (
     <>
-      <h1 className="font-bold text-2xl pb-2 text-center">{title}</h1>
+      {title && <h1 className="font-bold text-2xl pb-2 text-center">{title}</h1>}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit((data) => {

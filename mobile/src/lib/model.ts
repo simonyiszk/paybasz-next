@@ -13,6 +13,13 @@ export type PaymentRequest = ApiRequest & {
   details: string
 }
 
+export type TransferRequest = ApiRequest & {
+  recipient: string
+  sender: string
+  amount: number
+  details: string
+}
+
 export type CartItem = {
   id: number
   quantity: number

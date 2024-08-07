@@ -10,6 +10,7 @@ import {
   PaymentRequest,
   PaymentStatus,
   ReadingRequest,
+  TransferRequest,
   UserList
 } from '@/lib/model.ts'
 import { addHashedColor, post, sha256Hex } from '@/lib/utils.ts'
@@ -70,3 +71,5 @@ export const payCart = (data: CartCheckoutRequest): Promise<PaymentStatus> => po
 export const cardCheck = (data: ReadingRequest) => parseValidationStatus(post({ url: getUrl('card-check'), data }))
 
 export const upload = (data: PaymentRequest): Promise<PaymentStatus> => post({ url: getUrl('upload'), data })
+
+export const transfer = (data: TransferRequest): Promise<PaymentStatus> => post({ url: getUrl('transfer'), data })
