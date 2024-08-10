@@ -72,6 +72,7 @@ export const ConnectStep = ({ onReset, card, user }: { onReset: () => void; card
     </>
   )
 }
+
 const getMessageFromStatus = (status: number) => {
   switch (status) {
     case 404:

@@ -19,15 +19,17 @@ export const TransferAmountEnterStep = ({
     <>
       <h1 className="font-bold text-2xl pb-2 text-center">Add meg az átruházandó mennyiséget!</h1>
       <BalanceCheck loading={loading} setLoading={setLoading} card={sender} />
-      <EnterAmountAndMessageStep
-        messagePlaceholder="Miért kapja ez?"
-        messageKey="transferMessage"
-        setAmount={setAmount}
-        setMessage={setMessage}
-      />
-      <Button variant="secondary" className="mt-2" onClick={onAbort}>
-        Vissza
-      </Button>
+      <div className="w-full">
+        <EnterAmountAndMessageStep
+          messagePlaceholder="Miért kapja ez?"
+          messageKey="transferMessage"
+          setAmount={setAmount}
+          setMessage={setMessage}
+        />
+        <Button variant="secondary" className="mt-2 w-full" onClick={onAbort}>
+          Vissza
+        </Button>
+      </div>
     </>
   )
 }

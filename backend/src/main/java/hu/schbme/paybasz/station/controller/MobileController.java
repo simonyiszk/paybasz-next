@@ -189,6 +189,24 @@ public class MobileController {
 	}
 
 	@Transactional
+	@PostMapping("/transfer")
+	public PaymentStatus transfer(@RequestBody TransferRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
+			return PaymentStatus.UNAUTHORIZED_TERMINAL;
+		gateways.updateLastUsed(request.getGatewayName());
+		if (request.getAmount() < 0)
+			return PaymentStatus.INTERNAL_ERROR;
+
+		try {
+			return transactionService.transferFunds(request);
+		} catch (Exception e) {
+			log.error("Error during proceeding transfer", e);
+			logger.failure("Sikertelen átruházás: belső szerver hiba (terminál: " + request.getGatewayName() + ")");
+			return PaymentStatus.INTERNAL_ERROR;
+		}
+	}
+
+	@Transactional
 	@PostMapping("/reading")
 	public ValidationStatus reading(@RequestBody ReadingRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
