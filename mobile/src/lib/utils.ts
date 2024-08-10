@@ -40,9 +40,22 @@ export const post = async <T, R>({
 export const useNFCScanner = (onScan: (event: NDEFReadingEvent) => void, deps: DependencyList) => {
   const callback = useCallback(onScan, deps) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
+    let canProcessEvents = true
+    const eventListener = ((e: NDEFReadingEvent) => {
+      if (!canProcessEvents) {
+        e.stopImmediatePropagation()
+      } else {
+        callback(e)
+      }
+    }) as EventListenerOrEventListenerObject
+
     const ndef = new NDEFReader()
-    ndef.scan().then(() => ndef.addEventListener('reading', callback as EventListenerOrEventListenerObject))
-    return ndef.removeEventListener('reading', callback as EventListenerOrEventListenerObject)
+    ndef.scan().then(() => ndef.addEventListener('reading', eventListener, true))
+
+    return () => {
+      canProcessEvents = false
+      ndef.removeEventListener('reading', eventListener, true)
+    }
   }, [...deps, callback]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
