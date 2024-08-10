@@ -308,6 +308,9 @@ public class TransactionService {
 		accounts.save(recipient);
 		transactions.save(transaction);
 
+		logger.success("<badge>" + sender.getName() + "</badge> sikeres átruházás: <color>" + request.getAmount()
+				+ " JMF</color> <badge>" + recipient.getName() + "</badge> számára");
+
 		return PaymentStatus.ACCEPTED;
 	}
 

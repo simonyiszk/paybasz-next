@@ -28,6 +28,7 @@ public class ItemTokenService {
 	private final AccountService accountService;
 	private final ItemService itemService;
 	private final ImportConfig.CsvMapperProvider csvMapperProvider;
+	private final LoggingService logger;
 
 	@Transactional
 	public boolean giftItemToken(AccountEntity user, ItemEntity item, int count) {
@@ -58,6 +59,7 @@ public class ItemTokenService {
 		var token = itemTokenRepository.findItemToken(user.getId(), item.getId()).orElse(null);
 		if (token != null) {
 			log.info("Updated {} entries of {}:{} item tokens for {}", count, item.getId(), item.getName(), user.getName());
+			logger.success("<badge>" + user.getName() + "</badge> sikeres token mennyiség módosítás: <color>" + item.getName() + ", " + count + " darab</color>");
 			token.setCount(count);
 			itemTokenRepository.save(token);
 			return true;
@@ -65,6 +67,8 @@ public class ItemTokenService {
 
 		itemTokenRepository.save(new ItemTokenEntity(null, user.getId(), item.getId(), count));
 		log.info("Created {} entries of {}:{} item tokens for {}", count, item.getId(), item.getName(), user.getName());
+		logger.success("<badge>" + user.getName() + "</badge> sikeres token mennyiség módosítás: <color>" + item.getName() + ", " + count + " darab</color>");
+
 		return true;
 	}
 
@@ -112,6 +116,7 @@ public class ItemTokenService {
 
 		itemTokenRepository.addToItemTokenCount(user.getId(), item.getId(), -count);
 		log.info("Removed {} entries of {}:{} item tokens for {}", count, item.getId(), item.getName(), user.getName());
+		logger.success("<badge>" + user.getName() + "</badge> sikeres token beváltás: <color>" + item.getName() + ", " + count + " darab</color>");
 
 		return TokenClaimResult.SUCCESS;
 	}
