@@ -12,19 +12,19 @@ import { EnableRotatedForCustomerProvider } from '@/components/EnableRotatedForC
 const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')!).render(
-  // <StrictMode>
-  <EnableRotatedForCustomerProvider>
-    <ThemeProvider>
-      <NoNFCBanner>
-        <QueryClientProvider client={queryClient}>
-          <AppContextProvider>
-            <TerminalTypeInput>
-              <App />
-            </TerminalTypeInput>
-          </AppContextProvider>
-        </QueryClientProvider>
-      </NoNFCBanner>
-    </ThemeProvider>
-  </EnableRotatedForCustomerProvider>
-  // </StrictMode>
+  <StrictMode>
+    <EnableRotatedForCustomerProvider>
+      <ThemeProvider>
+        <NoNFCBanner>
+          <QueryClientProvider client={queryClient}>
+            <AppContextProvider>
+              <TerminalTypeInput>
+                <App />
+              </TerminalTypeInput>
+            </AppContextProvider>
+          </QueryClientProvider>
+        </NoNFCBanner>
+      </ThemeProvider>
+    </EnableRotatedForCustomerProvider>
+  </StrictMode>
 )
