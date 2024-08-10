@@ -165,6 +165,7 @@ export const paymentStatuses = [
   'NOT_ENOUGH_CASH',
   'VALIDATION_ERROR',
   'CARD_REJECTED',
+  'NOT_ENOUGH_TOKENS',
   'UNAUTHORIZED_TERMINAL'
 ] as const
 export type PaymentStatus = (typeof paymentStatuses)[number]

@@ -241,11 +241,21 @@ public class MobileController {
 		}
 
 		try {
-			boolean hasClaimedToken = itemTokenService.claimItemToken(account.get(), item.get(), 1);
-			if (hasClaimedToken) {
-				return PaymentStatus.ACCEPTED;
+			var result = itemTokenService.claimItemToken(account.get(), item.get(), 1);
+			switch (result) {
+				case SUCCESS -> {
+					return PaymentStatus.ACCEPTED;
+				}
+				case NOT_ENOUGH_TOKENS -> {
+					return PaymentStatus.NOT_ENOUGH_TOKENS;
+				}
+				case NO_TOKEN -> {
+					return PaymentStatus.NOT_ENOUGH_CASH;
+				}
+				default -> {
+					return PaymentStatus.VALIDATION_ERROR;
+				}
 			}
-			return PaymentStatus.NOT_ENOUGH_CASH;
 		} catch (Exception e) {
 			logger.failure("Sikertelen token beváltása " + request.getItemId());
 			return PaymentStatus.INTERNAL_ERROR;

@@ -81,7 +81,7 @@ export const App = () => {
       {currentTabIcon && (
         <div
           aria-hidden={true}
-          className="absolute overflow-hidden translate-x-0 -z-10 opacity-[2.25%] dark:opacity-[0.75%] scale-[20] bottom-[25%] right-[25%]"
+          className="absolute overflow-hidden translate-x-0 -z-10 opacity-[1.75%] dark:opacity-[0.75%] scale-[20] bottom-[25%] right-[25%]"
         >
           {currentTabIcon}
         </div>

@@ -8,7 +8,17 @@ import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import CheckAnimation from '@/components/CheckAnimation.tsx'
 
-export const ClaimTokenStep = ({ item, card, onReset }: { item: Item; card: string; onReset: () => void }) => {
+export const ClaimTokenStep = ({
+  item,
+  card,
+  onReset,
+  onBackToScan
+}: {
+  item: Item
+  card: string
+  onReset: () => void
+  onBackToScan: () => void
+}) => {
   const { gatewayCode, gatewayName } = useAppContext()
   const [retries, setRetries] = useState(0)
   const [status, setStatus] = useState<PaymentStatus>()
@@ -60,6 +70,9 @@ export const ClaimTokenStep = ({ item, card, onReset }: { item: Item; card: stri
       <h1 className={cn('font-bold text-2xl pb-2 text-center', status !== 'ACCEPTED' && 'text-destructive')}>
         {getMessageFromStatus(status)}
       </h1>
+      <Button className="w-full mt-2" onClick={onBackToScan}>
+        Még egy ilyet
+      </Button>
       <Button variant="secondary" className="w-full mt-2" onClick={onReset}>
         Új beolvasás
       </Button>
@@ -74,6 +87,8 @@ export const ClaimTokenStep = ({ item, card, onReset }: { item: Item; card: stri
 
 const getMessageFromStatus = (status: PaymentStatus) => {
   switch (status) {
+    case 'NOT_ENOUGH_TOKENS':
+      return 'A felhasználó elhasználta a tokenjét!'
     case 'NOT_ENOUGH_CASH':
       return 'A felhasználó nem rendelkezik ilyen tokennel!'
     case 'VALIDATION_ERROR':
