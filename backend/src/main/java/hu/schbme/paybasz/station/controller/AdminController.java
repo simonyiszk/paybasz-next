@@ -41,7 +41,7 @@ public class AdminController {
 		model.addAttribute("txCount", transactionService.getTransactionCount());
 		model.addAttribute("sumOfIncome", formatNumber(transactionService.getSumOfIncome()));
 
-		model.addAttribute("logs", logger.getEntries());
+		model.addAttribute("logs", logger.getEntriesOrderedByDate());
 
 		model.addAttribute("sumOfLoans", formatNumber(accountService.getSumOfLoans()));
 		model.addAttribute("sumOfBalances", formatNumber(accountService.getSumOfBalances()));

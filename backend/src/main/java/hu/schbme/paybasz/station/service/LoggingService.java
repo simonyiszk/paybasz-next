@@ -1,6 +1,5 @@
 package hu.schbme.paybasz.station.service;
 
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import hu.schbme.paybasz.station.config.ImportConfig;
 import hu.schbme.paybasz.station.dto.LogSeverity;
 import hu.schbme.paybasz.station.dto.LoggingEntry;
@@ -59,6 +58,10 @@ public class LoggingService {
 				.writeAll(entries)
 				.close();
 		return writer.toString().replace("&nbsp;", " ");
+	}
+
+	public List<LoggingEntry> getEntriesOrderedByDate() {
+		return entries.reversed();
 	}
 
 }
