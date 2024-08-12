@@ -67,8 +67,7 @@ export const pay = (data: PaymentRequest): Promise<PaymentStatus> => post({ url:
 
 export const payCart = (data: CartCheckoutRequest): Promise<PaymentStatus> => post({ url: getUrl('checkout'), data })
 
-// returns true if the card is assigned
-export const cardCheck = (data: ReadingRequest) => parseValidationStatus(post({ url: getUrl('card-check'), data }))
+export const isCardAssigned = (data: ReadingRequest) => parseValidationStatus(post({ url: getUrl('card-check'), data }))
 
 export const upload = (data: PaymentRequest): Promise<PaymentStatus> => post({ url: getUrl('upload'), data })
 

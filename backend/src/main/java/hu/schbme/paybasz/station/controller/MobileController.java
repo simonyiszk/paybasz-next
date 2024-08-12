@@ -337,10 +337,12 @@ public class MobileController {
 				account.getName());
 		logger.action("<color>" + account.getName() + "</color> felhasználóhoz kártya rendelve: <badge>"
 				+ request.getCard() + "</badge>  (terminál: " + request.getGatewayName() + ")");
+
 		accounts.save(account);
-		if (currentHolder.isPresent() && !Objects.equals(currentHolder.get().getId(), account.getId())) {
-			accounts.save(currentHolder.get());
-		}
+		currentHolder
+				.filter(holder -> !Objects.equals(holder.getId(), account.getId()))
+				.ifPresent(accounts::save);
+
 		return ResponseEntity.ok(account);
 	}
 

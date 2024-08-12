@@ -1,4 +1,4 @@
-import { cardCheck } from '@/lib/api.ts'
+import { isCardAssigned } from '@/lib/api.ts'
 import { useAppContext } from '@/hooks/useAppContext'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button.tsx'
@@ -11,7 +11,7 @@ export const CardCheckStep = ({ onReset, onProceed, card }: { onReset: () => voi
 
   useEffect(() => {
     sha256Hex(card)
-      .then((cardHash) => cardCheck({ gatewayName, card: cardHash, gatewayCode }))
+      .then((cardHash) => isCardAssigned({ gatewayName, card: cardHash, gatewayCode }))
       .then((cardAssigned) => {
         if (!cardAssigned) {
           onProceed()
@@ -19,7 +19,7 @@ export const CardCheckStep = ({ onReset, onProceed, card }: { onReset: () => voi
           setShowPrompt(true)
         }
       })
-  }, [card, gatewayName, gatewayCode])
+  }, [card, gatewayName, gatewayCode, onProceed])
 
   if (!showPrompt)
     return (

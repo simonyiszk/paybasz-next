@@ -78,7 +78,7 @@ export const ClaimTokenStep = ({
       </Button>
     </>
   )
-  if (status == 'ACCEPTED') {
+  if (status === 'ACCEPTED') {
     return <CheckAnimation>{confirmation}</CheckAnimation>
   }
 

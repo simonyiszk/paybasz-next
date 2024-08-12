@@ -62,7 +62,7 @@ export const PayStep = ({ onReset, card, amount, message }: { onReset: () => voi
       </Button>
     </>
   )
-  if (status == 'ACCEPTED') {
+  if (status === 'ACCEPTED') {
     return <CheckAnimation>{data}</CheckAnimation>
   }
   return data

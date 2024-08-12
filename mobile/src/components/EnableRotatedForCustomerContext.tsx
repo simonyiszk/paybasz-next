@@ -2,7 +2,7 @@ import { FC, PropsWithChildren, useState } from 'react'
 import { RotateEnabledContext } from '@/hooks/useEnableRotatedForCustomer.ts'
 
 const EnabledKey = 'enableRotated'
-const getEnabled = () => localStorage.getItem(EnabledKey) != 'no'
+const getEnabled = () => localStorage.getItem(EnabledKey) !== 'no'
 const saveEnabled = (value: boolean) => localStorage.setItem(EnabledKey, value ? 'yes' : 'no')
 
 export const EnableRotatedForCustomerProvider: FC<PropsWithChildren> = ({ children }) => {

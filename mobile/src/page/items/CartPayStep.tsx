@@ -91,7 +91,7 @@ export const CartPayStep = ({
       </Button>
     </>
   )
-  if (status == 'ACCEPTED') {
+  if (status === 'ACCEPTED') {
     return <CheckAnimation>{confirmation}</CheckAnimation>
   }
 
