@@ -53,6 +53,7 @@ export const CartEditStep = ({
               key={`custom-${item.name}_${item.price}`}
               name={item.name}
               price={item.price}
+              color="#00000000"
               isDeletedAfterRemovingAll={true}
               inStock={Infinity} // there is no stock on custom items
               addItem={() => onCustomItemAdded(item)}
@@ -73,6 +74,7 @@ export const CartEditStep = ({
               key={item.item.id}
               name={item.item.name}
               price={item.item.price}
+              color={item.item.color}
               isDeletedAfterRemovingAll={true}
               inStock={item.item.quantity}
               addItem={() => onItemAdded(item.item)}

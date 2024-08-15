@@ -20,11 +20,6 @@ public interface ItemTokenRepository extends JpaRepository<ItemTokenEntity, Inte
 	@Query("update ItemTokenEntity t set t.count = (t.count + ?3) where t.userId = ?1 and t.itemId = ?2")
 	void addToItemTokenCount(Integer userId, Integer itemId, Integer amount);
 
-	@Modifying
-	@Transactional
-	@Query("delete from ItemTokenEntity t where t.userId = ?1 and t.itemId = ?2")
-	int deleteItemToken(Integer userId, Integer itemId);
-
 	@Query("select new hu.schbme.paybasz.station.dto.ItemTokenView(t.id, i.id, i.name, a.id, a.name, t.count) " +
 			"from ItemTokenEntity t " +
 			"inner join ItemEntity i on t.itemId = i.id " +

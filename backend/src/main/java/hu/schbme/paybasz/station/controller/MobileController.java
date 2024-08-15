@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
@@ -57,6 +58,8 @@ public class MobileController {
 					.toList();
 			final var response = AppResponse.builder()
 					.isUploader(isUploader)
+					.canReassignCards(isUploader)
+					.canTransferFunds(true)
 					.items(items)
 					.mobileConfig(ConfigMapper.INSTANCE.toView(mobileConfig))
 					.build();
@@ -109,8 +112,11 @@ public class MobileController {
 	@Transactional
 	@PostMapping("/upload")
 	public PaymentStatus upload(@RequestBody PaymentRequest request) {
-		if (!gateways.authorizeUploaderGateway(request.getGatewayName(), request.getGatewayCode()))
+		if (!gateways.authorizeUploaderGateway(request.getGatewayName(), request.getGatewayCode())) {
+			log.warn("Unauthorized gateway '{}' with token '{}'", request.getGatewayName(), request.getGatewayCode());
+			logger.failure("Nem jogosult terminál: <color>" + request.getGatewayName() + "</color>");
 			return PaymentStatus.UNAUTHORIZED_TERMINAL;
+		}
 		gateways.updateLastUsed(request.getGatewayName());
 		if (request.getAmount() < 0)
 			return PaymentStatus.INTERNAL_ERROR;
@@ -183,6 +189,24 @@ public class MobileController {
 	}
 
 	@Transactional
+	@PostMapping("/transfer")
+	public PaymentStatus transfer(@RequestBody TransferRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
+			return PaymentStatus.UNAUTHORIZED_TERMINAL;
+		gateways.updateLastUsed(request.getGatewayName());
+		if (request.getAmount() < 0)
+			return PaymentStatus.INTERNAL_ERROR;
+
+		try {
+			return transactionService.transferFunds(request);
+		} catch (Exception e) {
+			log.error("Error during proceeding transfer", e);
+			logger.failure("Sikertelen átruházás: belső szerver hiba (terminál: " + request.getGatewayName() + ")");
+			return PaymentStatus.INTERNAL_ERROR;
+		}
+	}
+
+	@Transactional
 	@PostMapping("/reading")
 	public ValidationStatus reading(@RequestBody ReadingRequest request) {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
@@ -195,6 +219,24 @@ public class MobileController {
 		gateways.appendReading(request.getGatewayName(), request.getCard().toUpperCase());
 		gateways.updateLastUsed(request.getGatewayName());
 		return ValidationStatus.OK;
+	}
+
+	@Transactional
+	@PostMapping("/card-check")
+	public ValidationStatus cardCheck(@RequestBody ReadingRequest request) {
+		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
+			return ValidationStatus.INVALID;
+
+		log.info("Card check from gateway '{}' card hash: '{}'", request.getGatewayName(),
+				request.getCard().toUpperCase());
+		logger.action("Kártya ellenőrzés történt: <badge>" + request.getCard().toUpperCase() + "</badge> (terminál: "
+				+ request.getGatewayName() + ")");
+
+		gateways.updateLastUsed(request.getGatewayName());
+		if (accounts.findByCard(request.getCard().toUpperCase()).isPresent())
+			return ValidationStatus.OK;
+
+		return ValidationStatus.INVALID;
 	}
 
 	@Transactional
@@ -217,11 +259,21 @@ public class MobileController {
 		}
 
 		try {
-			boolean hasClaimedToken = itemTokenService.claimItemToken(account.get(), item.get(), 1);
-			if (hasClaimedToken) {
-				return PaymentStatus.ACCEPTED;
+			var result = itemTokenService.claimItemToken(account.get(), item.get(), 1);
+			switch (result) {
+				case SUCCESS -> {
+					return PaymentStatus.ACCEPTED;
+				}
+				case NOT_ENOUGH_TOKENS -> {
+					return PaymentStatus.NOT_ENOUGH_TOKENS;
+				}
+				case NO_TOKEN -> {
+					return PaymentStatus.NOT_ENOUGH_CASH;
+				}
+				default -> {
+					return PaymentStatus.VALIDATION_ERROR;
+				}
 			}
-			return PaymentStatus.NOT_ENOUGH_CASH;
 		} catch (Exception e) {
 			logger.failure("Sikertelen token beváltása " + request.getItemId());
 			return PaymentStatus.INTERNAL_ERROR;
@@ -260,16 +312,24 @@ public class MobileController {
 		if (!gateways.authorizeGateway(request.getGatewayName(), request.getGatewayCode()))
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
+		var canReassign = gateways.authorizeUploaderGateway(request.getGatewayName(), request.getGatewayCode());
+
 		gateways.updateLastUsed(request.getGatewayName());
 
-		if (accounts.findByCard(request.getCard().toUpperCase()).isPresent())
-			return ResponseEntity.status(HttpStatus.CONFLICT).build();// card is already assigned
+		var currentHolder = accounts.findByCard(request.getCard().toUpperCase());
+		if (currentHolder.isPresent()) {
+			if (!canReassign) {
+				return ResponseEntity.status(HttpStatus.CONFLICT).build();// card is already assigned
+			}
+			currentHolder.get().setCard("");
+		}
 
 		Optional<AccountEntity> user = accounts.findById(request.getUserId());
 		if (user.isEmpty())
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
 		final var account = user.get();
-		if (!account.getCard().isEmpty())
+		if (!account.getCard().isEmpty() && !canReassign)
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // User already has a card assigned
 
 		account.setCard(request.getCard().toUpperCase());
@@ -277,7 +337,12 @@ public class MobileController {
 				account.getName());
 		logger.action("<color>" + account.getName() + "</color> felhasználóhoz kártya rendelve: <badge>"
 				+ request.getCard() + "</badge>  (terminál: " + request.getGatewayName() + ")");
+
 		accounts.save(account);
+		currentHolder
+				.filter(holder -> !Objects.equals(holder.getId(), account.getId()))
+				.ifPresent(accounts::save);
+
 		return ResponseEntity.ok(account);
 	}
 

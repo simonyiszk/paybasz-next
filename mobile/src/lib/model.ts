@@ -13,9 +13,11 @@ export type PaymentRequest = ApiRequest & {
   details: string
 }
 
-export type ItemPurchaseRequest = ApiRequest & {
-  id: number
-  card: string
+export type TransferRequest = ApiRequest & {
+  recipient: string
+  sender: string
+  amount: number
+  details: string
 }
 
 export type CartItem = {
@@ -77,6 +79,7 @@ export type BalanceResponse = {
   email: string
   balance: number
   maxLoan: number
+  color: string
 }
 
 export type Item = {
@@ -86,12 +89,15 @@ export type Item = {
   code: string
   abbreviation: string
   price: number
+  color: string
 }
 
 export type AppRequest = ApiRequest
 
 export type AppResponse = {
   uploader: boolean
+  canReassignCards: boolean
+  canTransferFunds: boolean
   items: Item[]
   mobileConfig: MobileConfig
 }
@@ -103,6 +109,7 @@ export type MobileConfig = {
   showSetCardTab: boolean
   showCartTab: boolean
   showTokenTab: boolean
+  showTransferTab: boolean
 }
 
 export type UserListItem = {
@@ -110,6 +117,7 @@ export type UserListItem = {
   name: string
   email: string
   hasCardAssigned: boolean
+  color: string
 }
 
 export enum statusEnum {
@@ -157,6 +165,7 @@ export const paymentStatuses = [
   'NOT_ENOUGH_CASH',
   'VALIDATION_ERROR',
   'CARD_REJECTED',
+  'NOT_ENOUGH_TOKENS',
   'UNAUTHORIZED_TERMINAL'
 ] as const
 export type PaymentStatus = (typeof paymentStatuses)[number]

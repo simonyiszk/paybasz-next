@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { useNFCScanner } from '@/lib/utils.ts'
+import { RotatedForCustomer } from '@/components/RotatedForCustomer.tsx'
 
 export const ScanCardStep = ({
   setCard,
@@ -12,7 +13,6 @@ export const ScanCardStep = ({
   message?: string
   onAbort?: () => void
 }) => {
-  console.log(setCard)
   useNFCScanner((event) => {
     setCard(event.serialNumber)
   }, [])
@@ -20,11 +20,13 @@ export const ScanCardStep = ({
   return (
     <>
       <div className="flex flex-col gap-4 relative flex-1">
-        {message && <h1 className="font-bold text-2xl text-center">{message}</h1>}
-        {amount && <h1 className="font-bold text-2xl text-center">{amount} JMF</h1>}
+        <RotatedForCustomer>
+          {message && <h1 className="font-bold text-2xl text-center">{message}</h1>}
+          {amount && <h1 className="font-bold text-2xl text-center">{amount} JMF</h1>}
+        </RotatedForCustomer>
         <h1 className="font-bold text-2xl pb-8 text-center">Érints kártyát az eszközhöz...</h1>
         {onAbort && (
-          <Button variant="destructive" onClick={onAbort}>
+          <Button variant="secondary" onClick={onAbort}>
             Vissza
           </Button>
         )}

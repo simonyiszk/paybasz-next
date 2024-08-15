@@ -9,6 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { Toggle } from '@/components/ui/toggle.tsx'
+import { ColorMarker } from '@/components/ColorMarker.tsx'
 
 const itemNameSchema = z.object({ name: z.string().optional() })
 
@@ -39,6 +40,7 @@ export const ItemSearchStep = ({ setItem }: { setItem: (item: Item) => void }) =
 
   return (
     <>
+      <h1 className="font-bold text-2xl pb-2 text-center">Token beváltása</h1>
       <Form {...form}>
         <form
           onChange={form.handleSubmit((data) => {
@@ -92,13 +94,14 @@ const ItemCardGrid = ({
       <div className="grid grid-cols-[repeat(auto-fit,_minmax(175px,1fr))] gap-2 justify-center pb-2">
         {suggestions.map((suggestion) => (
           <Toggle
-            className="px-4 py-2 flex flex-col"
+            className="px-4 py-2 flex flex-col relative overflow-clip"
             variant="outline"
             size="unset"
             key={suggestion.id}
             pressed={selectedItem?.id === suggestion.id}
             onPressedChange={() => setSelectedItem(suggestion)}
           >
+            <ColorMarker color={suggestion.color} />
             <span className="text-wrap">{suggestion.name}</span>
             <small className="text-wrap">{suggestion.abbreviation}</small>
           </Toggle>

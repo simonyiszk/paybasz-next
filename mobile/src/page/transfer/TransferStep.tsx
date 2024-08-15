@@ -1,26 +1,48 @@
-import { useAppContext } from '@/hooks/useAppContext'
+import { useAppContext } from '@/hooks/useAppContext.ts'
 import { useEffect, useState } from 'react'
 import { PaymentStatus } from '@/lib/model.ts'
-import { pay } from '@/lib/api.ts'
+import { cn, sha256Hex } from '@/lib/utils.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { LoadingIndicator } from '@/components/LoadingIndicator.tsx'
 import { BalanceCheck } from '@/page/common/BalanceCheck.tsx'
-import { cn, sha256Hex } from '@/lib/utils.ts'
-import CheckAnimation from '@/components/CheckAnimation'
+import CheckAnimation from '@/components/CheckAnimation.tsx'
+import { transfer } from '@/lib/api.ts'
 
-export const PayStep = ({ onReset, card, amount, message }: { onReset: () => void; card: string; amount: number; message: string }) => {
+export const TransferStep = ({
+  amount,
+  message,
+  sender,
+  recipient,
+  onReset
+}: {
+  amount: number
+  message: string
+  sender: string
+  recipient: string
+  onReset: () => void
+}) => {
   const { gatewayCode, gatewayName } = useAppContext()
   const [retries, setRetries] = useState(0)
   const [status, setStatus] = useState<PaymentStatus>()
   const [error, setError] = useState<string>()
-  const [balanceCheckLoading, setBalanceCheckLoading] = useState(false)
+  const [senderBalanceLoading, setSenderBalanceLoading] = useState(false)
+  const [recipientBalanceLoading, setRecipientBalanceLoading] = useState(false)
 
   useEffect(() => {
-    sha256Hex(card)
-      .then((cardHash) => pay({ gatewayName, details: message, card: cardHash, gatewayCode, amount }))
+    Promise.all([sha256Hex(sender), sha256Hex(recipient)])
+      .then(([sender, recipient]) =>
+        transfer({
+          gatewayName,
+          details: message,
+          sender,
+          recipient,
+          gatewayCode,
+          amount
+        })
+      )
       .then(setStatus)
-      .catch(() => setError('A fizetés sikertelen!'))
-  }, [card, amount, message, retries, gatewayName, gatewayCode])
+      .catch(() => setError('Az átruházás sikertelen!'))
+  }, [sender, recipient, amount, message, retries, gatewayName, gatewayCode])
 
   if (error)
     return (
@@ -45,7 +67,7 @@ export const PayStep = ({ onReset, card, amount, message }: { onReset: () => voi
   if (!status)
     return (
       <>
-        <h1 className="font-bold text-2xl pb-2 text-center">Tranzakció folyamatban...</h1>
+        <h1 className="font-bold text-2xl pb-2 text-center">Átruházás folyamatban...</h1>
         <div className="mt-4">
           <LoadingIndicator />
         </div>
@@ -56,13 +78,14 @@ export const PayStep = ({ onReset, card, amount, message }: { onReset: () => voi
       <h1 className={cn('font-bold text-2xl pb-2 text-center', status !== 'ACCEPTED' && 'text-destructive')}>
         {getMessageFromStatus(status)}
       </h1>
-      <BalanceCheck card={card} loading={balanceCheckLoading} setLoading={setBalanceCheckLoading} />
+      <BalanceCheck card={sender} loading={senderBalanceLoading} setLoading={setSenderBalanceLoading} />
+      <BalanceCheck card={recipient} loading={recipientBalanceLoading} setLoading={setRecipientBalanceLoading} />
       <Button variant="secondary" className="w-full" onClick={onReset}>
         Új tranzakció
       </Button>
     </>
   )
-  if (status === 'ACCEPTED') {
+  if (status == 'ACCEPTED') {
     return <CheckAnimation>{data}</CheckAnimation>
   }
   return data
@@ -71,16 +94,16 @@ export const PayStep = ({ onReset, card, amount, message }: { onReset: () => voi
 const getMessageFromStatus = (status: PaymentStatus) => {
   switch (status) {
     case 'NOT_ENOUGH_CASH':
-      return 'Nincs elég egyenleg a tranzakcióhoz!'
+      return 'Nincs elég egyenleg az átruházáshoz!'
     case 'VALIDATION_ERROR':
       return 'Validációs hiba!'
     case 'CARD_REJECTED':
       return 'Kártya elutasítva!'
     case 'ACCEPTED':
-      return 'Sikeres tranzakció!'
+      return 'Sikeres átruházás!'
     case 'INTERNAL_ERROR':
       return 'Váratlan hiba.'
     default:
-      return 'Nincs jogosultságod tranzakciók végrehajtásához!'
+      return 'Nincs jogosultságod átruházás végrehajtásához!'
   }
 }

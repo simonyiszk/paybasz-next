@@ -15,5 +15,6 @@ public class MobileConfigView {
 	private boolean showSetCardTab;
 	private boolean showCartTab;
 	private boolean showTokenTab;
+	private boolean showTransferTab;
 
 }

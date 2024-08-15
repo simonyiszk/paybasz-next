@@ -1,4 +1,3 @@
-import { statusEnum } from '@/lib/model.ts'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { DependencyList, useCallback, useEffect } from 'react'
@@ -38,26 +37,29 @@ export const post = async <T, R>({
     return (asJson ? res.json() : res.text()) as Promise<R>
   })
 
-export const scanNFC = (setStatus: React.Dispatch<React.SetStateAction<statusEnum>>) =>
-  new Promise<NDEFReadingEvent>((resolve, reject) => {
-    setStatus(statusEnum.WAITING_FOR_CARD)
-    const ndef = new NDEFReader()
-    ndef.scan().then(() => {
-      ndef.addEventListener('reading', (e) => resolve(e as NDEFReadingEvent), { once: true })
-      ndef.addEventListener('readingerror', reject, { once: true })
-    })
-  })
-
 export const useNFCScanner = (onScan: (event: NDEFReadingEvent) => void, deps: DependencyList) => {
   const callback = useCallback(onScan, deps) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
+    let canProcessEvents = true
+    const eventListener = ((e: NDEFReadingEvent) => {
+      if (!canProcessEvents) {
+        e.stopImmediatePropagation()
+      } else {
+        callback(e)
+      }
+    }) as EventListenerOrEventListenerObject
+
     const ndef = new NDEFReader()
-    ndef.scan().then(() => ndef.addEventListener('reading', callback as EventListenerOrEventListenerObject))
-    return ndef.removeEventListener('reading', callback as EventListenerOrEventListenerObject)
+    ndef.scan().then(() => ndef.addEventListener('reading', eventListener, true))
+
+    return () => {
+      canProcessEvents = false
+      ndef.removeEventListener('reading', eventListener, true)
+    }
   }, [...deps, callback]) // eslint-disable-line react-hooks/exhaustive-deps
 }
 
-export async function sha256(message: string) {
+export async function sha256Hex(message: string) {
   const msgBuffer = new TextEncoder().encode(message)
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
@@ -65,6 +67,14 @@ export async function sha256(message: string) {
 
   return hashHex.toUpperCase()
 }
+
+export const addHashedColor = async <T>(data: T[], selector: (item: T) => string): Promise<T[]> =>
+  Promise.all(
+    data.map(async (item) => ({
+      ...item,
+      color: '#' + (await sha256Hex(selector(item))).substring(0, 6)
+    }))
+  )
 
 const replaceSpecialChars = (text: string) => text.normalize('NFKD').replace(/\W/g, '')
 

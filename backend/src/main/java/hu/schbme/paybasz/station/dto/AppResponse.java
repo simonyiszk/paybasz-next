@@ -11,8 +11,10 @@ import java.util.List;
 @AllArgsConstructor
 public class AppResponse {
 
-	final boolean isUploader;
-	final List<ItemView> items;
-	final MobileConfigView mobileConfig;
+	private final boolean isUploader;
+	private final boolean canReassignCards;
+	private final boolean canTransferFunds;
+	private final List<ItemView> items;
+	private final MobileConfigView mobileConfig;
 
 }

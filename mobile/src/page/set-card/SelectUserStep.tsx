@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button.tsx'
 import { Toggle } from '@/components/ui/toggle.tsx'
 import { CircleAlert } from 'lucide-react'
+import { ColorMarker } from '@/components/ColorMarker.tsx'
 
 export const SelectUserStep = ({ setUser }: { setUser: (userId: UserListItem) => void }) => {
   const { gatewayName, gatewayCode } = useAppContext()
@@ -43,6 +44,7 @@ export const SelectUserStep = ({ setUser }: { setUser: (userId: UserListItem) =>
 const userNameSchema = z.object({ name: z.string().optional() })
 
 const SelectUser = ({ users, setUser }: { users: UserList; setUser: (userId: UserListItem) => void }) => {
+  const { canReassignCards } = useAppContext()
   const form = useForm<z.infer<typeof userNameSchema>>({
     resolver: zodResolver(userNameSchema),
     defaultValues: { name: '' }
@@ -53,14 +55,18 @@ const SelectUser = ({ users, setUser }: { users: UserList; setUser: (userId: Use
   const [selectedUser, setSelectedUser] = useState<UserListItem>()
 
   useEffect(() => {
+    let haystack = users
+    if (!canReassignCards) {
+      haystack = users.filter((user) => !user.hasCardAssigned)
+    }
     if (!needle) {
-      setSuggestions(users)
+      setSuggestions(haystack)
       return
     }
 
-    const newSuggestions = fuzzySearch({ needle, haystack: users, getText: (user) => user.name + user.email })
+    const newSuggestions = fuzzySearch({ needle, haystack, getText: (user) => user.name + user.email })
     setSuggestions(newSuggestions)
-  }, [users, needle])
+  }, [users, needle, canReassignCards])
 
   return (
     <>
@@ -118,14 +124,15 @@ const UserCardGrid = ({
       <div className="grid grid-cols-[repeat(auto-fit,_minmax(175px,1fr))] gap-2 justify-center pb-2">
         {suggestions.map((suggestion) => (
           <Toggle
-            className="px-4 py-2 flex flex-col relative"
+            className="px-4 py-2 flex flex-col relative overflow-clip"
             variant="outline"
             size="unset"
             key={suggestion.id}
             pressed={selectedUser?.id === suggestion.id}
             onPressedChange={() => setSelectedUser(suggestion)}
           >
-            {suggestion?.hasCardAssigned && <CircleAlert className="h-3 absolute top-0 right-0 m-2" />}
+            <ColorMarker color={suggestion.color} />
+            {suggestion?.hasCardAssigned && <CircleAlert className="absolute w-5 h-5 top-2 right-2" />}
             <span className="text-wrap">{suggestion.name}</span>
             <small className="text-wrap">{suggestion.email}</small>
           </Toggle>

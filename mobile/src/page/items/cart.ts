@@ -75,7 +75,7 @@ export const removeCustomItem = (cart: Cart, item: CustomItem): Cart => {
   if (existingItem !== undefined) {
     existingItem.quantity--
     if (existingItem.quantity <= 0) {
-      itemsCopy = itemsCopy.filter((existing) => existing.name !== item.name || existing.price != item.price)
+      itemsCopy = itemsCopy.filter((existing) => existing.name !== item.name || existing.price !== item.price)
     }
   } else {
     return cart

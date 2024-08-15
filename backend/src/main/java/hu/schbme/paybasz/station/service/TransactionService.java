@@ -1,11 +1,7 @@
 package hu.schbme.paybasz.station.service;
 
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import hu.schbme.paybasz.station.config.ImportConfig;
-import hu.schbme.paybasz.station.dto.Cart;
-import hu.schbme.paybasz.station.dto.CartItem;
-import hu.schbme.paybasz.station.dto.CustomCartItem;
-import hu.schbme.paybasz.station.dto.PaymentStatus;
+import hu.schbme.paybasz.station.dto.*;
 import hu.schbme.paybasz.station.model.AccountEntity;
 import hu.schbme.paybasz.station.model.ItemEntity;
 import hu.schbme.paybasz.station.model.TransactionEntity;
@@ -22,6 +18,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -280,7 +277,44 @@ public class TransactionService {
 		return writer.toString();
 	}
 
-	Optional<PaymentStatus> checkAccount(Optional<AccountEntity> possibleAccount, String gateway) {
+	@Transactional
+	public PaymentStatus transferFunds(TransferRequest request) {
+		if (request.getAmount() <= 0) return PaymentStatus.VALIDATION_ERROR;
+
+		Optional<AccountEntity> possibleSender = this.accounts.findByCard(request.getSender().toUpperCase());
+		var senderAccountCheck = checkAccount(possibleSender, request.getGatewayName());
+		if (senderAccountCheck.isPresent()) return senderAccountCheck.get();
+
+		Optional<AccountEntity> possibleRecipient = this.accounts.findByCard(request.getRecipient().toUpperCase());
+		var recipientAccountCheck = checkAccount(possibleRecipient, request.getGatewayName());
+		if (recipientAccountCheck.isPresent()) return recipientAccountCheck.get();
+
+		var sender = possibleSender.get();
+		var recipient = possibleRecipient.get();
+		if (Objects.equals(sender.getId(), recipient.getId())) return PaymentStatus.VALIDATION_ERROR;
+
+		if (sender.getBalance() - request.getAmount() < sender.getMinimumBalance()) {
+			logger.failure("Sikertelen átruházás: <color>" + sender.getName() + ", nincs elég fedezet</color>");
+			return PaymentStatus.NOT_ENOUGH_CASH;
+		}
+
+		var transaction = new TransactionEntity(null, System.currentTimeMillis(), sender.getCard(), sender.getId(),
+				sender.getName(), sender.getName() + " transferred " + request.getAmount() + " to " + recipient.getName(),
+				request.getAmount(), request.getDetails(), WEB_TERMINAL_NAME, recipient.getCard(), true);
+
+		sender.setBalance(sender.getBalance() - request.getAmount());
+		recipient.setBalance(recipient.getBalance() + request.getAmount());
+		accounts.save(sender);
+		accounts.save(recipient);
+		transactions.save(transaction);
+
+		logger.success("<badge>" + sender.getName() + "</badge> sikeres átruházás: <color>" + request.getAmount()
+				+ " JMF</color> <badge>" + recipient.getName() + "</badge> számára");
+
+		return PaymentStatus.ACCEPTED;
+	}
+
+	private Optional<PaymentStatus> checkAccount(Optional<AccountEntity> possibleAccount, String gateway) {
 		if (possibleAccount.isEmpty()) {
 			logger.failure("Sikertelen Tranzakció: <color>kártya nem található</color> " + "(terminál: " + gateway + ")");
 			return Optional.of(PaymentStatus.VALIDATION_ERROR);

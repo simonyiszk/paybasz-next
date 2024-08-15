@@ -2,10 +2,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { cn, compactFormat, formatNumber } from '@/lib/utils.ts'
 import { Button } from '@/components/ui/button.tsx'
 import { Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react'
+import { ColorMarker } from '@/components/ColorMarker.tsx'
 
 export const ItemCard = ({
   name,
   price,
+  color,
   inStock,
   isDeletedAfterRemovingAll,
   addItem,
@@ -14,6 +16,7 @@ export const ItemCard = ({
 }: {
   name: string
   price: number
+  color: string
   inStock: number
   isDeletedAfterRemovingAll: boolean
   addItem: () => void
@@ -24,7 +27,8 @@ export const ItemCard = ({
   const remainingQuantity = inStock - quantityInCart
   return (
     <div className="relative overflow-hidden h-full">
-      <Card className={cn('h-full flex flex-col', noStock && 'opacity-35')}>
+      <Card className={cn('h-full flex flex-col relative overflow-clip', noStock && 'opacity-35')}>
+        <ColorMarker color={color} />
         <CardHeader>
           <CardTitle>{name}</CardTitle>
           <CardDescription>

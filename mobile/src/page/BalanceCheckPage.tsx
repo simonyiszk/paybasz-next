@@ -3,7 +3,7 @@ import { useNFCScanner } from '@/lib/utils.ts'
 import { BalanceCheck } from '@/page/common/BalanceCheck.tsx'
 import { Button } from '@/components/ui/button.tsx'
 
-export const BalanceCheckPage = () => {
+const BalanceCheckPage = () => {
   const [card, setCard] = useState<string>()
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -35,3 +35,5 @@ export const BalanceCheckPage = () => {
     </div>
   )
 }
+
+export default BalanceCheckPage

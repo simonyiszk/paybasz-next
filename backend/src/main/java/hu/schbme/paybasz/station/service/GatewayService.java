@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,7 @@ public class GatewayService {
 	}
 
 	@PostConstruct
-	public void init() throws IOException {
+	public void init() {
 		if (gateways.findByName(WEB_TERMINAL_NAME).isEmpty()) {
 			gateways.save(new GatewayEntity(WEB_TERMINAL_NAME, "", TYPE_WEB, 0));
 		}
@@ -76,8 +75,6 @@ public class GatewayService {
 	public boolean authorizeUploaderGateway(String name, String token) {
 		final var gateway = gateways.findByName(name);
 		if (gateway.isEmpty() || token.isEmpty() || !TYPE_UPLOADER.equals(gateway.get().getType())) {
-			log.warn("Unauthorized gateway '{}' with token '{}'", name, token);
-			logger.failure("Nem jogosult terminál: <color>" + name + "</color>");
 			return false;
 		}
 		return gateway.get().getToken().equals(token);

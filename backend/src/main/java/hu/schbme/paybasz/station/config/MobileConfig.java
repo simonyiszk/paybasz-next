@@ -15,5 +15,6 @@ public class MobileConfig {
 	private boolean showSetCardTab = true;
 	private boolean showCartTab = true;
 	private boolean showTokenTab = true;
+	private boolean showTransferTab = true;
 
 }

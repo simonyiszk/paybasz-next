@@ -3,7 +3,7 @@ import { EnterAmountAndMessageStep } from '@/page/common/EnterAmountAndMessageSt
 import { ScanCardStep } from '@/page/common/ScanCardStep.tsx'
 import { PayStep } from '@/page/pay/PayStep.tsx'
 
-export const PayPage = () => {
+const PayPage = () => {
   const [amount, setAmount] = useState<number>()
   const [message, setMessage] = useState<string>()
   const [card, setCard] = useState<string>()
@@ -32,3 +32,5 @@ export const PayPage = () => {
 
   return <div className="flex items-center flex-col gap-4">{currentStep}</div>
 }
+
+export default PayPage
