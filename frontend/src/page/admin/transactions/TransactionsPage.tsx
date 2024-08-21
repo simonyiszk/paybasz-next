@@ -12,6 +12,7 @@ import { useToast } from '@/components/ui/use-toast.ts'
 import { AppQueryKeys } from '@/lib/api/common.api.ts'
 import { Badge } from '@/components/ui/badge.tsx'
 import { AccountNameView } from '@/page/admin/common/AccountView.tsx'
+import { DataRefetchInterval } from '@/page/admin/common/constants.ts'
 
 const TransactionTileHeader = ({ transaction }: { transaction: Transaction }) => {
   const { currencySymbol } = useAppContext().config
@@ -113,7 +114,9 @@ export const TransactionsPage = () => {
   const { token } = useAppContext()
   const transactions = useQuery({
     queryKey: [AppQueryKeys.Transactions, token, page],
-    queryFn: () => findAllTransactions(token, page, 25)
+    queryFn: () => findAllTransactions(token, page, 25),
+    refetchInterval: DataRefetchInterval,
+    staleTime: DataRefetchInterval
   })
 
   return (
@@ -123,7 +126,7 @@ export const TransactionsPage = () => {
         <Button
           variant="secondary"
           onClick={() =>
-            exportToCsv('order-lines.csv', () =>
+            exportToCsv('transactions.csv', () =>
               exportTransactions(token).then((data) => {
                 if (data.result === 'Ok') return data.data
                 throw Error()

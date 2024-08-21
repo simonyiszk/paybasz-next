@@ -17,11 +17,19 @@ class OrderService(
   private val events: ApplicationEventPublisher,
   private val clock: Clock
 ) {
+
   fun findAll() = orderRepository.findAllOrderByTimestampDesc()
 
 
   fun findPaginated(page: Int, size: Int): List<Order> =
     orderRepository.findAllOrderByTimestampDescPaginated(page.toLong() * size, size)
+
+
+  fun findAllOrdersWithOrderLines() = orderRepository.findAllOrderWithOrderLinesOrderByTimestampDesc()
+
+
+  fun findAllOrdersWithOrderLinesPaginated(page: Int, size: Int): List<OrderWithOrderLine> =
+    orderRepository.findAllOrderWithOrderLinesOrderByTimestampDescPaginated(page.toLong() * size, size)
 
 
   fun checkout(card: String, dto: OrderTerminalController.CheckoutDto) {

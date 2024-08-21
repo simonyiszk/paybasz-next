@@ -94,6 +94,18 @@ export type OrderLineDto = {
   paidAmount?: number
 }
 
+export type OrderWithOrderLine = {
+  orderId: number
+  accountId: number
+  timestamp: number
+  orderLineId: number
+  itemId?: number
+  itemCount: number
+  message?: string
+  usedVoucher: boolean
+  paidAmount: number
+}
+
 export type Principal = {
   id?: number
   name: string

@@ -8,6 +8,7 @@ export const AppQueryKeys = {
   Principals: 'Principals',
   Orders: 'Orders',
   OrderLines: 'OrderLines',
+  OrderWithOrderLines: 'OrderWithOrderLines',
   Vouchers: 'Vouchers',
   Events: 'Events',
   Transactions: 'Transactions',

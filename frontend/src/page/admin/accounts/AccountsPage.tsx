@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AccountActions } from '@/page/admin/accounts/AccountActions.tsx'
 import { Check, X } from 'lucide-react'
 import { ColorMarker } from '@/components/ColorMarker.tsx'
+import { DataRefetchInterval } from '@/page/admin/common/constants.ts'
 
 const AccountsTable = ({ accounts }: { accounts?: ValidatedApiCall<Account[]> }) => {
   const { currencySymbol } = useAppContext().config
@@ -58,7 +59,11 @@ const AccountsTable = ({ accounts }: { accounts?: ValidatedApiCall<Account[]> })
 
 export const AccountsPage = () => {
   const { token } = useAppContext()
-  const accounts = useQuery({ queryKey: [AppQueryKeys.Accounts, token], queryFn: () => findAllAccounts(token) })
+  const accounts = useQuery({
+    queryKey: [AppQueryKeys.Accounts, token],
+    queryFn: () => findAllAccounts(token),
+    refetchInterval: DataRefetchInterval
+  })
 
   return (
     <div className="flex-1 h-full relative">

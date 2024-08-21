@@ -71,13 +71,14 @@ export const ImportDialog = ({ open, setOpen }: { open: boolean; setOpen: (open:
                 .text()
                 .then((csv) => importAccounts(token, csv))
                 .then((data) => {
-                  if (data.result === 'Ok') return data.data
-                  throw Error(data.error)
+                  if (data.result === 'Ok') {
+                    toast({ description: 'Felhasználók importálása sikeres' })
+                    setOpen(false)
+                    queryClient.invalidateQueries({ queryKey: [AppQueryKeys.Accounts] })
+                  } else {
+                    toast({ description: `Hiba a felhasználók importálása közben: ${data.error}` })
+                  }
                 })
-                .then(() => toast({ description: 'Felhasználók importálása sikeres' }))
-                .then(() => setOpen(false))
-                .then(() => queryClient.invalidateQueries({ queryKey: [AppQueryKeys.Accounts] }))
-                .catch((e: Error) => toast({ description: `Hiba a felhasználók importálása közben: ${e?.message}` }))
             }}
             type="button"
           >

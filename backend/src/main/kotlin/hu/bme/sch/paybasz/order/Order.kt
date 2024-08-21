@@ -26,6 +26,19 @@ data class OrderLine(
 )
 
 
+data class OrderWithOrderLine(
+  val orderId: Int,
+  val accountId: Int,
+  val timestamp: Long,
+  val orderLineId: Int,
+  val itemId: Int?,
+  val itemCount: Int,
+  val message: String?,
+  val usedVoucher: Boolean,
+  val paidAmount: Long
+)
+
+
 @Table("items")
 data class Item(
   @Id var id: Int?,

@@ -7,6 +7,7 @@ import {
   Item,
   Order,
   OrderLine,
+  OrderWithOrderLine,
   Principal,
   PrincipalDto,
   Transaction,
@@ -160,6 +161,12 @@ export const findAllOrderLines = (token: string, page?: number, size?: number) =
   httpGet<OrderLine[]>({ url: getUrl('order_lines', { page, size }), token })
 
 export const exportOrderLines = (token: string) => httpGet<string>({ url: getUrl('export/order_lines'), token, parseJson: false })
+
+export const findAllOrdersWithOrderLines = (token: string, page?: number, size?: number) =>
+  httpGet<OrderWithOrderLine[]>({ url: getUrl('orders-with-order-lines', { page, size }), token })
+
+export const exportOrdersWithOrderLines = (token: string) =>
+  httpGet<string>({ url: getUrl('export/orders-with-order-lines'), token, parseJson: false })
 
 export const findAllEvents = (token: string, page?: number, size?: number) =>
   httpGet<Event[]>({

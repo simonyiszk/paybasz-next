@@ -13,8 +13,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button.tsx'
 import { useToast } from '@/components/ui/use-toast.ts'
 import { AppQueryKeys } from '@/lib/api/common.api.ts'
-
-const AnalyticsStaleInterval = 30000
+import { DataRefetchInterval } from '@/page/admin/common/constants.ts'
 
 const OverviewSection = ({ analytics }: { analytics: UseQueryResult<ValidatedApiCall<AnalyticsDto>> }) => {
   const { currencySymbol } = useAppContext().config
@@ -110,10 +109,15 @@ export const AnalyticsPage = () => {
     {
       queryKey: [AppQueryKeys.Analytics, token],
       queryFn: () => getAnalytics(token),
-      refetchInterval: AnalyticsStaleInterval,
-      staleTime: AnalyticsStaleInterval
+      refetchInterval: DataRefetchInterval,
+      staleTime: DataRefetchInterval
     },
-    { queryKey: [AppQueryKeys.Events, token, page], queryFn: () => findAllEvents(token, page, 25) }
+    {
+      queryKey: [AppQueryKeys.Events, token, page],
+      queryFn: () => findAllEvents(token, page, 25),
+      refetchInterval: DataRefetchInterval,
+      staleTime: DataRefetchInterval
+    }
   ])
 
   return (

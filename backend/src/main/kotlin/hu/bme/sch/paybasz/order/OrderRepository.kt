@@ -15,6 +15,41 @@ interface OrderRepository : CrudRepository<Order, Int> {
   @Query("select * from orders order by timestamp desc offset :skip rows fetch next :take rows only")
   fun findAllOrderByTimestampDescPaginated(skip: Long, take: Int): List<Order>
 
+
+  @Query(
+    """select o.id  as order_id,
+              o.account_id,
+              o.timestamp,
+              ol.id as order_line_id,
+              ol.item_id,
+              ol.item_count,
+              ol.message,
+              ol.used_voucher,
+              ol.paid_amount
+       from orders o
+                inner join order_lines ol on o.id = ol.order_id
+       order by o.timestamp desc, ol.id desc"""
+  )
+  fun findAllOrderWithOrderLinesOrderByTimestampDesc(): List<OrderWithOrderLine>
+
+
+  @Query(
+    """select o.id  as order_id,
+              o.account_id,
+              o.timestamp,
+              ol.id as order_line_id,
+              ol.item_id,
+              ol.item_count,
+              ol.message,
+              ol.used_voucher,
+              ol.paid_amount
+       from orders o
+                inner join order_lines ol on o.id = ol.order_id
+       order by o.timestamp desc, ol.id asc
+       offset :skip rows fetch next :take rows only"""
+  )
+  fun findAllOrderWithOrderLinesOrderByTimestampDescPaginated(skip: Long, take: Int): List<OrderWithOrderLine>
+
 }
 
 

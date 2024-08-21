@@ -4,13 +4,12 @@ import { Link } from '@tanstack/react-router'
 import { buttonVariants } from '@/components/ui/button.props.ts'
 import { AppLayout, AppTab, AppTabTrigger } from '@/components/AppLayout.tsx'
 import { ReactNode } from 'react'
-import { ChartNoAxesCombined, ListOrdered, Logs, Receipt, ShoppingBasket, SquareUser, TicketCheck, WalletMinimal } from 'lucide-react'
+import { ChartNoAxesCombined, ListOrdered, Logs, ShoppingBasket, SquareUser, TicketCheck, WalletMinimal } from 'lucide-react'
 import { AnalyticsPage } from '@/page/admin/analytics/AnalyticsPage.tsx'
 import { PrincipalsPage } from '@/page/admin/principals/PrincipalsPage.tsx'
 import { AccountsPage } from '@/page/admin/accounts/AccountsPage.tsx'
 import { ItemsPage } from '@/page/admin/items/ItemsPage.tsx'
-import { OrdersPage } from '@/page/admin/orders/OrdersPage.tsx'
-import { OrderLinesPage } from '@/page/admin/order-lines/OrderLinesPage.tsx'
+import { OrderPage } from '@/page/admin/orders/OrderPage.tsx'
 import { VouchersPage } from '@/page/admin/vouchers/VouchersPage.tsx'
 import { TransactionsPage } from '@/page/admin/transactions/TransactionsPage.tsx'
 
@@ -21,7 +20,6 @@ const TabIcons: { [key: string]: ReactNode } = {
   principals: <SquareUser />,
   accounts: <WalletMinimal />,
   items: <ShoppingBasket />,
-  orders: <Receipt />,
   ordersLines: <ListOrdered />,
   vouchers: <TicketCheck />,
   transactions: <Logs />
@@ -59,7 +57,6 @@ const AdminRoot = () => {
           <AppTabTrigger key="principals" tab="principals" child={TabIcons['principals']} />
           <AppTabTrigger key="accounts" tab="accounts" child={TabIcons['accounts']} />
           <AppTabTrigger key="items" tab="items" child={TabIcons['items']} />
-          <AppTabTrigger key="orders" tab="orders" child={TabIcons['orders']} />
           <AppTabTrigger key="ordersLines" tab="ordersLines" child={TabIcons['ordersLines']} />
           <AppTabTrigger key="vouchers" tab="vouchers" child={TabIcons['vouchers']} />
           <AppTabTrigger key="transactions" tab="transactions" child={TabIcons['transactions']} />
@@ -71,8 +68,7 @@ const AdminRoot = () => {
           <AppTab key="principals" tab="principals" child={<PrincipalsPage />} />
           <AppTab key="accounts" tab="accounts" child={<AccountsPage />} />
           <AppTab key="items" tab="items" child={<ItemsPage />} />
-          <AppTab key="orders" tab="orders" child={<OrdersPage />} />
-          <AppTab key="ordersLines" tab="ordersLines" child={<OrderLinesPage />} />
+          <AppTab key="ordersLines" tab="ordersLines" child={<OrderPage />} />
           <AppTab key="vouchers" tab="vouchers" child={<VouchersPage />} />
           <AppTab key="transactions" tab="transactions" child={<TransactionsPage />} />
         </>

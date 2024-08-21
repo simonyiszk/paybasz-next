@@ -9,6 +9,7 @@ import { findAllItems } from '@/lib/api/admin.api.ts'
 import { ItemManagementDropdown } from '@/page/admin/items/ItemManagementDropdown.tsx'
 import { ItemActions } from '@/page/admin/items/ItemActions.tsx'
 import { ColorMarker } from '@/components/ColorMarker.tsx'
+import { DataRefetchInterval } from '@/page/admin/common/constants.ts'
 
 const ItemsTable = ({ items }: { items?: ValidatedApiCall<Item[]> }) => {
   const { currencySymbol } = useAppContext().config
@@ -57,7 +58,12 @@ const ItemsTable = ({ items }: { items?: ValidatedApiCall<Item[]> }) => {
 
 export const ItemsPage = () => {
   const { token } = useAppContext()
-  const items = useQuery({ queryKey: [AppQueryKeys.Items, token], queryFn: () => findAllItems(token) })
+  const items = useQuery({
+    queryKey: [AppQueryKeys.Items, token],
+    queryFn: () => findAllItems(token),
+    refetchInterval: DataRefetchInterval,
+    staleTime: DataRefetchInterval
+  })
 
   return (
     <div className="flex-1 h-full relative">

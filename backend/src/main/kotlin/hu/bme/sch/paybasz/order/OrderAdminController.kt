@@ -19,6 +19,7 @@ class OrderAdminController(
 ) {
   private val orderParser = parserFactory.getParserForType(Order::class)
   private val orderLineParser = parserFactory.getParserForType(OrderLine::class)
+  private val orderWithOrderLineParser = parserFactory.getParserForType(OrderWithOrderLine::class)
   private val voucherParser = parserFactory.getParserForType(VoucherDto::class)
 
 
@@ -32,10 +33,29 @@ class OrderAdminController(
 
   @GetMapping("/export/orders", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
   fun exportOrders(): ResponseEntity<String> {
-    val events = orderService.findAll()
+    val orders = orderService.findAll()
     return ResponseEntity.ok()
       .asFileAttachment("orders.csv")
-      .body(orderParser.toCsv(events))
+      .body(orderParser.toCsv(orders))
+  }
+
+
+  @GetMapping("/orders-with-order-lines")
+  fun getOrdersWithOrderLinesPaginated(
+    @RequestParam(required = false) page: Int?,
+    @RequestParam(required = false) size: Int?
+  ) = if (page == null && size == null)
+    orderService.findAllOrdersWithOrderLines()
+  else
+    orderService.findAllOrdersWithOrderLinesPaginated(page ?: DEFAULT_PAGE, size ?: DEFAULT_PAGE_SIZE)
+
+
+  @GetMapping("/export/orders-with-order-lines", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+  fun exportOrdersWithOrderLinesPaginated(): ResponseEntity<String> {
+    val ordersWithOrderLines = orderService.findAllOrdersWithOrderLines()
+    return ResponseEntity.ok()
+      .asFileAttachment("orders-with-order-lines.csv")
+      .body(orderWithOrderLineParser.toCsv(ordersWithOrderLines))
   }
 
 
@@ -115,4 +135,5 @@ class OrderAdminController(
       .asFileAttachment("vouchers-template.csv")
       .body(voucherParser.toCsv(vouchers))
   }
+
 }

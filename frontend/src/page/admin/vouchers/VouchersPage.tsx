@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { VoucherActions } from '@/page/admin/vouchers/VoucherActions.tsx'
 import { AccountNameView } from '@/page/admin/common/AccountView.tsx'
 import { ItemNameView } from '@/page/admin/common/ItemView.tsx'
+import { DataRefetchInterval } from '@/page/admin/common/constants.ts'
 
 const VouchersTable = ({ vouchers }: { vouchers?: ValidatedApiCall<Voucher[]> }) => {
   if (!vouchers) return null
@@ -50,7 +51,12 @@ const VouchersTable = ({ vouchers }: { vouchers?: ValidatedApiCall<Voucher[]> })
 
 export const VouchersPage = () => {
   const { token } = useAppContext()
-  const vouchers = useQuery({ queryKey: [AppQueryKeys.Vouchers, token], queryFn: () => findAllVouchers(token) })
+  const vouchers = useQuery({
+    queryKey: [AppQueryKeys.Vouchers, token],
+    queryFn: () => findAllVouchers(token),
+    refetchInterval: DataRefetchInterval,
+    staleTime: DataRefetchInterval
+  })
 
   return (
     <div className="flex-1 h-full relative">

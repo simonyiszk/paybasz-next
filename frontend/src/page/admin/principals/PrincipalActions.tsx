@@ -69,7 +69,7 @@ export const PrincipalActions = ({ principal }: { principal: Principal }) => {
               const action = principal.active ? disablePrincipal : enablePrincipal
               action(token, principal.id!).then((res) => {
                 if (res.result === 'Ok') {
-                  queryClient.invalidateQueries(AppQueryKeys.Items)
+                  queryClient.invalidateQueries(AppQueryKeys.Principals)
                 } else {
                   toast({ description: (principal.active ? 'Letiltás' : 'Engedélyezés') + ' sikertelen' })
                 }
