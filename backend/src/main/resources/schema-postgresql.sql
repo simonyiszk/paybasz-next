@@ -8,7 +8,7 @@ create table if not exists accounts
     balance bigint  not null check ( balance >= 0 ),
     active  boolean not null
 );
-select setval('accounts_id_seq', 100000);
+select setval('accounts_id_seq', greatest(100000, coalesce((select max(id) from accounts), 0) + 1));
 create index if not exists accounts_name_index on accounts (name);
 
 create table if not exists events
@@ -19,7 +19,7 @@ create table if not exists events
     message      text   not null,
     performed_by text   not null
 );
-select setval('events_id_seq', 100000);
+select setval('events_id_seq', greatest(100000, coalesce((select max(id) from events), 0) + 1));
 create index if not exists events_timestamp_index on events (timestamp desc);
 
 create table if not exists principals
@@ -37,7 +37,7 @@ create table if not exists principals
     created_at          bigint  not null,
     last_used           bigint  not null
 );
-select setval('principals_id_seq', 100000);
+select setval('principals_id_seq', greatest(100000, coalesce((select max(id) from principals), 0) + 1));
 create index if not exists principals_name_index on principals (name);
 
 create table if not exists items
@@ -49,7 +49,7 @@ create table if not exists items
     stock   integer not null check ( stock >= 0 ),
     enabled Boolean not null
 );
-select setval('items_id_seq', 100000);
+select setval('items_id_seq', greatest(100000, coalesce((select max(id) from items), 0) + 1));
 create index if not exists items_name_index on items (name);
 
 create table if not exists vouchers
@@ -60,7 +60,7 @@ create table if not exists vouchers
     count      integer not null check ( count >= 0 ),
     unique (account_id, item_id)
 );
-select setval('vouchers_id_seq', 100000);
+select setval('vouchers_id_seq', greatest(100000, coalesce((select max(id) from vouchers), 0) + 1));
 
 create table if not exists orders
 (
@@ -68,7 +68,7 @@ create table if not exists orders
     account_id integer not null references accounts (id) on delete cascade,
     timestamp  bigint  not null
 );
-select setval('orders_id_seq', 100000);
+select setval('orders_id_seq', greatest(100000, coalesce((select max(id) from orders), 0) + 1));
 
 create table if not exists order_lines
 (
@@ -80,7 +80,7 @@ create table if not exists order_lines
     used_voucher boolean not null,
     paid_amount  bigint  not null check ( paid_amount >= 0 )
 );
-select setval('order_lines_id_seq', 100000);
+select setval('order_lines_id_seq', greatest(100000, coalesce((select max(id) from order_lines), 0) + 1));
 
 create table if not exists transactions
 (
@@ -96,6 +96,6 @@ create table if not exists transactions
     check ( type != 'CHARGE' or recipient_id is null ),
     check ( sender_id != recipient_id )
 );
-select setval('transactions_id_seq', 100000);
+select setval('transactions_id_seq', greatest(100000, coalesce((select max(id) from transactions), 0) + 1));
 create index if not exists transactions_timestamp_index on transactions (timestamp desc);
 create index if not exists transactions_type_amount_covering_index on transactions (type) include (amount);
