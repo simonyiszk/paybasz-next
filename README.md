@@ -8,7 +8,6 @@ Have Docker installed on your machine. (https://docs.docker.com/get-docker/)
 Run the following commands in the root directory of the project:
 
 ```bash
-cd backend
 docker-compose up -d
 ```
 
