@@ -2,9 +2,10 @@ package hu.bme.sch.paybasz.order
 
 import hu.bme.sch.paybasz.account.AccountBalanceService
 import hu.bme.sch.paybasz.common.BadRequestException
+import hu.bme.sch.paybasz.principal.PermissionName
 import hu.bme.sch.paybasz.principal.getLoggedInPrincipal
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.access.annotation.Secured
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Clock
@@ -63,7 +64,7 @@ class ItemService(
     .forEach { events.publishEvent(ItemCreatedEvent(it, getLoggedInPrincipal(), clock.millis())) }
 
 
-  @PreAuthorize("hasRole(T(hu.bme.sch.paybasz.principal.Permission).SELL_ITEMS.name())")
+  @Secured(PermissionName.SELL_ITEMS)
   fun processSaleAuthorized(order: Order, line: OrderTerminalController.OrderLineDto) {
     validateOrderLine(line)
     val item = line.itemId?.let { findActiveItem(itemId = it) }

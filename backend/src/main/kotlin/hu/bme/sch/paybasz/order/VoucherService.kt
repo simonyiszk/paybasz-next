@@ -1,9 +1,10 @@
 package hu.bme.sch.paybasz.order
 
 import hu.bme.sch.paybasz.common.BadRequestException
+import hu.bme.sch.paybasz.principal.PermissionName
 import hu.bme.sch.paybasz.principal.getLoggedInPrincipal
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.access.annotation.Secured
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Clock
@@ -69,7 +70,7 @@ class VoucherService(
   }
 
 
-  @PreAuthorize("hasRole(T(hu.bme.sch.paybasz.principal.Permission).REDEEM_VOUCHERS.name())")
+  @Secured(PermissionName.REDEEM_VOUCHERS)
   fun processVoucherRedemptionAuthorized(order: Order, dto: OrderTerminalController.OrderLineDto) {
     validateOrderLine(dto)
     val voucher = voucherRepository.findByAccountAndItem(order.accountId, dto.itemId!!)

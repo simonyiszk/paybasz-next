@@ -15,6 +15,15 @@ enum class Role {
 }
 
 
+object PermissionName {
+  const val UPLOAD_FUNDS = "UPLOAD_FUNDS"
+  const val TRANSFER_FUNDS = "TRANSFER_FUNDS"
+  const val SELL_ITEMS = "SELL_ITEMS"
+  const val REDEEM_VOUCHERS = "REDEEM_VOUCHERS"
+  const val ASSIGN_CARDS = "ASSIGN_CARDS"
+}
+
+
 enum class Permission {
   UPLOAD_FUNDS,
   TRANSFER_FUNDS,

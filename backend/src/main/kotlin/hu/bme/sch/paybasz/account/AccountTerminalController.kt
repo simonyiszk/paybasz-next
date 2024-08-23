@@ -1,10 +1,11 @@
 package hu.bme.sch.paybasz.account
 
 import hu.bme.sch.paybasz.common.TERMINAL_API
+import hu.bme.sch.paybasz.principal.PermissionName
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
-import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 
 
@@ -26,7 +27,7 @@ class AccountTerminalController(
   data class BalanceAmountDto(@field:Min(0) val amount: Long)
 
   @PostMapping("/account-by-card/{card}/pay")
-  @PreAuthorize("hasRole(T(hu.bme.sch.paybasz.principal.Permission).SELL_ITEMS.name())")
+  @Secured(PermissionName.SELL_ITEMS)
   fun pay(
     @PathVariable card: String,
     @Valid @RequestBody dto: BalanceAmountDto
@@ -34,7 +35,7 @@ class AccountTerminalController(
 
 
   @PostMapping("/account-by-card/{card}/upload")
-  @PreAuthorize("hasRole(T(hu.bme.sch.paybasz.principal.Permission).UPLOAD_FUNDS.name())")
+  @Secured(PermissionName.UPLOAD_FUNDS)
   fun upload(
     @PathVariable card: String,
     @Valid @RequestBody dto: BalanceAmountDto
@@ -44,7 +45,7 @@ class AccountTerminalController(
   data class BalanceTransferDto(@field:NotBlank val recipientCard: String, @field:Min(0) val amount: Long)
 
   @PostMapping("/account-by-card/{card}/transfer")
-  @PreAuthorize("hasRole(T(hu.bme.sch.paybasz.principal.Permission).TRANSFER_FUNDS.name())")
+  @Secured(PermissionName.TRANSFER_FUNDS)
   fun transfer(
     @PathVariable card: String,
     @Valid @RequestBody dto: BalanceTransferDto
@@ -54,7 +55,7 @@ class AccountTerminalController(
   data class CardAssignDto(@field:NotBlank val card: String)
 
   @PostMapping("/accounts/{accountId}/card")
-  @PreAuthorize("hasRole(T(hu.bme.sch.paybasz.principal.Permission).ASSIGN_CARDS.name())")
+  @Secured(PermissionName.ASSIGN_CARDS)
   fun assignCard(
     @Valid @RequestBody dto: CardAssignDto,
     @PathVariable accountId: Int
