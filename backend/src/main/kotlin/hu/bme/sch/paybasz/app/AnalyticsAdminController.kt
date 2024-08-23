@@ -34,5 +34,5 @@ class AnalyticsAdminController(
     allUploads = transactionService.getAllUploads(),
     transactionVolume = transactionService.getTransactionVolume()
   )
-  
+
 }
