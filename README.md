@@ -7,7 +7,7 @@ Run the following commands in the root directory of the project:
 
 ```bash
 cd backend
-./gradlew clean bootBuildImage --imageName=kir-dev/paybasz && docker-compose up -d
+docker-compose up -d
 ```
 
 If you deploy on lois with certbot and NGINX, it's better to disable `server.ssl.enabled` in the backend `application.properties` files.
@@ -188,5 +188,3 @@ There was a live testing this summer. It took place at the TTNY summer camp.
 - More gateway debug possibilities needed
 - Named items (eg.: #117 -> "Napi menü" 650 JMF / 5dl)
 - Export to unique email per user 
-
-

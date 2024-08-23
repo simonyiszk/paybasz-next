@@ -10,7 +10,7 @@ services:
     networks:
       - network-x
   backend-x:
-    image: kir-dev/paybasz:latest
+    image: ghcr.io/simonyiszk/paybasz-next:latest
     env_file:
       - .env
     environment:
