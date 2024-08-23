@@ -1,9 +1,0 @@
-output/
-lib/
-clipboard/
-cmake/
-cmake-build-debug/
-.idea/
-src/Firmware.h
-clipboard/
-docs/notes.txt

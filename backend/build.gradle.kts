@@ -55,3 +55,10 @@ kotlin {
     freeCompilerArgs.addAll("-Xjsr305=strict")
   }
 }
+
+tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
+  environment.put(
+    "BP_NATIVE_IMAGE_BUILD_ARGUMENTS",
+    "${environment.get()["BP_NATIVE_IMAGE_BUILD_ARGUMENTS"] ?: ""} -march=compatibility"
+  )
+}

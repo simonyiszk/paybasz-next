@@ -7,7 +7,7 @@ import org.springframework.modulith.ApplicationModule
 
 
 @ApplicationModule
-@Table("transactions",)
+@Table("transactions")
 data class Transaction(
   @Id @Column() var id: Int?,
   val type: TransactionType,
