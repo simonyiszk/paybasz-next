@@ -21,7 +21,7 @@ class AccountTerminalController(
 
 
   @GetMapping("/accounts/{accountId}")
-  fun getAccount(@PathVariable accountId: Int) = accountService.findActive(accountId)
+  fun getAccount(@PathVariable accountId: Int) = accountService.find(accountId)
 
 
   data class BalanceAmountDto(@field:Min(0) val amount: Long)

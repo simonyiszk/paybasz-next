@@ -17,10 +17,6 @@ class AccountService(
   private val clock: Clock
 ) {
 
-  fun findActive(id: Int): Account =
-    accountRepository.findActiveAccountById(id) ?: throw NotFoundException("A számla nem létezik!")
-
-
   fun find(id: Int): Account = accountRepository.findById(id).orElseThrow { NotFoundException("A számla nem létezik!") }
 
 
