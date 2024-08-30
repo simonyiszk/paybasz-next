@@ -1,13 +1,12 @@
 plugins {
-  kotlin("jvm") version "1.9.24"
-  kotlin("plugin.spring") version "1.9.24"
-  id("org.springframework.boot") version "3.3.2"
+  kotlin("jvm") version "2.0.20"
+  kotlin("plugin.spring") version "2.0.20"
+  id("org.springframework.boot") version "3.3.3"
   id("io.spring.dependency-management") version "1.1.6"
-  id("org.graalvm.buildtools.native") version "0.10.2"
 }
 
 group = "hu.bme.sch"
-version = "1.0.0"
+version = "1.0.1"
 
 java {
   toolchain {
@@ -25,7 +24,7 @@ repositories {
   mavenCentral()
 }
 
-extra["springModulithVersion"] = "1.2.1"
+extra["springModulithVersion"] = "1.2.3"
 
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
@@ -57,8 +56,8 @@ kotlin {
 }
 
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
-  environment.put(
-    "BP_NATIVE_IMAGE_BUILD_ARGUMENTS",
-    "${environment.get()["BP_NATIVE_IMAGE_BUILD_ARGUMENTS"] ?: ""} -march=compatibility"
+  environment = mapOf(
+    "BP_NATIVE_IMAGE" to "false",
+    "BP_JVM_VERSION" to java.toolchain.languageVersion.get().asInt().toString()
   )
 }

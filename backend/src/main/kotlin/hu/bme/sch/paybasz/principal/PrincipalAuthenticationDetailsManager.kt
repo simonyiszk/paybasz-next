@@ -103,7 +103,7 @@ class PrincipalAuthenticationDetailsManager(
   }
 
 
-  private fun validateText(username: String?, message: String) {
+  private final fun validateText(username: String?, message: String) {
     contract {
       returns() implies (username != null)
     }
@@ -111,7 +111,7 @@ class PrincipalAuthenticationDetailsManager(
   }
 
 
-  private fun validateUser(user: UserDetails?, message: String) {
+  private final fun validateUser(user: UserDetails?, message: String) {
     contract {
       returns() implies (user != null)
     }
