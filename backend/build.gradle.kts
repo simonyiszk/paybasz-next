@@ -3,6 +3,7 @@ plugins {
   kotlin("plugin.spring") version "2.0.20"
   id("org.springframework.boot") version "3.3.3"
   id("io.spring.dependency-management") version "1.1.6"
+  id("org.sonarqube") version "4.4.1.3373"
 }
 
 group = "hu.bme.sch"
@@ -22,6 +23,14 @@ configurations {
 
 repositories {
   mavenCentral()
+}
+
+sonar {
+  properties {
+    property("sonar.projectKey", "simonyiszk_paybasz-next-backend")
+    property("sonar.organization", "simonyiszk")
+    property("sonar.host.url", "https://sonarcloud.io")
+  }
 }
 
 extra["springModulithVersion"] = "1.2.3"
