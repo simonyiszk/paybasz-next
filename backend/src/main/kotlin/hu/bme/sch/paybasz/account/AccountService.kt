@@ -37,7 +37,7 @@ class AccountService(
   }
 
 
-  fun importAccounts(accounts: List<Account>) = accountRepository.saveAll(accounts)
+  fun importAccounts(accounts: List<Account>) = accountRepository.saveAll(accounts.map { it.copy(id = null) })
     .forEach { events.publishEvent(AccountCreatedEvent(it, getLoggedInPrincipal(), clock.millis())) }
 
 

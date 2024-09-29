@@ -60,7 +60,7 @@ class ItemService(
   }
 
 
-  fun importItems(items: List<Item>): Unit = itemRepository.saveAll(items)
+  fun importItems(items: List<Item>): Unit = itemRepository.saveAll(items.map { it.copy(id = null) })
     .forEach { events.publishEvent(ItemCreatedEvent(it, getLoggedInPrincipal(), clock.millis())) }
 
 
