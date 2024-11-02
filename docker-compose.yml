@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   db-x:
-    image: postgres:16.4
+    image: postgres:17-alpine
     restart: always
     env_file:
       - .env
@@ -10,7 +10,7 @@ services:
     networks:
       - network-x
   backend-x:
-    image: ghcr.io/simonyiszk/paybasz-next:latest
+    image: ghcr.io/kir-dev/kir-pay:latest
     env_file:
       - .env
     environment:

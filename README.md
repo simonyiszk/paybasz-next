@@ -1,4 +1,4 @@
-# PayBasz
+# Kir-Pay
 
 ## How to run
 
