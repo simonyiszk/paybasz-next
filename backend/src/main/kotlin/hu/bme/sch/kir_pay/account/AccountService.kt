@@ -2,9 +2,11 @@ package hu.bme.sch.kir_pay.account
 
 import hu.bme.sch.kir_pay.common.BadRequestException
 import hu.bme.sch.kir_pay.common.NotFoundException
+import hu.bme.sch.kir_pay.common.RetryTransaction
 import hu.bme.sch.kir_pay.principal.getLoggedInPrincipal
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import java.time.Clock
 
@@ -59,6 +61,8 @@ class AccountService(
     accountRepository.findActiveAccountByCard(card) ?: throw NotFoundException("A kártyához nincs számla rendelve!")
 
 
+  @RetryTransaction
+  @Transactional(isolation = Isolation.SERIALIZABLE)
   fun assignCard(accountId: Int, card: String): Account {
     val account = accountRepository.findById(accountId).orElseThrow { BadRequestException("A számla nem található!") }
     if (account.card == card) return account

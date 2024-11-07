@@ -1,20 +1,24 @@
 package hu.bme.sch.kir_pay.account
 
 import hu.bme.sch.kir_pay.common.BadRequestException
+import hu.bme.sch.kir_pay.common.RetryTransaction
 import hu.bme.sch.kir_pay.principal.getLoggedInPrincipal
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import java.time.Clock
 
 @Service
-@Transactional
+@Transactional(isolation = Isolation.SERIALIZABLE)
 class AccountBalanceService(
   private val accountRepository: AccountRepository,
   private val events: ApplicationEventPublisher,
   private val clock: Clock
 ) {
 
+  @RetryTransaction
+  @Transactional(isolation = Isolation.SERIALIZABLE)
   fun pay(card: String, amount: Long, logEvent: Boolean): Account {
     if (amount < 0) throw BadRequestException("Helytelen argumentum!")
     val account = accountRepository.findActiveAccountByCard(card)
@@ -43,6 +47,8 @@ class AccountBalanceService(
   }
 
 
+  @RetryTransaction
+  @Transactional(isolation = Isolation.SERIALIZABLE)
   fun upload(card: String, amount: Long): Account {
     if (amount < 0) throw BadRequestException("Helytelen argumentum!")
     val account = accountRepository.findActiveAccountByCard(card)
@@ -56,6 +62,8 @@ class AccountBalanceService(
 
 
   // Returns the sender account
+  @RetryTransaction
+  @Transactional(isolation = Isolation.SERIALIZABLE)
   fun transfer(senderCard: String, recipientCard: String, amount: Long): Account {
     if (amount < 0) throw BadRequestException("Helytelen argumentum!")
 

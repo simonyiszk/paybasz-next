@@ -24,14 +24,13 @@ repositories {
   mavenCentral()
 }
 
-extra["springModulithVersion"] = "1.2.5"
-
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("org.springframework.boot:spring-boot-starter-validation")
+  implementation("org.springframework.retry:spring-retry")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -45,7 +44,7 @@ dependencies {
 
 dependencyManagement {
   imports {
-    mavenBom("org.springframework.modulith:spring-modulith-bom:${property("springModulithVersion")}")
+    mavenBom("org.springframework.modulith:spring-modulith-bom:1.2.5")
   }
 }
 

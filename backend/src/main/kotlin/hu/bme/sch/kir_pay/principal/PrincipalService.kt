@@ -67,7 +67,7 @@ class PrincipalService(
 
   fun setEnabled(id: Int, enabled: Boolean): Principal {
     val principal = find(id)
-    if (principal.role == Role.ADMIN && !enabled) throw BadRequestException("Admins nem lehet letiltani")
+    if (principal.role == Role.ADMIN && !enabled) throw BadRequestException("Admint nem lehet letiltani")
     val newPrincipal = principalRepository.save(principal.copy(active = enabled))
     events.publishEvent(PrincipalUpdatedEvent(newPrincipal, getLoggedInPrincipal(), clock.millis()))
     return newPrincipal

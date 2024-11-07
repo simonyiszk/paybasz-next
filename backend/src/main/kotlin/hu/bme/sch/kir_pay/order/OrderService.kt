@@ -1,9 +1,11 @@
 package hu.bme.sch.kir_pay.order
 
 import hu.bme.sch.kir_pay.account.AccountService
+import hu.bme.sch.kir_pay.common.RetryTransaction
 import hu.bme.sch.kir_pay.principal.getLoggedInPrincipal
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import java.time.Clock
 
@@ -32,6 +34,8 @@ class OrderService(
     orderRepository.findAllOrderWithOrderLinesOrderByTimestampDescPaginated(page.toLong() * size, size)
 
 
+  @RetryTransaction
+  @Transactional(isolation = Isolation.SERIALIZABLE)
   fun checkout(card: String, dto: OrderTerminalController.CheckoutDto) {
     val order = newOrder(card)
     events.publishEvent(OrderCreatedEvent(order.id, order.accountId, getLoggedInPrincipal(), clock.millis()))
